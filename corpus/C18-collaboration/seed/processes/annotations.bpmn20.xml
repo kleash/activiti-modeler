@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C18">
+  <process id="annotatedRequest" name="Annotated request" isExecutable="true">
+    <documentation>A process without pools whose user task has a text annotation, connected by an association. The editor keeps both in the process, which is where Activiti reads them; they change nothing at run time.</documentation>
+    <startEvent id="requestStart" name="Request received"/>
+    <sequenceFlow id="f_requestStart_check" sourceRef="requestStart" targetRef="check"/>
+    <userTask id="check" name="Check the request" activiti:assignee="ann"/>
+    <sequenceFlow id="f_check_requestEnd" sourceRef="check" targetRef="requestEnd"/>
+    <endEvent id="requestEnd" name="Checked"/>
+    <textAnnotation id="checkNote">
+      <text>Checked by the clerk on duty.</text>
+    </textAnnotation>
+    <association id="as_check_checkNote" sourceRef="check" targetRef="checkNote"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_annotations">
+    <bpmndi:BPMNPlane id="BPMNPlane_annotations" bpmnElement="annotatedRequest">
+      <bpmndi:BPMNShape id="requestStart_di" bpmnElement="requestStart">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="check_di" bpmnElement="check">
+        <dc:Bounds x="220" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="requestEnd_di" bpmnElement="requestEnd">
+        <dc:Bounds x="402" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="checkNote_di" bpmnElement="checkNote">
+        <dc:Bounds x="320" y="80" width="150" height="40"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_requestStart_check_di" bpmnElement="f_requestStart_check">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_check_requestEnd_di" bpmnElement="f_check_requestEnd">
+        <di:waypoint x="320" y="220"/>
+        <di:waypoint x="402" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="as_check_checkNote_di" bpmnElement="as_check_checkNote">
+        <di:waypoint x="300" y="180"/>
+        <di:waypoint x="360" y="120"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

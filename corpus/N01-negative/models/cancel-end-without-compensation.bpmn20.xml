@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_cancelNoComp" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="cancelNoComp" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:transaction id="booking" name="Booking">
+      <bpmn:startEvent id="txStart" name="Book" />
+      <bpmn:task id="txWork" name="Reserve" />
+      <bpmn:endEvent id="txCancel" name="Cancel"><bpmn:cancelEventDefinition id="cancel_def" /></bpmn:endEvent>
+      <bpmn:sequenceFlow id="txStart_txWork" sourceRef="txStart" targetRef="txWork" />
+      <bpmn:sequenceFlow id="txWork_txCancel" sourceRef="txWork" targetRef="txCancel" />
+    </bpmn:transaction>
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:boundaryEvent id="cancelled" name="Cancelled" attachedToRef="booking"><bpmn:cancelEventDefinition id="cb_def" /></bpmn:boundaryEvent>
+    <bpmn:endEvent id="endCancelled" name="End" />
+    <bpmn:sequenceFlow id="f_start_booking" sourceRef="start" targetRef="booking" />
+    <bpmn:sequenceFlow id="f_booking_end" sourceRef="booking" targetRef="end" />
+    <bpmn:sequenceFlow id="f_cancelled_endCancelled" sourceRef="cancelled" targetRef="endCancelled" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_cancelNoComp">
+    <bpmndi:BPMNPlane id="BPMNPlane_cancelNoComp" bpmnElement="cancelNoComp">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="150" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="booking_di" bpmnElement="booking" isExpanded="true"><dc:Bounds x="246" y="120" width="430" height="150" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="txStart_di" bpmnElement="txStart"><dc:Bounds x="266" y="177" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="txWork_di" bpmnElement="txWork"><dc:Bounds x="396" y="155" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="txCancel_di" bpmnElement="txCancel"><dc:Bounds x="526" y="177" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end"><dc:Bounds x="736" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelled_di" bpmnElement="cancelled"><dc:Bounds x="658" y="252" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endCancelled_di" bpmnElement="endCancelled"><dc:Bounds x="832" y="312" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_booking_di" bpmnElement="f_start_booking"><di:waypoint x="186" y="160" /><di:waypoint x="246" y="195" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_booking_end_di" bpmnElement="f_booking_end"><di:waypoint x="676" y="195" /><di:waypoint x="736" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_cancelled_endCancelled_di" bpmnElement="f_cancelled_endCancelled"><di:waypoint x="694" y="270" /><di:waypoint x="832" y="330" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="txStart_txWork_di" bpmnElement="txStart_txWork"><di:waypoint x="302" y="195" /><di:waypoint x="396" y="195" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="txWork_txCancel_di" bpmnElement="txWork_txCancel"><di:waypoint x="496" y="195" /><di:waypoint x="526" y="195" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

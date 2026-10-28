@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_mailTasks"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C14">
+  <process id="mailTasks" name="Mail tasks and send tasks" isExecutable="true">
+    <documentation>Mail through the corpus mail server (GreenMail, started because harness.properties say so): a plain mail with cc and bcc, an html mail with a plain alternative and a charset, a mail whose texts come from process variables (textVar and htmlVar name the variables, whose content is evaluated at send time), a mail with an attachment, and a send task (activiti:type="mail" on a sendTask). Tasks without a from field use the engine's default from address. The capture tasks copy the inboxes into variables so that the scenario can assert what was delivered.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_prepareText" sourceRef="start" targetRef="prepareText"/>
+    <serviceTask id="prepareText" name="Prepare the text template" activiti:expression="${execution.setVariable('mailText', mailTemplates.text())}"/>
+    <sequenceFlow id="f_prepareText_prepareHtml" sourceRef="prepareText" targetRef="prepareHtml"/>
+    <serviceTask id="prepareHtml" name="Prepare the html template" activiti:expression="${execution.setVariable('mailHtml', mailTemplates.html())}"/>
+    <sequenceFlow id="f_prepareHtml_sendPlain" sourceRef="prepareHtml" targetRef="sendPlain"/>
+    <serviceTask id="sendPlain" name="Send a plain mail" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${customerEmail}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string>shop@corpus.test</activiti:string>
+        </activiti:field>
+        <activiti:field name="cc">
+          <activiti:expression>${auditEmail}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="bcc">
+          <activiti:expression>${archiveEmail}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression>Order ${orderId} confirmed</activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:expression>Dear ${customerName}, thank you.</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_sendPlain_sendHtml" sourceRef="sendPlain" targetRef="sendHtml"/>
+    <serviceTask id="sendHtml" name="Send an html mail" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${customerEmail}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression>Grüße for order ${orderId}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression><![CDATA[<p>Hi <b>${customerName}</b></p>]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:expression>Hi ${customerName} (plain alternative)</activiti:expression>
+        </activiti:field>
+        <activiti:field name="charset">
+          <activiti:string>UTF-8</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_sendHtml_sendFromVariables" sourceRef="sendHtml" targetRef="sendFromVariables"/>
+    <serviceTask id="sendFromVariables" name="Send a mail from variables" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${customerEmail}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression>Template for order ${orderId}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="textVar">
+          <activiti:string>mailText</activiti:string>
+        </activiti:field>
+        <activiti:field name="htmlVar">
+          <activiti:string>mailHtml</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_sendFromVariables_sendWithAttachment" sourceRef="sendFromVariables" targetRef="sendWithAttachment"/>
+    <serviceTask id="sendWithAttachment" name="Send a mail with an attachment" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${customerEmail}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression>Report for order ${orderId}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:string>Report attached.</activiti:string>
+        </activiti:field>
+        <activiti:field name="attachments">
+          <activiti:expression>${mailAttachments.report()}</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_sendWithAttachment_notifyBySendTask" sourceRef="sendWithAttachment" targetRef="notifyBySendTask"/>
+    <sendTask id="notifyBySendTask" name="Notify with a send task" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${customerEmail}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression>Shipped ${orderId}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:expression>Your order ${orderId} has shipped.</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </sendTask>
+    <sequenceFlow id="f_notifyBySendTask_captureCustomer" sourceRef="notifyBySendTask" targetRef="captureCustomer"/>
+    <serviceTask id="captureCustomer" name="Capture the customer's inbox" activiti:expression="${mailbox.inbox(customerEmail)}" activiti:resultVariableName="customerInbox"/>
+    <sequenceFlow id="f_captureCustomer_captureAudit" sourceRef="captureCustomer" targetRef="captureAudit"/>
+    <serviceTask id="captureAudit" name="Capture the cc inbox" activiti:expression="${mailbox.inbox(auditEmail)}" activiti:resultVariableName="auditInbox"/>
+    <sequenceFlow id="f_captureAudit_captureArchive" sourceRef="captureAudit" targetRef="captureArchive"/>
+    <serviceTask id="captureArchive" name="Capture the bcc inbox" activiti:expression="${mailbox.inbox(archiveEmail)}" activiti:resultVariableName="archiveInbox"/>
+    <sequenceFlow id="f_captureArchive_end" sourceRef="captureArchive" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="mailTasks">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepareText_di" bpmnElement="prepareText">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepareHtml_di" bpmnElement="prepareHtml">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sendPlain_di" bpmnElement="sendPlain">
+        <dc:Bounds x="520" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sendHtml_di" bpmnElement="sendHtml">
+        <dc:Bounds x="670" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sendFromVariables_di" bpmnElement="sendFromVariables">
+        <dc:Bounds x="820" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sendWithAttachment_di" bpmnElement="sendWithAttachment">
+        <dc:Bounds x="970" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="notifyBySendTask_di" bpmnElement="notifyBySendTask">
+        <dc:Bounds x="1120" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="captureCustomer_di" bpmnElement="captureCustomer">
+        <dc:Bounds x="1270" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="captureAudit_di" bpmnElement="captureAudit">
+        <dc:Bounds x="1420" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="captureArchive_di" bpmnElement="captureArchive">
+        <dc:Bounds x="1570" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1752" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_prepareText_di" bpmnElement="f_start_prepareText">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_prepareText_prepareHtml_di" bpmnElement="f_prepareText_prepareHtml">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_prepareHtml_sendPlain_di" bpmnElement="f_prepareHtml_sendPlain">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="520" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sendPlain_sendHtml_di" bpmnElement="f_sendPlain_sendHtml">
+        <di:waypoint x="620" y="90"/>
+        <di:waypoint x="670" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sendHtml_sendFromVariables_di" bpmnElement="f_sendHtml_sendFromVariables">
+        <di:waypoint x="770" y="90"/>
+        <di:waypoint x="820" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sendFromVariables_sendWithAttachment_di" bpmnElement="f_sendFromVariables_sendWithAttachment">
+        <di:waypoint x="920" y="90"/>
+        <di:waypoint x="970" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sendWithAttachment_notifyBySendTask_di" bpmnElement="f_sendWithAttachment_notifyBySendTask">
+        <di:waypoint x="1070" y="90"/>
+        <di:waypoint x="1120" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_notifyBySendTask_captureCustomer_di" bpmnElement="f_notifyBySendTask_captureCustomer">
+        <di:waypoint x="1220" y="90"/>
+        <di:waypoint x="1270" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_captureCustomer_captureAudit_di" bpmnElement="f_captureCustomer_captureAudit">
+        <di:waypoint x="1370" y="90"/>
+        <di:waypoint x="1420" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_captureAudit_captureArchive_di" bpmnElement="f_captureAudit_captureArchive">
+        <di:waypoint x="1520" y="90"/>
+        <di:waypoint x="1570" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_captureArchive_end_di" bpmnElement="f_captureArchive_end">
+        <di:waypoint x="1670" y="90"/>
+        <di:waypoint x="1752" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

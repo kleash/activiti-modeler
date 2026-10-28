@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 error end event in a sub process caught by the sub process boundary event",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "items in stock: the sub process completes normally and the order ships",
+      "start": { "process": "subProcessError", "user": "ann", "variables": { "inStock": true } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["packed", "shipped"],
+        "variables": { "packed": true, "status": "shipped" },
+        "path": {
+          "contains": ["fulfilment", "pack", "ship"],
+          "notContains": ["outOfStock", "onStockError", "backorder"],
+          "sequenceFlows": ["f_stockGate_pack", "f_pack_packed", "f_fulfilment_ship", "f_ship_shipped"],
+          "notSequenceFlows": ["f_stockGate_outOfStock", "f_onStockError_backorder"]
+        }
+      }
+    },
+    {
+      "name": "out of stock: the error end event throws OUT_OF_STOCK, the boundary event cancels the sub process and the order is back ordered",
+      "start": { "process": "subProcessError", "user": "ann", "variables": { "inStock": false } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["outOfStock", "backordered"],
+        "variables": { "status": "backordered" },
+        "absentVariables": ["packed"],
+        "path": {
+          "contains": ["fulfilment", "outOfStock", "onStockError", "backorder", "backordered"],
+          "notContains": ["pack", "ship", "shipped"],
+          "order": [["outOfStock", "onStockError"], ["onStockError", "backorder"]],
+          "sequenceFlows": ["f_stockGate_outOfStock", "f_onStockError_backorder", "f_backorder_backordered"],
+          "notSequenceFlows": ["f_fulfilment_ship"]
+        }
+      }
+    }
+  ]
+}

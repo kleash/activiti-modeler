@@ -1,0 +1,46 @@
+{
+  "id": "map-all-variants-extensions",
+  "extensions": {
+    "mapAllVariants": {
+      "properties": {
+        "p1": { "id": "p1", "name": "customerId", "type": "string" },
+        "p2": { "id": "p2", "name": "amount", "type": "integer" },
+        "p3": { "id": "p3", "name": "region", "type": "string" },
+        "p4": { "id": "p4", "name": "echoSeen", "type": "integer" },
+        "p5": { "id": "p5", "name": "ignoredOutput", "type": "string" }
+      },
+      "mappings": {
+        "echoAllInputs": {
+          "mappingType": "MAP_ALL_INPUTS",
+          "inputs": { "decoy": { "type": "VALUE", "value": "never sent" } },
+          "outputs": { "echoSeen": { "type": "VARIABLE", "value": "echoCount" } }
+        },
+        "reviewAllInputs": {
+          "mappingType": "MAP_ALL_INPUTS",
+          "inputs": { "decoy": { "type": "VALUE", "value": "never sent" } }
+        },
+        "lookupAllOutputs": {
+          "mappingType": "MAP_ALL_OUTPUTS",
+          "inputs": { "customerId": { "type": "VARIABLE", "value": "customerId" } },
+          "outputs": { "ignoredOutput": { "type": "VALUE", "value": "never copied" } }
+        },
+        "reviewAllOutputs": {
+          "mappingType": "MAP_ALL_OUTPUTS",
+          "inputs": {
+            "amount": { "type": "VARIABLE", "value": "amount" },
+            "tierLabel": { "type": "VALUE", "value": "${tier}" }
+          }
+        }
+      },
+      "constants": {
+        "echoAllInputs": {
+          "limit": { "value": 1000 },
+          "region": { "value": "from-constant" }
+        },
+        "reviewAllInputs": {
+          "stage": { "value": "review" }
+        }
+      }
+    }
+  }
+}

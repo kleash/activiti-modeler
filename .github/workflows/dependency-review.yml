@@ -1,0 +1,38 @@
+name: Dependency review
+
+# GitHub's dependency review on pull requests: fails a pull request that adds or changes a dependency (pom.xml, package-lock.json, the
+# action pins) to a version with a known vulnerability, at any severity. It looks at the manifests that the pull request changes; the OSV scan
+# (osv-scan.yml) looks at the whole resolved tree, including what Maven resolves but no manifest names.
+#
+# The advisories below are the documented exceptions of osv-scanner.toml: spring-webmvc 6.2.19 in Spring Boot 3.5.16, whose fix is
+# Enterprise-only (6.2.20) or needs Spring Boot 4 (two advisories), and the OGNL copy that MyBatis 3.5.19 embeds, whose fixed MyBatis 3.6.0 the
+# engine cannot run on. Statement and justification (OpenVEX, vulnerable_code_not_in_execute_path):
+# https://github.com/kleash/activiti-modeler/blob/main/docs/security/vex.openvex.json (docs/security/vex.openvex.json), and SECURITY.md. Keep this list equal to osv-scanner.toml; remove an id here when it is removed there.
+
+on:
+  pull_request:
+
+permissions: {}
+
+concurrency:
+  group: dependency-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-review:
+    name: dependency review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write    # the summary comment, only when the check fails
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: low
+          # GHSA-pc63-qcmh-9cmg (CVE-2026-47884) and GHSA-j9f9-w8pj-32f8 (CVE-2026-47890): spring-webmvc; GHSA-crwc-vw2r-qr6m (CVE-2026-113730): OGNL
+          # inside MyBatis. See the header of this file.
+          allow-ghsas: GHSA-pc63-qcmh-9cmg, GHSA-j9f9-w8pj-32f8, GHSA-crwc-vw2r-qr6m
+          comment-summary-in-pr: on-failure

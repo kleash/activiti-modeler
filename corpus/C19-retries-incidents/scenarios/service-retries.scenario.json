@@ -1,0 +1,88 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C19 retry cycles of asynchronous service tasks and the dead-letter job",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "R2/PT10S: the job gives up after 2 attempts and lands in the dead-letter table",
+      "start": { "process": "serviceRetries", "user": "ann", "variables": { "cycle": "twice", "failing": true } },
+      "steps": [
+        { "expectActive": ["retryTwice"] },
+        { "failJobUntilDeadLetter": { "activity": "retryTwice" } }
+      ],
+      "expect": {
+        "state": "DEADLETTER",
+        "deadLetterJobs": [ { "activity": "retryTwice", "exceptionMessageContains": "partner down (attempt 2)" } ],
+        "path": { "contains": ["pick"], "notContains": ["retryTwice", "merge", "done"], "sequenceFlows": ["f_pick_retryTwice"] }
+      }
+    },
+    {
+      "name": "R5/PT1S: five attempts",
+      "start": { "process": "serviceRetries", "user": "ann", "variables": { "cycle": "five", "failing": true } },
+      "steps": [
+        { "failJobUntilDeadLetter": { "activity": "retryFive", "maxAttempts": 10 } }
+      ],
+      "expect": {
+        "state": "DEADLETTER",
+        "deadLetterJobs": [ { "activity": "retryFive", "exceptionMessageContains": "partner down (attempt 5)" } ],
+        "path": { "sequenceFlows": ["f_pick_retryFive"], "notSequenceFlows": ["f_pick_retryTwice"] }
+      }
+    },
+    {
+      "name": "R1/PT5S: a single attempt, no retry",
+      "start": { "process": "serviceRetries", "user": "ann", "variables": { "cycle": "once", "failing": true } },
+      "steps": [
+        { "failJobUntilDeadLetter": { "activity": "retryOnce", "maxAttempts": 10 } }
+      ],
+      "expect": {
+        "state": "DEADLETTER",
+        "deadLetterJobs": [ { "activity": "retryOnce", "exceptionMessageContains": "partner down (attempt 1)" } ],
+        "path": { "sequenceFlows": ["f_pick_retryOnce"] }
+      }
+    },
+    {
+      "name": "no cycle: the default of 3 retries applies",
+      "start": { "process": "serviceRetries", "user": "ann", "variables": { "cycle": "none", "failing": true } },
+      "steps": [
+        { "failJobUntilDeadLetter": { "activity": "retryDefault", "maxAttempts": 10 } }
+      ],
+      "expect": {
+        "state": "DEADLETTER",
+        "deadLetterJobs": [ { "activity": "retryDefault", "exceptionMessageContains": "partner down (attempt 3)" } ],
+        "path": { "sequenceFlows": ["f_pick_retryDefault"] }
+      }
+    },
+    {
+      "name": "a task that does not fail: its job simply succeeds and the process completes",
+      "start": { "process": "serviceRetries", "user": "ann", "variables": { "cycle": "twice", "failing": false } },
+      "steps": [
+        { "expectActive": ["retryTwice"] },
+        { "executeJobs": {} }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["done"],
+        "variables": { "countingFailureCalls": ["retryTwice:passed"] },
+        "path": { "order": [["retryTwice", "merge"], ["merge", "done"]], "sequenceFlows": ["f_retryTwice_merge", "f_merge_done"] }
+      }
+    },
+    {
+      "name": "retryFive completes when it does not fail",
+      "start": { "process": "serviceRetries", "user": "ann", "variables": { "cycle": "five", "failing": false } },
+      "steps": [ { "executeJobs": {} } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["done"], "path": { "sequenceFlows": ["f_retryFive_merge"] } }
+    },
+    {
+      "name": "retryOnce completes when it does not fail",
+      "start": { "process": "serviceRetries", "user": "ann", "variables": { "cycle": "once", "failing": false } },
+      "steps": [ { "executeJobs": {} } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["done"], "path": { "sequenceFlows": ["f_retryOnce_merge"] } }
+    },
+    {
+      "name": "retryDefault completes when it does not fail",
+      "start": { "process": "serviceRetries", "user": "ann", "variables": { "cycle": "none", "failing": false } },
+      "steps": [ { "executeJobs": {} } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["done"], "path": { "sequenceFlows": ["f_retryDefault_merge"] } }
+    }
+  ]
+}

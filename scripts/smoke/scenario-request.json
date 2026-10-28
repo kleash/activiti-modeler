@@ -1,0 +1,36 @@
+{
+  "files": [
+    {
+      "path": "processes/smoke-scenario.bpmn20.xml",
+      "content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:activiti=\"http://activiti.org/bpmn\" targetNamespace=\"http://activiti.org/test\" id=\"Definitions_smokeScenario\">\n  <process id=\"smokeScenario\" name=\"Smoke scenario\" isExecutable=\"true\">\n    <startEvent id=\"start\" />\n    <sequenceFlow id=\"f1\" sourceRef=\"start\" targetRef=\"sum\" />\n    <scriptTask id=\"sum\" name=\"Sum the prices\" scriptFormat=\"javascript\" activiti:resultVariable=\"count\">\n      <script>var total = 0;\nfor (var i = 0; i &lt; prices.size(); i++) { total += prices.get(i); }\nexecution.setVariable('total', total);\nprices.size();</script>\n    </scriptTask>\n    <sequenceFlow id=\"f2\" sourceRef=\"sum\" targetRef=\"notify\" />\n    <serviceTask id=\"notify\" name=\"Mail the total\" activiti:type=\"mail\">\n      <extensionElements>\n        <activiti:field name=\"to\"><activiti:string>smoke@modeler.test</activiti:string></activiti:field>\n        <activiti:field name=\"from\"><activiti:string>noreply@modeler.test</activiti:string></activiti:field>\n        <activiti:field name=\"subject\"><activiti:expression>Smoke total ${total}</activiti:expression></activiti:field>\n        <activiti:field name=\"text\"><activiti:expression>The total of ${count} prices is ${total}.</activiti:expression></activiti:field>\n      </extensionElements>\n    </serviceTask>\n    <sequenceFlow id=\"f3\" sourceRef=\"notify\" targetRef=\"end\" />\n    <endEvent id=\"end\" />\n  </process>\n</definitions>\n"
+    }
+  ],
+  "scenario": {
+    "name": "smoke",
+    "scenarios": [
+      {
+        "name": "a JavaScript (Nashorn) script task sums the prices, a mail task sends the total to the embedded SMTP server",
+        "start": {
+          "process": "smokeScenario",
+          "variables": {
+            "prices": [
+              10,
+              20,
+              30
+            ]
+          }
+        },
+        "expect": {
+          "state": "COMPLETED",
+          "endEvents": [
+            "end"
+          ],
+          "variables": {
+            "total": 60,
+            "count": 3
+          }
+        }
+      }
+    ]
+  }
+}

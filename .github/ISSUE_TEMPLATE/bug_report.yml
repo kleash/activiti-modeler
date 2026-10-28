@@ -1,0 +1,62 @@
+name: Bug report
+description: The modeler, the server or a library does something wrong.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A security problem is not a bug report: report it privately as SECURITY.md describes.
+  - type: input
+    id: version
+    attributes:
+      label: Modeler version
+      description: The version in the name of the file you downloaded (activiti-modeler-0.1.0-...), the Docker tag, or the commit if you built from source.
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: runs-as
+    attributes:
+      label: How do you run it?
+      options:
+        - Desktop app (Windows)
+        - Desktop app (macOS)
+        - Desktop app (Linux)
+        - Executable jar
+        - Docker image
+        - In the browser, without a server (GitHub Pages)
+        - Built from source
+        - A library in my own application
+    validations:
+      required: true
+  - type: input
+    id: activiti
+    attributes:
+      label: Activiti version
+      description: The engine the model runs on. The modeler server runs 9.0.0; for your own application give its Activiti and Spring Boot versions.
+      placeholder: 9.0.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and browser
+      placeholder: macOS 15, Chrome 141
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, step by step, what you expected, and what happened instead. Include the message or the stack trace.
+    validations:
+      required: true
+  - type: textarea
+    id: model
+    attributes:
+      label: The BPMN or DMN file
+      description: If you can share it, attach the file zipped, or the whole project from File > Export project as zip. Remove anything confidential first.
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: "The server log is in ~/ActivitiModeler/logs/ (with Docker: docker logs). Paste the part around the problem."
+      render: text

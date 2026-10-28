@@ -1,0 +1,96 @@
+{
+  "id": "lookupForms-extensions",
+  "name": "lookupForms",
+  "type": "PROCESS",
+  "extensions": {
+    "lookupForms": {
+      "properties": {
+        "Property_n": {
+          "id": "Property_n",
+          "name": "n",
+          "type": "integer",
+          "required": false
+        },
+        "Property_feeByFile": {
+          "id": "Property_feeByFile",
+          "name": "feeByFile",
+          "type": "string",
+          "required": false
+        },
+        "Property_feeByModelName": {
+          "id": "Property_feeByModelName",
+          "name": "feeByModelName",
+          "type": "string",
+          "required": false
+        },
+        "Property_feeById": {
+          "id": "Property_feeById",
+          "name": "feeById",
+          "type": "string",
+          "required": false
+        }
+      },
+      "mappings": {
+        "byFileName": {
+          "inputs": {
+            "n": {
+              "type": "variable",
+              "value": "n"
+            }
+          },
+          "outputs": {
+            "feeByFile": {
+              "type": "variable",
+              "value": "fee"
+            }
+          }
+        },
+        "byModelName": {
+          "inputs": {
+            "n": {
+              "type": "variable",
+              "value": "n"
+            }
+          },
+          "outputs": {
+            "feeByModelName": {
+              "type": "variable",
+              "value": "fee"
+            }
+          }
+        },
+        "byDecisionId": {
+          "inputs": {
+            "n": {
+              "type": "variable",
+              "value": "n"
+            }
+          },
+          "outputs": {
+            "feeById": {
+              "type": "variable",
+              "value": "fee"
+            }
+          }
+        }
+      },
+      "constants": {
+        "byFileName": {
+          "_activiti_dmn_table_": {
+            "value": "fees"
+          }
+        },
+        "byModelName": {
+          "_activiti_dmn_table_": {
+            "value": "Fee schedule"
+          }
+        },
+        "byDecisionId": {
+          "_activiti_dmn_table_": {
+            "value": "feeTable"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "$schema": "../../../schemas/coverage-exemptions.schema.json",
+  "exemptions": [
+    { "process": "bookingTransaction", "element": "onSeatCompensate", "reason": "engine records no history for compensation boundary events: they are created in AbstractBpmnActivityBehavior.leave, outside ContinueProcessOperation; the handler running proves the subscription exists (engine finding C08.1)" },
+    { "process": "bookingTransaction", "element": "onMealCompensate", "reason": "engine records no history for compensation boundary events: they are created in AbstractBpmnActivityBehavior.leave, outside ContinueProcessOperation; the handler running proves the subscription exists (engine finding C08.1)" }
+  ]
+}

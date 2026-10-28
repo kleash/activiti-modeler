@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_errorEventListener"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C13">
+  <error id="guardError" name="Guard error" errorCode="GUARD"/>
+  <process id="errorEventListener" name="Event listener that throws an error" isExecutable="true">
+    <documentation>An event listener with throwEvent="error" propagates the BPMN error GUARD from the execution of the event that fired it. Here every created task raises it, so the guarded task is replaced by the error boundary event's flow.</documentation>
+    <extensionElements>
+      <activiti:eventListener events="TASK_CREATED" entityType="task" throwEvent="error" errorCode="GUARD"/>
+    </extensionElements>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_guarded" sourceRef="start" targetRef="guarded"/>
+    <userTask id="guarded" name="Guarded task" activiti:assignee="ann"/>
+    <boundaryEvent id="onGuard" name="Guard error" attachedToRef="guarded">
+      <errorEventDefinition errorRef="guardError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onGuard_guardFailed" sourceRef="onGuard" targetRef="guardFailed"/>
+    <endEvent id="guardFailed" name="Guard failed"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="errorEventListener">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="guarded_di" bpmnElement="guarded">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="guardFailed_di" bpmnElement="guardFailed">
+        <dc:Bounds x="402" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onGuard_di" bpmnElement="onGuard">
+        <dc:Bounds x="240" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_guarded_di" bpmnElement="f_start_guarded">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onGuard_guardFailed_di" bpmnElement="f_onGuard_guardFailed">
+        <di:waypoint x="258" y="148"/>
+        <di:waypoint x="258" y="310"/>
+        <di:waypoint x="402" y="310"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

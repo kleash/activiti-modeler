@@ -1,0 +1,15 @@
+{
+  "id": "approval-extensions",
+  "extensions": {
+    "approval": {
+      "properties": { "Property_approved": { "id": "Property_approved", "name": "approved", "type": "boolean", "required": false } },
+      "mappings": {
+        "review": {
+          "inputs": { "amount": { "type": "VARIABLE", "value": "total" } },
+          "outputs": { "approved": { "type": "VARIABLE", "value": "decision" } }
+        }
+      },
+      "constants": {}
+    }
+  }
+}

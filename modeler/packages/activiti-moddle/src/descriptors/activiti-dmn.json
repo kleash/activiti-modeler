@@ -1,0 +1,14 @@
+{
+  "name": "ActivitiDmn",
+  "uri": "http://activiti.org/dmn",
+  "prefix": "activiti",
+  "xml": { "tagAlias": "lowerCase" },
+  "associations": [],
+  "types": [
+    {
+      "name": "InputClause",
+      "extends": ["dmn:InputClause"],
+      "properties": [{ "name": "inputVariable", "type": "String", "isAttr": true }]
+    }
+  ]
+}

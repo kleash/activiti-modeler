@@ -1,0 +1,14 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C17 migrated DMN: the decision table evaluated directly",
+  "decisions": [
+    { "name": "gold matches the one rule that survived the migration", "decision": "discount", "inputs": { "customer": "gold" },
+      "expect": { "result": [ { "Discount": 10 } ], "matchedRules": ["rule1"] } },
+    { "name": "another customer matches nothing", "decision": "discount", "inputs": { "customer": "silver" },
+      "expect": { "result": [], "matchedRules": [] } },
+    { "name": "string comparison is case sensitive", "decision": "discount", "inputs": { "customer": "Gold" },
+      "expect": { "result": [], "matchedRules": [] } },
+    { "name": "the file name addresses the same decision", "decision": "legacy-discount", "inputs": { "customer": "gold" },
+      "expect": { "result": [ { "Discount": 10 } ], "matchedRules": ["rule1"] } }
+  ]
+}

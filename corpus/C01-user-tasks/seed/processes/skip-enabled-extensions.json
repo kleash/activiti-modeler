@@ -1,0 +1,10 @@
+{
+  "id": "skip-enabled-extensions",
+  "extensions": {
+    "skipEnabled": {
+      "properties": {
+        "p1": { "id": "p1", "name": "_ACTIVITI_SKIP_EXPRESSION_ENABLED", "type": "boolean", "value": true }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "./*.ts",
+    "./support/*.ts",
+    "./corpus/*.ts",
+    "./server/*.ts",
+    "../../corpus/*/build.ts",
+    "../../corpus/support/*.ts",
+    "../playwright.config.ts",
+    "../playwright.corpus.config.ts",
+    "../playwright.shared.ts",
+    "../playwright.server.config.ts"
+  ]
+}

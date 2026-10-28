@@ -1,0 +1,46 @@
+{
+ "id": "ext-t17v",
+ "extensions": {
+  "t17v": {
+   "properties": {
+    "p": {
+     "id": "p",
+     "name": "n",
+     "type": "json",
+     "value": {
+      "a": 1
+     }
+    }
+   },
+   "mappings": {
+    "svc": {
+     "mappingType": "MAP_ALL"
+    }
+   },
+   "constants": {
+    "svc": {
+     "k": {
+      "value": "kv"
+     }
+    }
+   },
+   "templates": {
+    "default": {
+     "assignee": {
+      "type": "VARIABLE",
+      "value": "v"
+     }
+    },
+    "tasks": {}
+   },
+   "assignments": {
+    "u": {
+     "id": "u",
+     "assignment": "assignee",
+     "type": "static",
+     "mode": "manual"
+    }
+   }
+  }
+ }
+}

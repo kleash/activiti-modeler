@@ -1,0 +1,18 @@
+{
+  "id": "decide-extensions",
+  "extensions": {
+    "decide": {
+      "properties": {
+        "p_score": { "id": "p_score", "name": "score", "type": "integer" },
+        "p_grade": { "id": "p_grade", "name": "grade", "type": "string" }
+      },
+      "constants": { "decideGrade": { "_activiti_dmn_table_": { "value": "grade" } } },
+      "mappings": {
+        "decideGrade": {
+          "inputs": { "score": { "type": "variable", "value": "score" } },
+          "outputs": { "grade": { "type": "variable", "value": "grade" } }
+        }
+      }
+    }
+  }
+}

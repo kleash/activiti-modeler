@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C01 mappings to and from task-local variables",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "inputs become task-local variables and only mapped completion variables reach the process",
+      "start": { "process": "taskMappings", "user": "ann", "variables": { "customerId": "C-7", "amount": 1500 } },
+      "steps": [
+        { "expectTask": { "activity": "approve",
+            "localVariables": { "amount": 1500, "currency": "EUR", "who": "C-7", "label": "Loan of C-7", "limit": 1000 } } },
+        { "completeTask": { "activity": "approve", "user": "ann", "variables": { "approved": true, "comment": "ok", "scratch": "x" } } },
+        { "expectTask": { "activity": "unmapped", "localVariables": {} } },
+        { "completeTask": { "activity": "unmapped", "user": "ann", "variables": { "leak": 1 } } },
+        { "expectTask": { "activity": "passAll",
+            "localVariables": { "customerId": "C-7", "amount": 1500, "approved": true, "reviewerComment": "ok", "stamp": "reviewed", "completedBy": "ann" } } },
+        { "completeTask": { "activity": "passAll", "user": "ann", "variables": { "extra": "everything", "amount": 1600 } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "approved": true, "reviewerComment": "ok", "stamp": "reviewed", "completedBy": "ann", "amount": 1600, "extra": "everything", "customerId": "C-7", "sys_task_assignee": "ann" },
+        "absentVariables": ["scratch", "leak", "comment", "currency", "who", "label", "limit"]
+      }
+    },
+    {
+      "name": "an output mapping runs without completion variables because the engine always offers sys_task_assignee",
+      "start": { "process": "taskMappings", "user": "ann", "variables": { "customerId": "C-9", "amount": 5 } },
+      "steps": [
+        { "completeTask": { "activity": "approve", "user": "ann" } },
+        { "completeTask": { "activity": "unmapped", "user": "ann" } },
+        { "completeTask": { "activity": "passAll", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "variables": { "amount": 5, "stamp": "reviewed", "completedBy": "ann" }, "absentVariables": ["approved", "reviewerComment"] }
+    }
+  ]
+}

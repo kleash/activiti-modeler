@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C05">
+  <process id="timerStarts" name="Timer start events" isExecutable="true">
+    <documentation>One start event per timer kind: a fixed date, an ISO repeat with an end date, a cron expression with a business calendar, and a repeat whose end date has passed.</documentation>
+    <startEvent id="startDate" name="On 1 Jan 2035">
+      <timerEventDefinition>
+        <timeDate>2035-01-01T09:00:00Z</timeDate>
+      </timerEventDefinition>
+    </startEvent>
+    <startEvent id="startCycle" name="Every hour, three times">
+      <timerEventDefinition>
+        <timeCycle activiti:endDate="2099-12-31T23:59:59Z">R3/PT1H</timeCycle>
+      </timerEventDefinition>
+    </startEvent>
+    <startEvent id="startCron" name="Daily at noon">
+      <timerEventDefinition activiti:businessCalendarName="cycle">
+        <timeCycle>0 0 12 * * ?</timeCycle>
+      </timerEventDefinition>
+    </startEvent>
+    <startEvent id="startExpired" name="Repeat that has ended">
+      <timerEventDefinition>
+        <timeCycle activiti:endDate="2000-01-01T00:00:00Z">R3/PT1H</timeCycle>
+      </timerEventDefinition>
+    </startEvent>
+    <sequenceFlow id="f_startDate_work" sourceRef="startDate" targetRef="work"/>
+    <sequenceFlow id="f_startCycle_work" sourceRef="startCycle" targetRef="work"/>
+    <sequenceFlow id="f_startCron_work" sourceRef="startCron" targetRef="work"/>
+    <sequenceFlow id="f_startExpired_work" sourceRef="startExpired" targetRef="work"/>
+    <serviceTask id="work" name="Do the scheduled work" activiti:expression="${execution.setVariable('ran', true)}"/>
+    <sequenceFlow id="f_work_end" sourceRef="work" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="timerStarts">
+      <bpmndi:BPMNShape id="startDate_di" bpmnElement="startDate">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startCycle_di" bpmnElement="startCycle">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startCron_di" bpmnElement="startCron">
+        <dc:Bounds x="102" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startExpired_di" bpmnElement="startExpired">
+        <dc:Bounds x="102" y="422" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="work_di" bpmnElement="work">
+        <dc:Bounds x="370" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_startDate_work_di" bpmnElement="f_startDate_work">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="254" y="110"/>
+        <di:waypoint x="254" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_startCycle_work_di" bpmnElement="f_startCycle_work">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_startCron_work_di" bpmnElement="f_startCron_work">
+        <di:waypoint x="138" y="330"/>
+        <di:waypoint x="254" y="330"/>
+        <di:waypoint x="254" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_startExpired_work_di" bpmnElement="f_startExpired_work">
+        <di:waypoint x="138" y="440"/>
+        <di:waypoint x="254" y="440"/>
+        <di:waypoint x="254" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_work_end_di" bpmnElement="f_work_end">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="552" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

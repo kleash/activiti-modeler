@@ -1,0 +1,25 @@
+{
+  "id": "property-types-extensions",
+  "extensions": {
+    "propertyTypes": {
+      "properties": {
+        "p1": { "id": "p1", "name": "orderId", "type": "string", "required": true, "description": "Order number", "displayName": "Order ID" },
+        "p2": { "id": "p2", "name": "title", "type": "string", "value": "untitled", "description": "Title shown in lists", "displayName": "Title", "display": true, "analytics": true },
+        "p3": { "id": "p3", "name": "count", "type": "integer", "value": 7 },
+        "p4": { "id": "p4", "name": "flag", "type": "boolean", "value": true },
+        "p5": { "id": "p5", "name": "amount", "type": "bigdecimal", "value": "12.50" },
+        "p6": { "id": "p6", "name": "rate", "type": "bigdecimal", "value": 0.25 },
+        "p7": { "id": "p7", "name": "config", "type": "json", "value": { "retries": 3, "tags": ["a", "b"] } },
+        "p8": { "id": "p8", "name": "attachment", "type": "file", "value": { "id": "f-1", "name": "doc.pdf" } },
+        "p9": { "id": "p9", "name": "folderRef", "type": "folder", "value": { "id": "d-1" } },
+        "p10": { "id": "p10", "name": "content", "type": "content", "value": { "id": "c-1", "mimeType": "text/plain" } },
+        "p11": { "id": "p11", "name": "items", "type": "array", "value": ["x", "y"] },
+        "p12": { "id": "p12", "name": "due", "type": "date", "value": "2030-05-17" },
+        "p13": { "id": "p13", "name": "stamp", "type": "datetime", "value": "2030-05-17T10:15:30.000Z" },
+        "p14": { "id": "p14", "name": "label", "type": "string", "value": "${orderId}-${count}" },
+        "p15": { "id": "p15", "name": "scratch", "type": "string", "value": "temp", "display": false, "ephemeral": true },
+        "p16": { "id": "p16", "name": "noDefault", "type": "integer" }
+      }
+    }
+  }
+}

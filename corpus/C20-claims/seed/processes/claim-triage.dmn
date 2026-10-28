@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="Definitions_claimTriage" name="claim-triage" namespace="http://activiti.org/schema/1.0/dmn/Definitions_claimTriage">
+  <inputData id="InputData_claimType" name="claimType">
+    <variable id="InputData_claimType_variable" name="claimType" typeRef="string" />
+  </inputData>
+  <inputData id="InputData_claimAmount" name="claimAmount">
+    <variable id="InputData_claimAmount_variable" name="claimAmount" typeRef="number" />
+  </inputData>
+  <decision id="claimTriage" name="claimTriage">
+    <variable id="claimTriage_variable" name="claimTriage" />
+    <informationRequirement id="claimTriage_req_InputData_claimType">
+      <requiredInput href="#InputData_claimType" />
+    </informationRequirement>
+    <informationRequirement id="claimTriage_req_InputData_claimAmount">
+      <requiredInput href="#InputData_claimAmount" />
+    </informationRequirement>
+    <decisionTable id="claimTriage_table" hitPolicy="FIRST">
+      <input id="claimTriage_input1" label="Claim type">
+        <inputExpression id="claimTriage_inputExpression1" typeRef="string">
+          <text>claimType</text>
+        </inputExpression>
+      </input>
+      <input id="claimTriage_input2" label="Claim amount">
+        <inputExpression id="claimTriage_inputExpression2" typeRef="number">
+          <text>claimAmount</text>
+        </inputExpression>
+      </input>
+      <output id="claimTriage_output1" name="severity" typeRef="string" />
+      <output id="claimTriage_output2" name="reviewers" typeRef="number" />
+      <rule id="claimTriage_minor">
+        <inputEntry id="claimTriage_minor_in1"><text>-</text></inputEntry>
+        <inputEntry id="claimTriage_minor_in2"><text>&lt; 1000</text></inputEntry>
+        <outputEntry id="claimTriage_minor_out1"><text>"MINOR"</text></outputEntry>
+        <outputEntry id="claimTriage_minor_out2"><text>1</text></outputEntry>
+      </rule>
+      <rule id="claimTriage_health">
+        <inputEntry id="claimTriage_health_in1"><text>"HEALTH"</text></inputEntry>
+        <inputEntry id="claimTriage_health_in2"><text>-</text></inputEntry>
+        <outputEntry id="claimTriage_health_out1"><text>"MAJOR"</text></outputEntry>
+        <outputEntry id="claimTriage_health_out2"><text>3</text></outputEntry>
+      </rule>
+      <rule id="claimTriage_moderate">
+        <inputEntry id="claimTriage_moderate_in1"><text>-</text></inputEntry>
+        <inputEntry id="claimTriage_moderate_in2"><text>&lt; 10000</text></inputEntry>
+        <outputEntry id="claimTriage_moderate_out1"><text>"MODERATE"</text></outputEntry>
+        <outputEntry id="claimTriage_moderate_out2"><text>2</text></outputEntry>
+      </rule>
+      <rule id="claimTriage_major">
+        <inputEntry id="claimTriage_major_in1"><text>-</text></inputEntry>
+        <inputEntry id="claimTriage_major_in2"><text>-</text></inputEntry>
+        <outputEntry id="claimTriage_major_out1"><text>"MAJOR"</text></outputEntry>
+        <outputEntry id="claimTriage_major_out2"><text>3</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_claimTriage" dmnElementRef="claimTriage">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_claimType" dmnElementRef="InputData_claimType">
+        <dc:Bounds height="45" width="125" x="140" y="300" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_claimAmount" dmnElementRef="InputData_claimAmount">
+        <dc:Bounds height="45" width="125" x="300" y="300" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_claimTriage_req_InputData_claimType" dmnElementRef="claimTriage_req_InputData_claimType">
+        <di:waypoint x="202" y="300" />
+        <di:waypoint x="230" y="180" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_claimTriage_req_InputData_claimAmount" dmnElementRef="claimTriage_req_InputData_claimAmount">
+        <di:waypoint x="362" y="300" />
+        <di:waypoint x="270" y="180" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

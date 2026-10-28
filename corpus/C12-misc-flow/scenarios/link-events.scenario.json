@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C12 link events and an intermediate throw none event",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the direct path jumps from the first link throw event to the link catch event",
+      "start": { "process": "linkEvents", "user": "ann", "variables": { "direct": true } },
+      "steps": [
+        { "expectActive": ["pay"] },
+        { "completeTask": { "activity": "pay", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": {
+          "contains": ["route", "jumpDirect", "payEntry", "milestone", "pay", "end"],
+          "notContains": ["review", "jumpReview"],
+          "order": [["route", "jumpDirect"], ["jumpDirect", "payEntry"], ["payEntry", "milestone"], ["milestone", "pay"], ["pay", "end"]],
+          "sequenceFlows": ["f_start_route", "f_route_direct", "f_payEntry_milestone", "f_milestone_pay", "f_pay_end"],
+          "notSequenceFlows": ["f_route_review", "f_review_jumpReview"]
+        }
+      }
+    },
+    {
+      "name": "the reviewed path jumps from the second link throw event to the same catch event",
+      "start": { "process": "linkEvents", "user": "ann", "variables": { "direct": false } },
+      "steps": [
+        { "expectActive": ["review"] },
+        { "completeTask": { "activity": "review", "user": "ann" } },
+        { "expectActive": ["pay"] },
+        { "completeTask": { "activity": "pay", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": {
+          "contains": ["route", "review", "jumpReview", "payEntry", "milestone", "pay"],
+          "notContains": ["jumpDirect"],
+          "order": [["review", "jumpReview"], ["jumpReview", "payEntry"], ["payEntry", "milestone"]],
+          "sequenceFlows": ["f_route_review", "f_review_jumpReview", "f_payEntry_milestone"],
+          "notSequenceFlows": ["f_route_direct"]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "files": [
+    {
+      "path": "processes/smoke.bpmn20.xml",
+      "content": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:activiti=\"http://activiti.org/bpmn\" targetNamespace=\"http://activiti.org/test\" id=\"Definitions_smoke\">\n  <process id=\"smokeProcess\" name=\"Smoke process\" isExecutable=\"true\">\n    <startEvent id=\"start\" />\n    <sequenceFlow id=\"f1\" sourceRef=\"start\" targetRef=\"work\" />\n    <userTask id=\"work\" name=\"Work\" activiti:candidateGroups=\"clerks\" />\n    <sequenceFlow id=\"f2\" sourceRef=\"work\" targetRef=\"end\" />\n    <endEvent id=\"end\" />\n  </process>\n</definitions>\n"
+    }
+  ]
+}

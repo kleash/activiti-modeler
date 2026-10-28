@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kleash/activiti-modeler/schemas/model-expect.schema.json",
+  "title": "Static model expectations",
+  "description": "Element-attribute expectations that have no observable runtime effect in a single scenario run (category, candidate starters, exclusive=false, businessCalendarName, ...). Checked against the BpmnModel the engine parsed from the deployed resources and, for candidate starters, against the process definition's identity links (docs/adr/0005-scenario-format.md, docs/user-guide/scenarios.md).",
+  "type": "object",
+  "required": ["processes"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "description": { "type": "string" },
+    "processes": {
+      "description": "Key = process id (process definition key).",
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/processExpect" }
+    }
+  },
+  "$defs": {
+    "expected": {
+      "description": "Same value language as scenario files: a literal means equals; an object whose keys all start with '$' is a matcher ($exists, $type, $regex, $gt, $gte, $lt, $lte, $contains, $size, $any, $ignore). Objects compare the listed properties of the model bean only; arrays compare element by element. The pseudo property '@class' yields the simple class name of a bean."
+    },
+    "attributes": {
+      "description": "Bean property name of the Activiti BpmnModel class (e.g. category, businessCalendarName, candidateGroups, executionListeners) -> expected value. The aliases 'exclusive' (inverse of notExclusive) and 'async' (asynchronous) are also understood.",
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/expected" }
+    },
+    "processExpect": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "definition": {
+          "description": "Properties of the deployed process definition (org.activiti.engine.repository.ProcessDefinition): name, description, category (the targetNamespace of the definitions), version, suspended, ...",
+          "$ref": "#/$defs/attributes"
+        },
+        "process": {
+          "description": "Properties of the parsed org.activiti.bpmn.model.Process: name, documentation, executable, candidateStarterUsers, candidateStarterGroups, executionListeners, eventListeners, dataObjects, ...",
+          "$ref": "#/$defs/attributes"
+        },
+        "candidateStarters": {
+          "description": "Candidate starters read from the process definition's identity links (RepositoryService.getIdentityLinksForProcessDefinition). Each given list is an exact set.",
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "users": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+            "groups": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+          }
+        },
+        "extensions": {
+          "description": "What the runtime's own reader (ProcessExtensionService, org.activiti.spring.process.model.Extension) made of the process's -extensions.json: the properties by name, the input/output mappings and the constants by element id. This is what the engine will use at run time (decision task constants such as _activiti_dmn_table_, mapping types, input and output sources), not what the file says.",
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "properties": {
+              "description": "Key = property (variable) name -> expected properties of its VariableDefinition (name, type, required, value, description, displayName, display, analytics, ephemeral); the key must exist unless the value is {\"$exists\": false}.",
+              "type": "object",
+              "additionalProperties": { "$ref": "#/$defs/expected" }
+            },
+            "mappings": {
+              "description": "Key = element id -> the listed properties of its ProcessVariablesMapping (use $size to count entries): mappingType (MAP_ALL, MAP_ALL_INPUTS, MAP_ALL_OUTPUTS or null), ephemeral, inputs and outputs (target name -> { type: VARIABLE | VALUE | JSONPATCH, value }). {\"$exists\": false} asserts there is no mapping for the element.",
+              "type": "object",
+              "additionalProperties": { "$ref": "#/$defs/expected" }
+            },
+            "constants": {
+              "description": "Key = element id -> the exact constants of the element, name -> value (plain values or matchers). {\"$exists\": false} asserts there are none.",
+              "type": "object",
+              "additionalProperties": { "$ref": "#/$defs/expected" }
+            }
+          }
+        },
+        "elements": {
+          "description": "Key = element id (flow node, sequence flow or data object, searched recursively through sub processes).",
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "$ref": "#/$defs/elementExpect" }
+        }
+      },
+      "anyOf": [
+        { "required": ["definition"] },
+        { "required": ["process"] },
+        { "required": ["candidateStarters"] },
+        { "required": ["extensions"] },
+        { "required": ["elements"] }
+      ]
+    },
+    "elementExpect": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "minLength": 1, "description": "XML element name of the parsed element, e.g. userTask, serviceTask, boundaryEvent, sequenceFlow." },
+        "attributes": { "$ref": "#/$defs/attributes" }
+      },
+      "anyOf": [
+        { "required": ["type"] },
+        { "required": ["attributes"] }
+      ]
+    }
+  }
+}

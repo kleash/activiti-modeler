@@ -1,0 +1,11 @@
+{
+  "id": "interrupt-multi-instance-extensions",
+  "extensions": {
+    "interruptMultiInstance": {
+      "mappings": {
+        "review": { "mappingType": "MAP_ALL_OUTPUTS" },
+        "stopStart": { "mappingType": "MAP_ALL" }
+      }
+    }
+  }
+}

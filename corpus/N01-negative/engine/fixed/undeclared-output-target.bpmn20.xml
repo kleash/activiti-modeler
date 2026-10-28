@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- What the quick fix of models/undeclared-output-target.bpmn20.xml leads to: the extensions file declares the output target "tier" as a
+     process property. Written by hand for the engine check (no diagram). -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_undeclaredOutput" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="undeclaredOutput" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:serviceTask id="lookup" name="Look up" implementation="crm.LOOKUP" />
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_lookup" sourceRef="start" targetRef="lookup" />
+    <bpmn:sequenceFlow id="f_lookup_end" sourceRef="lookup" targetRef="end" />
+  </bpmn:process>
+</bpmn:definitions>

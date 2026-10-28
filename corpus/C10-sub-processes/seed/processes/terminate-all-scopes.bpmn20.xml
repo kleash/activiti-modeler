@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C10">
+  <process id="terminateAllScopes" name="Terminate all" isExecutable="true">
+    <documentation>A terminate end event with terminateAll ends the whole process instance, also from inside a sub process.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_fork" sourceRef="start" targetRef="fork"/>
+    <parallelGateway id="fork" name="Fork"/>
+    <sequenceFlow id="f_fork_sub" sourceRef="fork" targetRef="sub"/>
+    <sequenceFlow id="f_fork_outsideTask" sourceRef="fork" targetRef="outsideTask"/>
+    <subProcess id="sub" name="Sub process">
+      <startEvent id="subStart"/>
+      <sequenceFlow id="f_subStart_subFork" sourceRef="subStart" targetRef="subFork"/>
+      <parallelGateway id="subFork"/>
+      <sequenceFlow id="f_subFork_subTask" sourceRef="subFork" targetRef="subTask"/>
+      <sequenceFlow id="f_subFork_subSide" sourceRef="subFork" targetRef="subSide"/>
+      <userTask id="subTask" name="Sub work" activiti:candidateUsers="ann"/>
+      <sequenceFlow id="f_subTask_subGate" sourceRef="subTask" targetRef="subGate"/>
+      <exclusiveGateway id="subGate" name="Abort?" default="f_subGate_subDone"/>
+      <sequenceFlow id="f_subGate_terminate" name="abort" sourceRef="subGate" targetRef="terminateInSub">
+        <conditionExpression xsi:type="tFormalExpression">${abort == true}</conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="f_subGate_subDone" name="continue" sourceRef="subGate" targetRef="subDone"/>
+      <endEvent id="terminateInSub" name="Terminate">
+        <terminateEventDefinition activiti:terminateAll="true"/>
+      </endEvent>
+      <endEvent id="subDone" name="Done"/>
+      <userTask id="subSide" name="Side work" activiti:candidateUsers="ben"/>
+      <sequenceFlow id="f_subSide_subSideEnd" sourceRef="subSide" targetRef="subSideEnd"/>
+      <endEvent id="subSideEnd" name="Side done"/>
+    </subProcess>
+    <sequenceFlow id="f_sub_joinMain" sourceRef="sub" targetRef="joinMain"/>
+    <userTask id="outsideTask" name="Outside work" activiti:candidateUsers="cy"/>
+    <sequenceFlow id="f_outsideTask_joinMain" sourceRef="outsideTask" targetRef="joinMain"/>
+    <parallelGateway id="joinMain" name="Join"/>
+    <sequenceFlow id="f_joinMain_afterJoin" sourceRef="joinMain" targetRef="afterJoin"/>
+    <userTask id="afterJoin" name="After the join" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_afterJoin_end" sourceRef="afterJoin" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="terminateAllScopes">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fork_di" bpmnElement="fork">
+        <dc:Bounds x="245" y="305" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subStart_di" bpmnElement="subStart">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subFork_di" bpmnElement="subFork">
+        <dc:Bounds x="545" y="85" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subTask_di" bpmnElement="subTask">
+        <dc:Bounds x="670" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subGate_di" bpmnElement="subGate" isMarkerVisible="true">
+        <dc:Bounds x="845" y="85" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="terminateInSub_di" bpmnElement="terminateInSub">
+        <dc:Bounds x="1002" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subDone_di" bpmnElement="subDone">
+        <dc:Bounds x="1002" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subSide_di" bpmnElement="subSide">
+        <dc:Bounds x="670" y="290" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subSideEnd_di" bpmnElement="subSideEnd">
+        <dc:Bounds x="852" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sub_di" bpmnElement="sub" isExpanded="true">
+        <dc:Bounds x="362" y="30" width="716" height="380"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="outsideTask_di" bpmnElement="outsideTask">
+        <dc:Bounds x="520" y="510" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="joinMain_di" bpmnElement="joinMain">
+        <dc:Bounds x="1445" y="305" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="afterJoin_di" bpmnElement="afterJoin">
+        <dc:Bounds x="1570" y="290" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1752" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_fork_di" bpmnElement="f_start_fork">
+        <di:waypoint x="138" y="330"/>
+        <di:waypoint x="245" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_sub_di" bpmnElement="f_fork_sub">
+        <di:waypoint x="295" y="330"/>
+        <di:waypoint x="328" y="330"/>
+        <di:waypoint x="328" y="220"/>
+        <di:waypoint x="362" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_outsideTask_di" bpmnElement="f_fork_outsideTask">
+        <di:waypoint x="295" y="330"/>
+        <di:waypoint x="408" y="330"/>
+        <di:waypoint x="408" y="550"/>
+        <di:waypoint x="520" y="550"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_subStart_subFork_di" bpmnElement="f_subStart_subFork">
+        <di:waypoint x="438" y="110"/>
+        <di:waypoint x="545" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_subFork_subTask_di" bpmnElement="f_subFork_subTask">
+        <di:waypoint x="595" y="110"/>
+        <di:waypoint x="670" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_subFork_subSide_di" bpmnElement="f_subFork_subSide">
+        <di:waypoint x="595" y="110"/>
+        <di:waypoint x="632" y="110"/>
+        <di:waypoint x="632" y="330"/>
+        <di:waypoint x="670" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_subTask_subGate_di" bpmnElement="f_subTask_subGate">
+        <di:waypoint x="770" y="110"/>
+        <di:waypoint x="845" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_subGate_terminate_di" bpmnElement="f_subGate_terminate">
+        <di:waypoint x="895" y="110"/>
+        <di:waypoint x="1002" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_subGate_subDone_di" bpmnElement="f_subGate_subDone">
+        <di:waypoint x="895" y="110"/>
+        <di:waypoint x="948" y="110"/>
+        <di:waypoint x="948" y="220"/>
+        <di:waypoint x="1002" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_subSide_subSideEnd_di" bpmnElement="f_subSide_subSideEnd">
+        <di:waypoint x="770" y="330"/>
+        <di:waypoint x="852" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sub_joinMain_di" bpmnElement="f_sub_joinMain">
+        <di:waypoint x="1078" y="220"/>
+        <di:waypoint x="1262" y="220"/>
+        <di:waypoint x="1262" y="330"/>
+        <di:waypoint x="1445" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_outsideTask_joinMain_di" bpmnElement="f_outsideTask_joinMain">
+        <di:waypoint x="620" y="550"/>
+        <di:waypoint x="1032" y="550"/>
+        <di:waypoint x="1032" y="330"/>
+        <di:waypoint x="1445" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_joinMain_afterJoin_di" bpmnElement="f_joinMain_afterJoin">
+        <di:waypoint x="1495" y="330"/>
+        <di:waypoint x="1570" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_afterJoin_end_di" bpmnElement="f_afterJoin_end">
+        <di:waypoint x="1670" y="330"/>
+        <di:waypoint x="1752" y="330"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

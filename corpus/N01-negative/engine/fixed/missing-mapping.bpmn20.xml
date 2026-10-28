@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- What the quick fix of models/missing-mapping.bpmn20.xml leads to: the user task has a MAP_ALL mapping in the extensions file.
+     Written by hand for the engine check (no diagram). -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_missingMapping" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="missingMapping" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:userTask id="review" name="Review" activiti:candidateGroups="g" />
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_review" sourceRef="start" targetRef="review" />
+    <bpmn:sequenceFlow id="f_review_end" sourceRef="review" targetRef="end" />
+  </bpmn:process>
+</bpmn:definitions>

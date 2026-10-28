@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_orders" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.20.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
+  <bpmn:process id="orderApproval" name="Order approval" isExecutable="true" camunda:historyTimeToLive="P30D" camunda:versionTag="2.1" camunda:candidateStarterGroups="sales" camunda:isStartableInTasklist="true">
+    <bpmn:extensionElements>
+      <camunda:executionListener class="com.acme.orders.AuditListener" event="start">
+        <camunda:field name="channel">
+          <camunda:string>orders</camunda:string>
+        </camunda:field>
+      </camunda:executionListener>
+      <camunda:properties>
+        <camunda:property name="owner" value="sales-ops" />
+        <camunda:property name="slaHours" value="48" />
+      </camunda:properties>
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="orderReceived" name="Order received" camunda:initiator="starter" camunda:formKey="app:forms/new-order">
+      <bpmn:outgoing>Flow_toStock</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="checkStock" name="Check stock" camunda:asyncBefore="true" camunda:asyncAfter="true" camunda:exclusive="false" camunda:jobPriority="5" camunda:class="com.acme.orders.StockCheck">
+      <bpmn:extensionElements>
+        <camunda:failedJobRetryTimeCycle>R3/PT5M</camunda:failedJobRetryTimeCycle>
+        <camunda:field name="warehouse" stringValue="EU-1" />
+        <camunda:field name="minimum">
+          <camunda:expression>${minimumStock}</camunda:expression>
+        </camunda:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_toStock</bpmn:incoming>
+      <bpmn:outgoing>Flow_toPrice</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="priceOrder" name="Price order" camunda:expression="${pricing.price(order)}" camunda:resultVariable="price">
+      <bpmn:incoming>Flow_toPrice</bpmn:incoming>
+      <bpmn:outgoing>Flow_toReview</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="reviewOrder" name="Review order" camunda:assignee="${reviewer}" camunda:candidateGroups="managers,finance" camunda:dueDate="${dateTime().plusDays(2).toDate()}" camunda:followUpDate="${dateTime().plusDays(1).toDate()}" camunda:priority="70" camunda:formKey="app:forms/review">
+      <bpmn:extensionElements>
+        <camunda:taskListener class="com.acme.orders.TaskCreated" event="create" />
+        <camunda:taskListener expression="${notifier.assigned(task)}" event="assignment" />
+        <camunda:taskListener class="com.acme.orders.TaskUpdated" event="update" />
+        <camunda:taskListener class="com.acme.orders.TaskLate" event="timeout">
+          <camunda:timerEventDefinition id="TimerEventDefinition_late">
+            <bpmn:timeDuration>PT4H</bpmn:timeDuration>
+          </camunda:timerEventDefinition>
+        </camunda:taskListener>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="orderTotal">${price * 1.2}</camunda:inputParameter>
+          <camunda:inputParameter name="channel">web</camunda:inputParameter>
+          <camunda:inputParameter name="regions">
+            <camunda:list>
+              <camunda:value>EU</camunda:value>
+              <camunda:value>US</camunda:value>
+            </camunda:list>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="limits">
+            <camunda:map>
+              <camunda:entry key="soft">1000</camunda:entry>
+              <camunda:entry key="hard">5000</camunda:entry>
+            </camunda:map>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="rule">
+            <camunda:script scriptFormat="groovy">return order.total &gt; 1000 ? "senior" : "junior"</camunda:script>
+          </camunda:inputParameter>
+          <camunda:outputParameter name="approved">${decision}</camunda:outputParameter>
+          <camunda:outputParameter name="reviewedBy">anna</camunda:outputParameter>
+          <camunda:outputParameter name="shout">${reviewComment.toUpperCase()}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_toReview</bpmn:incoming>
+      <bpmn:outgoing>Flow_toGateway</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="isApproved" name="Approved?" default="Flow_rejected">
+      <bpmn:incoming>Flow_toGateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_approved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_rejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="collectDetails" name="Collect shipping details" camunda:candidateUsers="ann,bob">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="street" label="Street" type="string">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+              <camunda:constraint name="maxlength" config="80" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="parcels" label="Parcels" type="long" defaultValue="1">
+            <camunda:validation>
+              <camunda:constraint name="min" config="1" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="speed" label="Delivery" type="enum" defaultValue="standard">
+            <camunda:value id="standard" name="Standard" />
+            <camunda:value id="express" name="Express" />
+          </camunda:formField>
+          <camunda:formField id="giftWrap" label="Gift wrap" type="boolean" />
+          <camunda:formField id="remarks" label="Remarks" type="customText">
+            <camunda:properties>
+              <camunda:property id="rows" value="4" />
+            </camunda:properties>
+          </camunda:formField>
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_approved</bpmn:incoming>
+      <bpmn:outgoing>Flow_toNotify</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sendTask id="notifyCustomer" name="Notify customer" camunda:delegateExpression="${mailDelegate}">
+      <bpmn:incoming>Flow_toNotify</bpmn:incoming>
+      <bpmn:outgoing>Flow_toEnd</bpmn:outgoing>
+    </bpmn:sendTask>
+    <bpmn:endEvent id="orderCompleted" name="Order completed">
+      <bpmn:incoming>Flow_toEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="orderRejected" name="Order rejected">
+      <bpmn:extensionElements>
+        <camunda:executionListener expression="${audit.rejected(execution)}" event="end" />
+        <camunda:executionListener event="end">
+          <camunda:script scriptFormat="groovy">println "rejected"</camunda:script>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_rejected</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_toStock" sourceRef="orderReceived" targetRef="checkStock" />
+    <bpmn:sequenceFlow id="Flow_toPrice" sourceRef="checkStock" targetRef="priceOrder" />
+    <bpmn:sequenceFlow id="Flow_toReview" sourceRef="priceOrder" targetRef="reviewOrder" />
+    <bpmn:sequenceFlow id="Flow_toGateway" sourceRef="reviewOrder" targetRef="isApproved" />
+    <bpmn:sequenceFlow id="Flow_approved" name="yes" sourceRef="isApproved" targetRef="collectDetails">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${approved == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_rejected" name="no" sourceRef="isApproved" targetRef="orderRejected" />
+    <bpmn:sequenceFlow id="Flow_toNotify" sourceRef="collectDetails" targetRef="notifyCustomer" />
+    <bpmn:sequenceFlow id="Flow_toEnd" sourceRef="notifyCustomer" targetRef="orderCompleted" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderApproval">
+      <bpmndi:BPMNShape id="orderReceived_di" bpmnElement="orderReceived"><dc:Bounds x="152" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="checkStock_di" bpmnElement="checkStock"><dc:Bounds x="240" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="priceOrder_di" bpmnElement="priceOrder"><dc:Bounds x="390" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewOrder_di" bpmnElement="reviewOrder"><dc:Bounds x="540" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="isApproved_di" bpmnElement="isApproved" isMarkerVisible="true"><dc:Bounds x="695" y="95" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="collectDetails_di" bpmnElement="collectDetails"><dc:Bounds x="800" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="notifyCustomer_di" bpmnElement="notifyCustomer"><dc:Bounds x="950" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="orderCompleted_di" bpmnElement="orderCompleted"><dc:Bounds x="1102" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="orderRejected_di" bpmnElement="orderRejected"><dc:Bounds x="702" y="222" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_toStock_di" bpmnElement="Flow_toStock"><di:waypoint x="188" y="120" /><di:waypoint x="240" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toPrice_di" bpmnElement="Flow_toPrice"><di:waypoint x="340" y="120" /><di:waypoint x="390" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toReview_di" bpmnElement="Flow_toReview"><di:waypoint x="490" y="120" /><di:waypoint x="540" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toGateway_di" bpmnElement="Flow_toGateway"><di:waypoint x="640" y="120" /><di:waypoint x="695" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_approved_di" bpmnElement="Flow_approved"><di:waypoint x="745" y="120" /><di:waypoint x="800" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_rejected_di" bpmnElement="Flow_rejected"><di:waypoint x="720" y="145" /><di:waypoint x="720" y="222" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toNotify_di" bpmnElement="Flow_toNotify"><di:waypoint x="900" y="120" /><di:waypoint x="950" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toEnd_di" bpmnElement="Flow_toEnd"><di:waypoint x="1050" y="120" /><di:waypoint x="1102" y="120" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

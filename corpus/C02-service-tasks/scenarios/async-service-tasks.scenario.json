@@ -1,0 +1,23 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C02 asynchronous service tasks",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "each asynchronous service task runs only when its job is executed",
+      "start": { "process": "asyncServiceTasks", "user": "ann", "variables": { "customerId": "G-5" } },
+      "steps": [
+        { "expectActive": ["asyncDelegate"] },
+        { "expectConnectorCall": { "activity": "asyncConnector", "count": 0 } },
+        { "executeJobs": {} },
+        { "expectConnectorCall": { "activity": "asyncConnector", "count": 1, "inbound": { "customerId": "G-5" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "counter": 1, "customerName": "Customer G-5", "after": "yes" },
+        "path": { "order": [["asyncDelegate", "asyncConnector"], ["asyncConnector", "asyncExpression"]] }
+      }
+    }
+  ]
+}

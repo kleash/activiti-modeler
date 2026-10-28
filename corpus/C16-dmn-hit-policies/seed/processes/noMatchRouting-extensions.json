@@ -1,0 +1,64 @@
+{
+  "id": "noMatchRouting-extensions",
+  "extensions": {
+    "noMatchRouting": {
+      "properties": {
+        "Property_amount": {
+          "id": "Property_amount",
+          "name": "amount",
+          "type": "integer",
+          "required": false
+        },
+        "Property_route": {
+          "id": "Property_route",
+          "name": "route",
+          "type": "string",
+          "required": false
+        },
+        "Property_matched": {
+          "id": "Property_matched",
+          "name": "matched",
+          "type": "boolean",
+          "required": false
+        },
+        "Property_matchedRules": {
+          "id": "Property_matchedRules",
+          "name": "matchedRules",
+          "type": "array",
+          "required": false
+        }
+      },
+      "mappings": {
+        "decideRoute": {
+          "inputs": {
+            "amount": {
+              "type": "variable",
+              "value": "amount"
+            }
+          },
+          "outputs": {
+            "route": {
+              "type": "variable",
+              "value": "route"
+            },
+            "matched": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_"
+            },
+            "matchedRules": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        }
+      },
+      "constants": {
+        "decideRoute": {
+          "_activiti_dmn_table_": {
+            "value": "routeByAmount"
+          }
+        }
+      }
+    }
+  }
+}

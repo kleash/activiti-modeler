@@ -1,0 +1,263 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "DMN no-match path",
+  "users": {
+    "alice": []
+  },
+  "scenarios": [
+    {
+      "name": "standard amount is routed",
+      "start": {
+        "process": "noMatchRouting",
+        "user": "alice",
+        "variables": {
+          "amount": 500
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "routedEnd"
+        ],
+        "path": {
+          "contains": [
+            "decideRoute",
+            "isRouted",
+            "routedEnd"
+          ],
+          "notContains": [
+            "unroutedEnd"
+          ],
+          "order": [
+            [
+              "start",
+              "decideRoute"
+            ],
+            [
+              "decideRoute",
+              "isRouted"
+            ],
+            [
+              "isRouted",
+              "routedEnd"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideRoute",
+            "flow_decideRoute_isRouted",
+            "flow_isRouted_routedEnd"
+          ]
+        },
+        "variables": {
+          "route": "standard",
+          "matched": true,
+          "matchedRules": [
+            "routeByAmount_standard"
+          ]
+        },
+        "absentVariables": []
+      }
+    },
+    {
+      "name": "large amount is routed to review",
+      "start": {
+        "process": "noMatchRouting",
+        "user": "alice",
+        "variables": {
+          "amount": 5000
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "routedEnd"
+        ],
+        "path": {
+          "contains": [
+            "decideRoute",
+            "isRouted",
+            "routedEnd"
+          ],
+          "notContains": [
+            "unroutedEnd"
+          ],
+          "order": [
+            [
+              "start",
+              "decideRoute"
+            ],
+            [
+              "decideRoute",
+              "isRouted"
+            ],
+            [
+              "isRouted",
+              "routedEnd"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideRoute",
+            "flow_decideRoute_isRouted",
+            "flow_isRouted_routedEnd"
+          ]
+        },
+        "variables": {
+          "route": "review",
+          "matched": true,
+          "matchedRules": [
+            "routeByAmount_review"
+          ]
+        },
+        "absentVariables": []
+      }
+    },
+    {
+      "name": "no rule matches: route is not emitted, matched is false",
+      "start": {
+        "process": "noMatchRouting",
+        "user": "alice",
+        "variables": {
+          "amount": 20000
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "unroutedEnd"
+        ],
+        "path": {
+          "contains": [
+            "decideRoute",
+            "isRouted",
+            "unroutedEnd"
+          ],
+          "notContains": [
+            "routedEnd"
+          ],
+          "order": [
+            [
+              "start",
+              "decideRoute"
+            ],
+            [
+              "decideRoute",
+              "isRouted"
+            ],
+            [
+              "isRouted",
+              "unroutedEnd"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideRoute",
+            "flow_decideRoute_isRouted",
+            "flow_isRouted_unroutedEnd"
+          ]
+        },
+        "variables": {
+          "matched": false,
+          "matchedRules": []
+        },
+        "absentVariables": [
+          "route"
+        ]
+      }
+    },
+    {
+      "name": "no rule matches: a mapped variable keeps its previous value",
+      "start": {
+        "process": "noMatchRouting",
+        "user": "alice",
+        "variables": {
+          "amount": 0,
+          "route": "previous"
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "unroutedEnd"
+        ],
+        "path": {
+          "contains": [
+            "decideRoute",
+            "isRouted",
+            "unroutedEnd"
+          ],
+          "notContains": [
+            "routedEnd"
+          ],
+          "order": [
+            [
+              "start",
+              "decideRoute"
+            ],
+            [
+              "decideRoute",
+              "isRouted"
+            ],
+            [
+              "isRouted",
+              "unroutedEnd"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideRoute",
+            "flow_decideRoute_isRouted",
+            "flow_isRouted_unroutedEnd"
+          ]
+        },
+        "variables": {
+          "route": "previous",
+          "matched": false,
+          "matchedRules": []
+        },
+        "absentVariables": []
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "routeByAmount",
+      "inputs": {
+        "amount": 500
+      },
+      "expect": {
+        "result": [
+          {
+            "route": "standard"
+          }
+        ],
+        "matchedRules": [
+          "routeByAmount_standard"
+        ]
+      }
+    },
+    {
+      "decision": "routing",
+      "inputs": {
+        "amount": 1000
+      },
+      "expect": {
+        "result": [
+          {
+            "route": "review"
+          }
+        ],
+        "matchedRules": [
+          "routeByAmount_review"
+        ]
+      }
+    },
+    {
+      "decision": "routeByAmount",
+      "inputs": {
+        "amount": 10000
+      },
+      "expect": {
+        "result": [],
+        "matchedRules": []
+      }
+    }
+  ]
+}

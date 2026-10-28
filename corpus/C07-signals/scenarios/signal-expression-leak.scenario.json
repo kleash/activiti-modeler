@@ -1,0 +1,31 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C07 signal catch named by an expression",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "an external signal with the evaluated name passes the catch; the receive task keeps waiting",
+      "start": { "process": "signalExpressionLeak", "user": "ann", "variables": { "region": "EU" } },
+      "steps": [
+        { "expectActive": ["waitGo"] },
+        { "signal": { "name": "go-US" } },
+        { "expectActive": ["waitGo"] },
+        { "signal": { "name": "go-EU", "variables": { "by": "ann" } } },
+        { "expectActive": ["hold"] },
+        { "triggerReceiveTask": { "activity": "hold" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "variables": { "by": "ann" }, "path": { "order": [["waitGo", "hold"], ["hold", "end"]], "sequenceFlows": ["f_start_waitGo", "f_waitGo_hold", "f_hold_end"] } }
+    },
+    {
+      "name": "ENGINE BUG pinned: the catch's subscription survives, so a second signal skips the receive task",
+      "description": "IntermediateCatchSignalEventActivityBehavior deletes the subscription by comparing the event name with signalRef, which is null for signalExpression; the second broadcast triggers the execution now waiting at the receive task (engine finding 29). If this scenario starts failing on a newer Activiti, the bug was fixed: expect the receive task to keep waiting.",
+      "start": { "process": "signalExpressionLeak", "user": "ann", "variables": { "region": "EU" } },
+      "steps": [
+        { "signal": { "name": "go-EU" } },
+        { "expectActive": ["hold"] },
+        { "signal": { "name": "go-EU" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "path": { "order": [["hold", "end"]], "sequenceFlows": ["f_hold_end"] } }
+    }
+  ]
+}

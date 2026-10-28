@@ -1,0 +1,38 @@
+{
+  "name": "@activiti-modeler/bpmnlint-plugin-activiti",
+  "version": "0.1.0",
+  "private": true,
+  "description": "bpmnlint rules for Activiti 9 execution semantics, the project lint API and the activiti-lint CLI",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./editor": "./src/editor/index.ts",
+    "./testing": "./src/testing/index.ts",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "activiti-lint": "./bin/activiti-lint.mjs"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "build:cli": "node scripts/build-cli.mjs",
+    "docs:generate": "UPDATE_LINT_DOCS=1 vitest run src/docs.test.ts",
+    "lint:corpus": "node scripts/lint-corpus.mjs"
+  },
+  "dependencies": {
+    "@activiti-modeler/activiti-moddle": "0.1.0",
+    "@activiti-modeler/activiti-project": "0.1.0",
+    "@activiti-modeler/bpmn-js-activiti": "0.1.0",
+    "bpmn-js-bpmnlint": "0.25.0",
+    "bpmn-moddle": "10.3.1",
+    "bpmnlint": "12.0.0",
+    "bpmnlint-utils": "1.1.1"
+  },
+  "devDependencies": {
+    "bpmn-js": "18.31.1",
+    "diagram-js": "15.28.1"
+  }
+}

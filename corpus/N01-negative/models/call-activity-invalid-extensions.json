@@ -1,0 +1,14 @@
+{
+  "id": "callInvalid-extensions",
+  "extensions": {
+    "callInvalid": {
+      "properties": {},
+      "mappings": {
+        "call": {
+          "mappingType": "MAP_ALL"
+        }
+      },
+      "constants": {}
+    }
+  }
+}

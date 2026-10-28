@@ -1,0 +1,25 @@
+{
+  "id": "undeclaredOutput-extensions",
+  "extensions": {
+    "undeclaredOutput": {
+      "properties": {},
+      "mappings": {
+        "lookup": {
+          "inputs": {
+            "customerId": {
+              "type": "VALUE",
+              "value": "C-1"
+            }
+          },
+          "outputs": {
+            "tier": {
+              "type": "VARIABLE",
+              "value": "tier"
+            }
+          }
+        }
+      },
+      "constants": {}
+    }
+  }
+}

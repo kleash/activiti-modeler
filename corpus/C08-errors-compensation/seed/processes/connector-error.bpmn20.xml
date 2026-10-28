@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_connectorError"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C08">
+  <error id="cardDeclinedError" name="Card declined" errorCode="CARD_DECLINED"/>
+  <process id="connectorError" name="Connector throws a BPMN error" isExecutable="true">
+    <documentation>A connector (implementation bpmnerror.EXECUTE) throws a BpmnError whose code is the inbound variable errorCode (mapped from failWith). Connectors have no mapException: they throw BpmnError instead. The task has no outgoing flow because the connector never returns. The specific boundary event wins over the catch-all boundary event (no errorRef) on the same task.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_failureRequested" sourceRef="start" targetRef="failureRequested"/>
+    <exclusiveGateway id="failureRequested" name="Failure requested?" default="f_failureRequested_callBroken"/>
+    <sequenceFlow id="f_failureRequested_notRequested" name="no" sourceRef="failureRequested" targetRef="notRequested">
+      <conditionExpression xsi:type="tFormalExpression">${empty failWith}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_failureRequested_callBroken" name="yes" sourceRef="failureRequested" targetRef="callBroken"/>
+    <endEvent id="notRequested" name="Nothing requested"/>
+    <serviceTask id="callBroken" name="Call broken connector" implementation="bpmnerror.EXECUTE"/>
+    <boundaryEvent id="onCardDeclined" name="Card declined" attachedToRef="callBroken">
+      <errorEventDefinition errorRef="cardDeclinedError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onCardDeclined_declined" sourceRef="onCardDeclined" targetRef="declined"/>
+    <endEvent id="declined" name="Declined"/>
+    <boundaryEvent id="onAnyConnectorError" name="Any other error" attachedToRef="callBroken">
+      <errorEventDefinition/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onAnyConnectorError_otherFailure" sourceRef="onAnyConnectorError" targetRef="otherFailure"/>
+    <endEvent id="otherFailure" name="Other failure"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="connectorError">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="failureRequested_di" bpmnElement="failureRequested" isMarkerVisible="true">
+        <dc:Bounds x="245" y="65" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="notRequested_di" bpmnElement="notRequested">
+        <dc:Bounds x="402" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="callBroken_di" bpmnElement="callBroken">
+        <dc:Bounds x="370" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="declined_di" bpmnElement="declined">
+        <dc:Bounds x="552" y="402" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="otherFailure_di" bpmnElement="otherFailure">
+        <dc:Bounds x="702" y="402" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onCardDeclined_di" bpmnElement="onCardDeclined">
+        <dc:Bounds x="390" y="222" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onAnyConnectorError_di" bpmnElement="onAnyConnectorError">
+        <dc:Bounds x="438" y="222" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_failureRequested_di" bpmnElement="f_start_failureRequested">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="245" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_failureRequested_notRequested_di" bpmnElement="f_failureRequested_notRequested">
+        <di:waypoint x="295" y="90"/>
+        <di:waypoint x="402" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_failureRequested_callBroken_di" bpmnElement="f_failureRequested_callBroken">
+        <di:waypoint x="295" y="90"/>
+        <di:waypoint x="332" y="90"/>
+        <di:waypoint x="332" y="200"/>
+        <di:waypoint x="370" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onCardDeclined_declined_di" bpmnElement="f_onCardDeclined_declined">
+        <di:waypoint x="408" y="258"/>
+        <di:waypoint x="408" y="420"/>
+        <di:waypoint x="552" y="420"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onAnyConnectorError_otherFailure_di" bpmnElement="f_onAnyConnectorError_otherFailure">
+        <di:waypoint x="456" y="258"/>
+        <di:waypoint x="456" y="420"/>
+        <di:waypoint x="702" y="420"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C11 call activity with inheritVariables",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the child starts with a copy of every variable and its changes stay in the child",
+      "start": { "process": "callInherit", "user": "ann", "variables": { "orderId": 11, "shared": 10 } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "audit", "process": "auditChild", "state": "COMPLETED",
+                                   "startVariables": { "orderId": 11, "shared": 10 },
+                                   "variables": { "orderId": 11, "shared": 11, "seenOrder": 11 },
+                                   "path": { "contains": ["note", "bump"], "order": [["note", "bump"]] } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "orderId": 11, "shared": 10 },
+        "absentVariables": ["seenOrder"],
+        "path": { "sequenceFlows": ["f_start_audit", "f_audit_end"] }
+      }
+    }
+  ]
+}

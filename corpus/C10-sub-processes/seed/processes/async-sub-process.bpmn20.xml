@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C10">
+  <process id="asyncSubProcess" name="Asynchronous sub process" isExecutable="true">
+    <documentation>An asynchronous, non-exclusive sub process: entering it creates a job; its content runs when the job is executed.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_prepare" sourceRef="start" targetRef="prepare"/>
+    <subProcess id="prepare" name="Prepare" activiti:async="true" activiti:exclusive="false">
+      <startEvent id="prepareStart"/>
+      <sequenceFlow id="f_prepareStart_inTask" sourceRef="prepareStart" targetRef="inTask"/>
+      <userTask id="inTask" name="Inside the async sub process" activiti:candidateUsers="ann"/>
+      <sequenceFlow id="f_inTask_prepareEnd" sourceRef="inTask" targetRef="prepareEnd"/>
+      <endEvent id="prepareEnd"/>
+    </subProcess>
+    <sequenceFlow id="f_prepare_end" sourceRef="prepare" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="asyncSubProcess">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepareStart_di" bpmnElement="prepareStart">
+        <dc:Bounds x="252" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="inTask_di" bpmnElement="inTask">
+        <dc:Bounds x="370" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepareEnd_di" bpmnElement="prepareEnd">
+        <dc:Bounds x="552" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepare_di" bpmnElement="prepare" isExpanded="true">
+        <dc:Bounds x="212" y="140" width="416" height="160"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="852" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_prepare_di" bpmnElement="f_start_prepare">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="212" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_prepareStart_inTask_di" bpmnElement="f_prepareStart_inTask">
+        <di:waypoint x="288" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_inTask_prepareEnd_di" bpmnElement="f_inTask_prepareEnd">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="552" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_prepare_end_di" bpmnElement="f_prepare_end">
+        <di:waypoint x="628" y="220"/>
+        <di:waypoint x="852" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

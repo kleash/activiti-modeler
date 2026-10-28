@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C01 skipExpression of a user task",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "enabled and true: the task is created and deleted again without waiting",
+      "start": { "process": "skipEnabled", "user": "ann", "variables": { "skipReview": true } },
+      "steps": [
+        { "expectTask": { "activity": "review", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": { "contains": ["review"], "sequenceFlows": ["f_start_review", "f_review_end"] },
+        "variables": { "taskListenerCalls": ["create:review", "delete:review"], "_ACTIVITI_SKIP_EXPRESSION_ENABLED": true }
+      }
+    },
+    {
+      "name": "enabled and false: the task waits",
+      "start": { "process": "skipEnabled", "user": "ann", "variables": { "skipReview": false } },
+      "steps": [
+        { "expectTask": { "activity": "review", "count": 1, "candidateUsers": ["ann"] } },
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "variables": { "taskListenerCalls": ["create:review", "complete:review", "delete:review"] } }
+    },
+    {
+      "name": "not enabled: a true skipExpression is ignored",
+      "start": { "process": "skipDisabled", "user": "ann", "variables": { "skipReview": true } },
+      "steps": [
+        { "expectTask": { "activity": "review", "count": 1, "candidateUsers": ["ann"] } },
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "variables": { "taskListenerCalls": ["create:review", "complete:review", "delete:review"] },
+        "absentVariables": ["_ACTIVITI_SKIP_EXPRESSION_ENABLED"]
+      }
+    }
+  ]
+}

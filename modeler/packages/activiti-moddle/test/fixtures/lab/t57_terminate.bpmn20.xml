@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t57_terminate" name="t57_terminate" isExecutable="true">
+    <startEvent id="s"/><parallelGateway id="pg"/><userTask id="u"/><endEvent id="te"><terminateEventDefinition/></endEvent>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="pg"/>
+    <sequenceFlow id="f2" sourceRef="pg" targetRef="u"/>
+    <sequenceFlow id="f3" sourceRef="pg" targetRef="te"/>
+
+  </process>
+</definitions>

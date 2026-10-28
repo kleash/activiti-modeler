@@ -1,0 +1,14 @@
+{
+  "id": "waits-extensions",
+  "extensions": {
+    "payment": {
+      "properties": {
+        "p1": { "id": "p1", "name": "orderNo", "type": "string" },
+        "p2": { "id": "p2", "name": "docs", "type": "integer" }
+      },
+      "mappings": {
+        "docs": { "outputs": { "docs": { "type": "VARIABLE", "value": "docs" } } }
+      }
+    }
+  }
+}

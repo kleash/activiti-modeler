@@ -1,0 +1,86 @@
+{
+  "$schema": "../../../../../../schemas/scenario.schema.json",
+  "name": "loan approval",
+  "users": { "alice": ["clerks", "reviewers"], "bob": ["managers"], "carol": ["reviewers"] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "small amount is approved automatically",
+      "start": { "process": "loan", "businessKey": "L-0", "user": "alice", "variables": { "customerId": "C-1", "amount": 500 } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "lookup", "connector": "crm.LOOKUP", "count": 1,
+            "inbound": { "customerId": "C-1", "source": "scenario-test" },
+            "outbound": { "name": "Customer C-1", "risk": "normal" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["autoApproved"],
+        "path": {
+          "contains": ["start", "lookup", "risk", "autoApproved"],
+          "notContains": ["review", "approvedEnd", "rejectedEnd"],
+          "order": [["start", "lookup"], ["lookup", "risk"], ["risk", "autoApproved"]],
+          "sequenceFlows": ["f_start_lookup", "f_lookup_risk", "f_risk_auto"],
+          "notSequenceFlows": ["f_risk_review"]
+        },
+        "variables": { "customerName": "Customer C-1", "riskLevel": "normal", "amount": { "$lt": 1000 }, "customerId": { "$regex": "^C-" } },
+        "absentVariables": ["approved"]
+      }
+    },
+    {
+      "name": "large amount is reviewed and approved",
+      "start": { "process": "loan", "businessKey": "L-1", "user": "alice", "variables": { "customerId": "C-7", "amount": 5000 } },
+      "steps": [
+        { "expectActive": ["review"] },
+        { "expectTask": { "activity": "review", "name": "Review C-7", "description": "Review the loan of C-7",
+            "assignee": null, "owner": null, "candidateUsers": [], "candidateGroups": ["reviewers"],
+            "priority": 80, "category": "credit", "formKey": "reviewForm", "dueDate": "2030-01-02T09:00:00Z",
+            "localVariables": { "amount": 5000 }, "visibleTo": ["alice", "carol"], "notVisibleTo": ["bob"] } },
+        { "claim": { "activity": "review", "user": "alice" } },
+        { "expectTask": { "activity": "review", "assignee": "alice", "visibleTo": ["alice"], "notVisibleTo": ["carol", "bob"] } },
+        { "release": { "activity": "review", "user": "alice" } },
+        { "expectTask": { "activity": "review", "assignee": null } },
+        { "completeTask": { "activity": "review", "user": "carol", "variables": { "approved": true } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["approvedEnd"],
+        "path": {
+          "contains": ["lookup", "review", "decision", "approvedEnd"],
+          "notContains": ["autoApproved", "rejectedEnd"],
+          "order": [["lookup", "review"], ["review", "decision"]],
+          "sequenceFlows": ["f_risk_review", "f_review_decision", "f_decision_approved"]
+        },
+        "variables": { "approved": true, "customerName": "Customer C-7", "amount": 5000, "riskLevel": { "$any": ["normal", "low"] } }
+      }
+    },
+    {
+      "name": "large amount is reviewed and rejected",
+      "start": { "process": "loan", "user": "alice", "variables": { "customerId": "VIP-1", "amount": 1000 } },
+      "steps": [
+        { "completeTask": { "activity": "review", "user": "alice", "variables": { "approved": false } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["rejectedEnd"],
+        "path": { "sequenceFlows": ["f_decision_rejected"], "notSequenceFlows": ["f_decision_approved"] },
+        "variables": { "riskLevel": "low", "approved": false }
+      }
+    },
+    {
+      "name": "only clerks may start a loan",
+      "start": { "process": "loan", "user": "bob", "variables": { "customerId": "C-1", "amount": 1 },
+                 "expectFailure": { "messageContains": "Unable to find process definition" } }
+    },
+    {
+      "name": "a user outside the candidate groups cannot complete the review",
+      "start": { "process": "loan", "user": "alice", "variables": { "customerId": "C-1", "amount": 5000 } },
+      "steps": [
+        { "completeTask": { "activity": "review", "user": "bob", "variables": { "approved": true },
+            "expectFailure": { "exception": "NotFoundException", "messageContains": "Unable to find task for the given id" } } },
+        { "expectTask": { "activity": "review", "assignee": null } },
+        { "completeTask": { "activity": "review", "user": "alice", "variables": { "approved": true } } }
+      ],
+      "expect": { "state": "COMPLETED" }
+    }
+  ]
+}

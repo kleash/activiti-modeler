@@ -1,0 +1,75 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C01 claim, release and assign a task",
+  "description": "Moving a task between people goes through TaskRuntime (claim, release, assign). Every change of the assignee runs the assignment listeners, including the release, which assigns null. assign accepts only a candidate USER (not the member of a candidate group), and a claimed task is visible to its assignee alone.",
+  "users": { "ann": ["reviewers"], "bob": ["reviewers", "clerks"], "carl": [] },
+  "scenarios": [
+    {
+      "name": "claim, release and claim by another group member: assignee, visibility and the assignment listener calls follow",
+      "start": { "process": "taskListeners", "user": "ann", "variables": { "customerId": "C-7" } },
+      "steps": [
+        { "completeTask": { "activity": "listened", "user": "ann" } },
+        { "expectTask": { "activity": "claimed", "count": 1, "assignee": null, "candidateGroups": ["reviewers"], "visibleTo": ["ann", "bob"], "notVisibleTo": ["carl"] } },
+        { "claim": { "activity": "claimed", "user": "ann" } },
+        { "expectTask": { "activity": "claimed", "assignee": "ann", "visibleTo": ["ann"], "notVisibleTo": ["bob", "carl"] } },
+        { "release": { "activity": "claimed", "user": "ann" } },
+        { "expectTask": { "activity": "claimed", "assignee": null, "candidateGroups": ["reviewers"], "visibleTo": ["ann", "bob"], "notVisibleTo": ["carl"] } },
+        { "claim": { "activity": "claimed", "user": "bob" } },
+        { "expectTask": { "activity": "claimed", "assignee": "bob", "visibleTo": ["bob"], "notVisibleTo": ["ann", "carl"] } },
+        { "completeTask": { "activity": "claimed", "user": "bob" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "taskListenerCalls": [
+            "assignment:listened:ann", "create:listened", "complete:listened", "delete:listened",
+            "create:claimed",
+            "assignment:claimed:ann", "assignment:claimed:null", "assignment:claimed:bob",
+            "complete:claimed", "delete:claimed"
+          ]
+        },
+        "path": { "order": [["listened", "claimed"], ["claimed", "end"]], "sequenceFlows": ["f_start_listened", "f_listened_claimed", "f_claimed_end"] }
+      }
+    },
+    {
+      "name": "setVariables writes a process variable of the running instance while a claimed task waits",
+      "start": { "process": "taskListeners", "user": "ann", "variables": { "customerId": "C-8" } },
+      "steps": [
+        { "completeTask": { "activity": "listened", "user": "ann" } },
+        { "claim": { "activity": "claimed", "user": "ann" } },
+        { "setVariables": { "note": "claimed by ann", "customerId": "C-9" } },
+        { "expectTask": { "activity": "claimed", "assignee": "ann" } }
+      ],
+      "expect": {
+        "state": "ACTIVE",
+        "variables": { "note": "claimed by ann", "customerId": "C-9", "completedBy": "ann" },
+        "path": { "contains": ["listened", "claimed"], "notContains": ["end"] }
+      }
+    },
+    {
+      "name": "assign hands a claimed task to another candidate user, who can release it again",
+      "start": { "process": "assignmentForms", "user": "ann", "variables": { "reviewer": "bob" } },
+      "steps": [
+        { "completeTask": { "activity": "byAssignee", "user": "ann" } },
+        { "completeTask": { "activity": "byExpression", "user": "bob" } },
+        { "expectTask": { "activity": "byCandidates", "count": 1, "assignee": null, "candidateUsers": ["ann", "bob"], "candidateGroups": ["reviewers", "clerks"] } },
+        { "claim": { "activity": "byCandidates", "user": "ann" } },
+        { "expectTask": { "activity": "byCandidates", "assignee": "ann", "visibleTo": ["ann"], "notVisibleTo": ["bob"] } },
+        { "assign": { "activity": "byCandidates", "assignee": "bob", "user": "ann" } },
+        { "expectTask": { "activity": "byCandidates", "assignee": "bob", "visibleTo": ["bob"], "notVisibleTo": ["ann"] } },
+        { "release": { "activity": "byCandidates", "user": "bob" } },
+        { "expectTask": { "activity": "byCandidates", "assignee": null, "visibleTo": ["ann", "bob"] } }
+      ],
+      "expect": {
+        "state": "ACTIVE",
+        "variables": { "reviewer": "bob" },
+        "path": {
+          "order": [["byAssignee", "byExpression"], ["byExpression", "byCandidates"]],
+          "sequenceFlows": ["f_start_byAssignee", "f_byAssignee_byExpression", "f_byExpression_byCandidates"],
+          "notContains": ["byCandidateExpressions"]
+        }
+      }
+    }
+  ]
+}

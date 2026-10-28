@@ -1,0 +1,92 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "scriptError": {
+      "definition": { "name": "Script task throws a BPMN error", "category": "http://activiti.org/bpmn/corpus/C08" },
+      "elements": {
+        "checkAmount": { "type": "scriptTask", "attributes": { "scriptFormat": "javascript" } },
+        "onInvalidAmount": { "type": "boundaryEvent", "attributes": { "attachedToRefId": "checkAmount", "cancelActivity": false, "eventDefinitions": [ { "@class": "ErrorEventDefinition", "errorRef": "invalidAmountError" } ] } }
+      }
+    },
+    "connectorError": {
+      "elements": {
+        "callBroken": { "type": "serviceTask", "attributes": { "implementation": "bpmnerror.EXECUTE", "mapExceptions": [] } },
+        "onCardDeclined": { "type": "boundaryEvent", "attributes": { "eventDefinitions": [ { "@class": "ErrorEventDefinition", "errorRef": "cardDeclinedError" } ] } },
+        "onAnyConnectorError": { "type": "boundaryEvent", "attributes": { "eventDefinitions": [ { "@class": "ErrorEventDefinition", "errorRef": null } ] } }
+      }
+    },
+    "subProcessError": {
+      "elements": {
+        "outOfStock": { "type": "endEvent", "attributes": { "eventDefinitions": [ { "@class": "ErrorEventDefinition", "errorRef": "stockError" } ] } },
+        "onStockError": { "type": "boundaryEvent", "attributes": { "attachedToRefId": "fulfilment" } }
+      }
+    },
+    "errorEventSubProcess": {
+      "elements": {
+        "onValidationError": { "type": "subProcess", "attributes": { "@class": "EventSubProcess" } },
+        "validationErrorStart": { "type": "startEvent", "attributes": { "interrupting": true, "eventDefinitions": [ { "@class": "ErrorEventDefinition", "errorRef": "validationError" } ] } },
+        "anyErrorStart": { "type": "startEvent", "attributes": { "interrupting": true, "eventDefinitions": [ { "@class": "ErrorEventDefinition", "errorRef": null } ] } }
+      }
+    },
+    "mapExceptionClass": {
+      "elements": {
+        "callPartner": { "type": "serviceTask", "attributes": {
+          "implementation": "io.github.kleash.activiti.harness.support.FailureDelegate",
+          "mapExceptions": [
+            { "errorCode": "ILLEGAL_STATE", "className": "java.lang.IllegalStateException", "andChildren": false },
+            { "errorCode": "BAD_ARGUMENT", "className": "java.lang.IllegalArgumentException", "andChildren": true },
+            { "errorCode": "UNEXPECTED", "className": "", "andChildren": false }
+          ] } }
+      }
+    },
+    "mapExceptionUnmatched": {
+      "elements": {
+        "strictCall": { "type": "serviceTask", "attributes": { "mapExceptions": [ { "errorCode": "STRICT_ILLEGAL_STATE", "className": "java.lang.IllegalStateException", "andChildren": false } ] } }
+      }
+    },
+    "mapExceptionDelegateExpression": {
+      "elements": {
+        "callBean": { "type": "serviceTask", "attributes": {
+          "implementation": "${failureDelegate}",
+          "implementationType": "delegateExpression",
+          "mapExceptions": [ { "errorCode": "BEAN_ILLEGAL_STATE", "className": "java.lang.IllegalStateException", "andChildren": false } ] } }
+      }
+    },
+    "mapExceptionCallActivity": {
+      "elements": {
+        "callChild": { "type": "callActivity", "attributes": {
+          "calledElement": "riskyChild",
+          "inParameters": [ { "source": "errorCode", "target": "errorCode" }, { "source": "exceptionClass", "target": "exceptionClass" }, { "source": "endWithError", "target": "endWithError" } ],
+          "mapExceptions": [ { "errorCode": "CHILD_FAILED", "className": "java.lang.RuntimeException", "andChildren": true } ] } }
+      }
+    },
+    "riskyChild": {
+      "elements": {
+        "risky": { "type": "serviceTask", "attributes": { "mapExceptions": [] } },
+        "childErrorEnd": { "type": "endEvent", "attributes": { "eventDefinitions": [ { "@class": "ErrorEventDefinition", "errorRef": "childErrorEndError" } ] } }
+      }
+    },
+    "compensationFlow": {
+      "elements": {
+        "cancelFlight": { "type": "serviceTask", "attributes": { "forCompensation": true } },
+        "cancelHotel": { "type": "serviceTask", "attributes": { "forCompensation": true } },
+        "reserveFlight": { "type": "userTask", "attributes": { "forCompensation": false } },
+        "onFlightCompensate": { "type": "boundaryEvent", "attributes": { "attachedToRefId": "reserveFlight", "eventDefinitions": [ { "@class": "CompensateEventDefinition", "activityRef": null } ] } },
+        "rollback": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [ { "@class": "CompensateEventDefinition", "activityRef": null, "waitForCompletion": true } ] } }
+      }
+    },
+    "compensationTargets": {
+      "elements": {
+        "throwAll": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [ { "@class": "CompensateEventDefinition", "activityRef": null, "waitForCompletion": false } ] } },
+        "throwHandler": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [ { "@class": "CompensateEventDefinition", "activityRef": "cancelFlight" } ] } },
+        "throwTask": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [ { "@class": "CompensateEventDefinition", "activityRef": "bookFlight" } ] } }
+      }
+    },
+    "compensationScopes": {
+      "elements": {
+        "restockItems": { "type": "serviceTask", "attributes": { "forCompensation": true } },
+        "cancelOrder": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [ { "@class": "CompensateEventDefinition", "activityRef": "packing" } ] } }
+      }
+    }
+  }
+}

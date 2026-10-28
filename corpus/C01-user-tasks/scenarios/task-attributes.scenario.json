@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C01 task attributes under a fixed clock",
+  "users": { "ann": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "literal and expression attributes, due dates as durations and as dates",
+      "start": { "process": "taskAttributes", "user": "ann",
+                 "variables": { "customerId": "C-7", "urgency": 90, "area": "risk", "formName": "riskForm", "deadline": "2031-06-30T17:00:00Z" } },
+      "steps": [
+        { "expectTask": { "activity": "literal", "name": "Literal attributes", "description": "Please review the loan.",
+            "priority": 80, "category": "credit", "formKey": "reviewForm", "dueDate": "2030-01-03T09:00:00Z" } },
+        { "completeTask": { "activity": "literal", "user": "ann" } },
+        { "expectTask": { "activity": "expressions", "name": "Review C-7", "description": "Review the loan of C-7.",
+            "priority": 90, "category": "risk", "formKey": "riskForm", "dueDate": "2031-06-30T17:00:00Z" } },
+        { "completeTask": { "activity": "expressions", "user": "ann" } },
+        { "expectTask": { "activity": "durationCalendar", "dueDate": "2030-01-01T13:00:00Z" } },
+        { "completeTask": { "activity": "durationCalendar", "user": "ann" } },
+        { "expectTask": { "activity": "dueDateCalendar", "dueDate": "2030-02-01T12:30:00Z" } },
+        { "completeTask": { "activity": "dueDateCalendar", "user": "ann" } },
+        { "expectTask": { "activity": "plain", "priority": 0, "category": null, "formKey": null, "dueDate": null, "description": null } },
+        { "completeTask": { "activity": "plain", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"] }
+    },
+    {
+      "name": "durations are relative to the engine clock at the time the task is created",
+      "clock": "2031-03-10T08:00:00Z",
+      "start": { "process": "taskAttributes", "user": "ann",
+                 "variables": { "customerId": "C-8", "urgency": 10, "area": "ops", "formName": "opsForm", "deadline": "2031-04-01T00:00:00Z" } },
+      "steps": [
+        { "expectTask": { "activity": "literal", "dueDate": "2031-03-12T08:00:00Z" } },
+        { "advanceClock": "PT6H" },
+        { "completeTask": { "activity": "literal", "user": "ann" } },
+        { "completeTask": { "activity": "expressions", "user": "ann" } },
+        { "expectTask": { "activity": "durationCalendar", "dueDate": "2031-03-10T18:00:00Z" } }
+      ],
+      "expect": { "state": "ACTIVE", "path": { "contains": ["durationCalendar"], "notContains": ["dueDateCalendar"] } }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_echoChild"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C11">
+  <process id="echoChild" name="Echo (called)" isExecutable="true">
+    <documentation>Called by callMappings through a MAP_ALL mapping: sets childRan and keeps everything it was given.</documentation>
+    <startEvent id="cStart"/>
+    <sequenceFlow id="f_cStart_mark" sourceRef="cStart" targetRef="mark"/>
+    <serviceTask id="mark" name="Mark" activiti:expression="${execution.setVariable('childRan', true)}"/>
+    <sequenceFlow id="f_mark_cEnd" sourceRef="mark" targetRef="cEnd"/>
+    <endEvent id="cEnd"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="echoChild">
+      <bpmndi:BPMNShape id="cStart_di" bpmnElement="cStart">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="mark_di" bpmnElement="mark">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cEnd_di" bpmnElement="cEnd">
+        <dc:Bounds x="402" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_cStart_mark_di" bpmnElement="f_cStart_mark">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_mark_cEnd_di" bpmnElement="f_mark_cEnd">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="402" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C21">
+  <process id="extensionIds" name="Extension ids" isExecutable="true">
+    <documentation>activiti:extensionId on a user task and on a connector service task, the two activities the engine (and the modeler) know it on. It has no run-time effect: extensions (mappings) are looked up by the element id, never by the extension id. The script task and the manual task are ordinary tasks that follow.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_review" sourceRef="start" targetRef="review"/>
+    <userTask id="review" name="Review" activiti:assignee="ann" activiti:extensionId="ext-review"/>
+    <sequenceFlow id="f_review_lookup" sourceRef="review" targetRef="lookup"/>
+    <serviceTask id="lookup" name="Look up the customer" implementation="crm.LOOKUP" activiti:extensionId="ext-lookup"/>
+    <sequenceFlow id="f_lookup_tally" sourceRef="lookup" targetRef="tally"/>
+    <scriptTask id="tally" name="Tally" activiti:resultVariable="tallied">
+      <script>${amount * 2}</script>
+    </scriptTask>
+    <sequenceFlow id="f_tally_confirm" sourceRef="tally" targetRef="confirm"/>
+    <manualTask id="confirm" name="Confirm"/>
+    <sequenceFlow id="f_confirm_end" sourceRef="confirm" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="extensionIds">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="lookup_di" bpmnElement="lookup">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tally_di" bpmnElement="tally">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="confirm_di" bpmnElement="confirm">
+        <dc:Bounds x="670" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="852" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_review_di" bpmnElement="f_start_review">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_review_lookup_di" bpmnElement="f_review_lookup">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_lookup_tally_di" bpmnElement="f_lookup_tally">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_tally_confirm_di" bpmnElement="f_tally_confirm">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="670" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_confirm_end_di" bpmnElement="f_confirm_end">
+        <di:waypoint x="770" y="110"/>
+        <di:waypoint x="852" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,11 @@
+{
+  "name": "async job and timer in MANUAL mode",
+  "scenarios": [
+    {
+      "name": "executeJobs runs the async task, fireTimer releases the timer",
+      "start": { "process": "asyncDemo" },
+      "steps": [ { "expectActive": ["work"] }, { "executeJobs": {} }, { "expectActive": ["nap"] }, { "fireTimer": { "activity": "nap" } } ],
+      "expect": { "state": "COMPLETED", "variables": { "runs": 1 } }
+    }
+  ]
+}

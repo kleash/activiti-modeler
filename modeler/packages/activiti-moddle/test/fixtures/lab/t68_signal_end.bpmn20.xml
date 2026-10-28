@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+<signal id="sig" name="theSignal"/>
+  <process id="t68_signal_end" name="t68_signal_end" isExecutable="true">
+    <startEvent id="s"/><parallelGateway id="pg"/>
+    <endEvent id="se"><signalEventDefinition signalRef="sig"/></endEvent>
+    <intermediateCatchEvent id="c"><signalEventDefinition signalRef="sig"/></intermediateCatchEvent><userTask id="u"/><endEvent id="e"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="pg"/>
+    <sequenceFlow id="f2" sourceRef="pg" targetRef="se"/>
+    <sequenceFlow id="f3" sourceRef="pg" targetRef="c"/>
+    <sequenceFlow id="f4" sourceRef="c" targetRef="u"/>
+    <sequenceFlow id="f5" sourceRef="u" targetRef="e"/>
+
+  </process>
+</definitions>

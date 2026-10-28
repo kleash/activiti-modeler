@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_bookingTransaction"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C09">
+  <process id="bookingTransaction" name="Booking transaction" isExecutable="true">
+    <documentation>A transaction sub process with compensable work. When the payment fails, the cancel end event cancels the transaction: the completed compensable activities are compensated (handlers in reverse order of completion) and the process leaves through the cancel boundary event instead of the normal flow. A cancel end event can only do this when at least one compensable activity of the transaction has completed; without one the engine fails with "No execution found for sub process of boundary cancel event" and the completion is rolled back.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_booking" sourceRef="start" targetRef="booking"/>
+    <transaction id="booking" name="Book and pay">
+      <startEvent id="tStart"/>
+      <sequenceFlow id="f_tStart_reserveGate" sourceRef="tStart" targetRef="reserveGate"/>
+      <exclusiveGateway id="reserveGate" name="Reserve first?" default="f_reserveGate_pay"/>
+      <sequenceFlow id="f_reserveGate_reserveSeat" name="yes" sourceRef="reserveGate" targetRef="reserveSeat">
+        <conditionExpression xsi:type="tFormalExpression">${reserve == true}</conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="f_reserveGate_pay" name="no" sourceRef="reserveGate" targetRef="pay"/>
+      <userTask id="reserveSeat" name="Reserve seat" activiti:assignee="ann"/>
+      <boundaryEvent id="onSeatCompensate" name="Compensate seat" attachedToRef="reserveSeat">
+        <compensateEventDefinition/>
+      </boundaryEvent>
+      <sequenceFlow id="f_reserveSeat_reserveMeal" sourceRef="reserveSeat" targetRef="reserveMeal"/>
+      <userTask id="reserveMeal" name="Reserve meal" activiti:assignee="ann"/>
+      <boundaryEvent id="onMealCompensate" name="Compensate meal" attachedToRef="reserveMeal">
+        <compensateEventDefinition/>
+      </boundaryEvent>
+      <sequenceFlow id="f_reserveMeal_pay" sourceRef="reserveMeal" targetRef="pay"/>
+      <userTask id="pay" name="Take payment" activiti:assignee="ann"/>
+      <sequenceFlow id="f_pay_paymentCheck" sourceRef="pay" targetRef="paymentCheck"/>
+      <exclusiveGateway id="paymentCheck" name="Paid?" default="f_paymentCheck_cancelEnd"/>
+      <sequenceFlow id="f_paymentCheck_tEnd" name="yes" sourceRef="paymentCheck" targetRef="tEnd">
+        <conditionExpression xsi:type="tFormalExpression">${paid == true}</conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="f_paymentCheck_cancelEnd" name="no" sourceRef="paymentCheck" targetRef="cancelEnd"/>
+      <endEvent id="tEnd" name="Paid"/>
+      <endEvent id="cancelEnd" name="Cancel the transaction">
+        <cancelEventDefinition/>
+      </endEvent>
+      <serviceTask id="releaseSeat" name="Release seat" isForCompensation="true" activiti:delegateExpression="${recordingDelegate}"/>
+      <serviceTask id="releaseMeal" name="Release meal" isForCompensation="true" activiti:delegateExpression="${recordingDelegate}"/>
+      <association id="a_onSeatCompensate_releaseSeat" associationDirection="One" sourceRef="onSeatCompensate" targetRef="releaseSeat"/>
+      <association id="a_onMealCompensate_releaseMeal" associationDirection="One" sourceRef="onMealCompensate" targetRef="releaseMeal"/>
+    </transaction>
+    <sequenceFlow id="f_booking_confirmed" sourceRef="booking" targetRef="confirmed"/>
+    <endEvent id="confirmed" name="Confirmed"/>
+    <boundaryEvent id="onCancel" name="Cancelled" attachedToRef="booking">
+      <cancelEventDefinition/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onCancel_refund" sourceRef="onCancel" targetRef="refund"/>
+    <serviceTask id="refund" name="Refund" activiti:expression="${execution.setVariable('status', 'refunded')}"/>
+    <sequenceFlow id="f_refund_cancelled" sourceRef="refund" targetRef="cancelled"/>
+    <endEvent id="cancelled" name="Cancelled"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="bookingTransaction">
+      <bpmndi:BPMNShape id="booking_di" bpmnElement="booking" isExpanded="true">
+        <dc:Bounds x="362" y="10" width="1016" height="490"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tStart_di" bpmnElement="tStart">
+        <dc:Bounds x="402" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reserveGate_di" bpmnElement="reserveGate" isMarkerVisible="true">
+        <dc:Bounds x="545" y="175" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reserveSeat_di" bpmnElement="reserveSeat">
+        <dc:Bounds x="670" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reserveMeal_di" bpmnElement="reserveMeal">
+        <dc:Bounds x="820" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pay_di" bpmnElement="pay">
+        <dc:Bounds x="970" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="paymentCheck_di" bpmnElement="paymentCheck" isMarkerVisible="true">
+        <dc:Bounds x="1145" y="175" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tEnd_di" bpmnElement="tEnd">
+        <dc:Bounds x="1302" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelEnd_di" bpmnElement="cancelEnd">
+        <dc:Bounds x="1302" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="releaseSeat_di" bpmnElement="releaseSeat">
+        <dc:Bounds x="670" y="380" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="releaseMeal_di" bpmnElement="releaseMeal">
+        <dc:Bounds x="820" y="380" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="confirmed_di" bpmnElement="confirmed">
+        <dc:Bounds x="1602" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="refund_di" bpmnElement="refund">
+        <dc:Bounds x="1570" y="600" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelled_di" bpmnElement="cancelled">
+        <dc:Bounds x="1752" y="622" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onSeatCompensate_di" bpmnElement="onSeatCompensate">
+        <dc:Bounds x="690" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onMealCompensate_di" bpmnElement="onMealCompensate">
+        <dc:Bounds x="840" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onCancel_di" bpmnElement="onCancel">
+        <dc:Bounds x="382" y="482" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_booking_di" bpmnElement="f_start_booking">
+        <di:waypoint x="138" y="200"/>
+        <di:waypoint x="250" y="200"/>
+        <di:waypoint x="250" y="255"/>
+        <di:waypoint x="362" y="255"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_tStart_reserveGate_di" bpmnElement="f_tStart_reserveGate">
+        <di:waypoint x="438" y="200"/>
+        <di:waypoint x="545" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reserveGate_reserveSeat_di" bpmnElement="f_reserveGate_reserveSeat">
+        <di:waypoint x="595" y="200"/>
+        <di:waypoint x="632" y="200"/>
+        <di:waypoint x="632" y="90"/>
+        <di:waypoint x="670" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reserveGate_pay_di" bpmnElement="f_reserveGate_pay">
+        <di:waypoint x="595" y="200"/>
+        <di:waypoint x="970" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reserveSeat_reserveMeal_di" bpmnElement="f_reserveSeat_reserveMeal">
+        <di:waypoint x="770" y="90"/>
+        <di:waypoint x="820" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reserveMeal_pay_di" bpmnElement="f_reserveMeal_pay">
+        <di:waypoint x="920" y="90"/>
+        <di:waypoint x="945" y="90"/>
+        <di:waypoint x="945" y="200"/>
+        <di:waypoint x="970" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_pay_paymentCheck_di" bpmnElement="f_pay_paymentCheck">
+        <di:waypoint x="1070" y="200"/>
+        <di:waypoint x="1145" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_paymentCheck_tEnd_di" bpmnElement="f_paymentCheck_tEnd">
+        <di:waypoint x="1195" y="200"/>
+        <di:waypoint x="1248" y="200"/>
+        <di:waypoint x="1248" y="90"/>
+        <di:waypoint x="1302" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_paymentCheck_cancelEnd_di" bpmnElement="f_paymentCheck_cancelEnd">
+        <di:waypoint x="1195" y="200"/>
+        <di:waypoint x="1248" y="200"/>
+        <di:waypoint x="1248" y="310"/>
+        <di:waypoint x="1302" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_booking_confirmed_di" bpmnElement="f_booking_confirmed">
+        <di:waypoint x="1378" y="255"/>
+        <di:waypoint x="1490" y="255"/>
+        <di:waypoint x="1490" y="200"/>
+        <di:waypoint x="1602" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onCancel_refund_di" bpmnElement="f_onCancel_refund">
+        <di:waypoint x="400" y="518"/>
+        <di:waypoint x="400" y="640"/>
+        <di:waypoint x="1570" y="640"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_refund_cancelled_di" bpmnElement="f_refund_cancelled">
+        <di:waypoint x="1670" y="640"/>
+        <di:waypoint x="1752" y="640"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="a_onSeatCompensate_releaseSeat_di" bpmnElement="a_onSeatCompensate_releaseSeat">
+        <di:waypoint x="708" y="148"/>
+        <di:waypoint x="708" y="420"/>
+        <di:waypoint x="670" y="420"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="a_onMealCompensate_releaseMeal_di" bpmnElement="a_onMealCompensate_releaseMeal">
+        <di:waypoint x="858" y="148"/>
+        <di:waypoint x="858" y="420"/>
+        <di:waypoint x="820" y="420"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,45 @@
+{
+  "id": "loan-origination-extensions",
+  "extensions": {
+    "loanOrigination": {
+      "properties": {
+        "p1": { "id": "p1", "name": "applicationId", "type": "string" },
+        "p2": { "id": "p2", "name": "customerId", "type": "string" },
+        "p3": { "id": "p3", "name": "amount", "type": "integer" },
+        "p4": { "id": "p4", "name": "creditScore", "type": "integer" },
+        "p5": { "id": "p5", "name": "kycStatus", "type": "string" },
+        "p6": { "id": "p6", "name": "riskClass", "type": "string" },
+        "p7": { "id": "p7", "name": "route", "type": "string" },
+        "p8": { "id": "p8", "name": "creditRules", "type": "array" },
+        "p9": { "id": "p9", "name": "approved", "type": "boolean" },
+        "p10": { "id": "p10", "name": "approvedAmount", "type": "integer" },
+        "p11": { "id": "p11", "name": "offerAmount", "type": "integer" },
+        "p12": { "id": "p12", "name": "documentsComplete", "type": "boolean" },
+        "p13": { "id": "p13", "name": "documentCount", "type": "integer" },
+        "p14": { "id": "p14", "name": "disbursed", "type": "boolean" }
+      },
+      "mappings": {
+        "kycCall": { "mappingType": "MAP_ALL" },
+        "assessRisk": {
+          "inputs": {
+            "creditScore": { "type": "VARIABLE", "value": "creditScore" },
+            "amount": { "type": "VARIABLE", "value": "amount" }
+          },
+          "outputs": {
+            "riskClass": { "type": "VARIABLE", "value": "riskClass" },
+            "route": { "type": "VARIABLE", "value": "route" },
+            "creditRules": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" }
+          }
+        },
+        "underwriting": { "mappingType": "MAP_ALL" },
+        "seniorReview": { "mappingType": "MAP_ALL" },
+        "awaitDocuments": { "mappingType": "MAP_ALL" }
+      },
+      "constants": {
+        "assessRisk": {
+          "_activiti_dmn_table_": { "value": "creditDecision" }
+        }
+      }
+    }
+  }
+}

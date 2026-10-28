@@ -1,0 +1,40 @@
+{
+  "id": "noConstant-extensions",
+  "name": "noConstant",
+  "type": "PROCESS",
+  "extensions": {
+    "noConstant": {
+      "properties": {
+        "Property_n": {
+          "id": "Property_n",
+          "name": "n",
+          "type": "integer",
+          "required": false
+        },
+        "Property_fee": {
+          "id": "Property_fee",
+          "name": "fee",
+          "type": "string",
+          "required": false
+        }
+      },
+      "mappings": {
+        "decide": {
+          "inputs": {
+            "n": {
+              "type": "variable",
+              "value": "n"
+            }
+          },
+          "outputs": {
+            "fee": {
+              "type": "variable",
+              "value": "fee"
+            }
+          }
+        }
+      },
+      "constants": {}
+    }
+  }
+}

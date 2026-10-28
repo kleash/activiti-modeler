@@ -1,0 +1,49 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C10 terminate end event inside an embedded sub process (default)",
+  "users": { "ann": [], "ben": [], "cy": [] },
+  "scenarios": [
+    {
+      "name": "the terminate end destroys the sub process scope and the parent continues after it",
+      "start": { "process": "terminateScopes", "user": "ann" },
+      "steps": [
+        { "expectTask": { "activity": "subTask", "count": 1 } },
+        { "expectTask": { "activity": "subSide", "count": 1 } },
+        { "expectTask": { "activity": "outsideTask", "count": 1 } },
+        { "completeTask": { "activity": "subTask", "user": "ann", "variables": { "abort": true } } },
+        { "expectTask": { "activity": "subSide", "count": 0 } },
+        { "expectTask": { "activity": "outsideTask", "count": 1 } },
+        { "expectTask": { "activity": "afterJoin", "count": 0 } },
+        { "completeTask": { "activity": "outsideTask", "user": "cy" } },
+        { "expectTask": { "activity": "afterJoin", "count": 1 } },
+        { "completeTask": { "activity": "afterJoin", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end", "terminateInSub"],
+        "path": {
+          "contains": ["terminateInSub", "joinMain", "afterJoin"],
+          "notContains": ["subDone", "subSideEnd"],
+          "sequenceFlows": ["f_subGate_terminate", "f_sub_joinMain", "f_outsideTask_joinMain", "f_joinMain_afterJoin"],
+          "notSequenceFlows": ["f_subGate_subDone"]
+        }
+      }
+    },
+    {
+      "name": "without abort both branches of the sub process finish normally",
+      "start": { "process": "terminateScopes", "user": "ann" },
+      "steps": [
+        { "completeTask": { "activity": "subSide", "user": "ben" } },
+        { "completeTask": { "activity": "subTask", "user": "ann", "variables": { "abort": false } } },
+        { "expectTask": { "activity": "afterJoin", "count": 0 } },
+        { "completeTask": { "activity": "outsideTask", "user": "cy" } },
+        { "completeTask": { "activity": "afterJoin", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end", "subDone", "subSideEnd"],
+        "path": { "notContains": ["terminateInSub"], "sequenceFlows": ["f_subGate_subDone", "f_subSide_subSideEnd", "f_sub_joinMain"] }
+      }
+    }
+  ]
+}

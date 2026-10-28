@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C01">
+  <process id="assignmentForms" name="Assignment forms" isExecutable="true">
+    <documentation>One user task per way of saying who works on it: assignee and owner, an expression, candidate users and groups, candidates from expressions (a collection and a comma separated string), the standard humanPerformer and potentialOwner elements and an activiti:customResource identity link.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_byAssignee" sourceRef="start" targetRef="byAssignee"/>
+    <userTask id="byAssignee" name="Assignee and owner" activiti:assignee="ann" activiti:owner="bob"/>
+    <sequenceFlow id="f_byAssignee_byExpression" sourceRef="byAssignee" targetRef="byExpression"/>
+    <userTask id="byExpression" name="Assignee from ${reviewer}" activiti:assignee="${reviewer}"/>
+    <sequenceFlow id="f_byExpression_byCandidates" sourceRef="byExpression" targetRef="byCandidates"/>
+    <userTask id="byCandidates" name="Candidate users and groups" activiti:candidateUsers="ann, bob" activiti:candidateGroups="reviewers, clerks"/>
+    <sequenceFlow id="f_byCandidates_byCandidateExpressions" sourceRef="byCandidates" targetRef="byCandidateExpressions"/>
+    <userTask id="byCandidateExpressions" name="Candidates from expressions" activiti:candidateUsers="${approvers}" activiti:candidateGroups="${groupNames}"/>
+    <sequenceFlow id="f_byCandidateExpressions_byHumanPerformer" sourceRef="byCandidateExpressions" targetRef="byHumanPerformer"/>
+    <userTask id="byHumanPerformer" name="Human performer">
+      <humanPerformer>
+        <resourceAssignmentExpression>
+          <formalExpression>carl</formalExpression>
+        </resourceAssignmentExpression>
+      </humanPerformer>
+    </userTask>
+    <sequenceFlow id="f_byHumanPerformer_byPotentialOwner" sourceRef="byHumanPerformer" targetRef="byPotentialOwner"/>
+    <userTask id="byPotentialOwner" name="Potential owner">
+      <potentialOwner>
+        <resourceAssignmentExpression>
+          <formalExpression>user(ann), user(carl), group(reviewers)</formalExpression>
+        </resourceAssignmentExpression>
+      </potentialOwner>
+    </userTask>
+    <sequenceFlow id="f_byPotentialOwner_byCustomResource" sourceRef="byPotentialOwner" targetRef="byCustomResource"/>
+    <userTask id="byCustomResource" name="Custom resource" activiti:candidateUsers="ann">
+      <extensionElements>
+        <activiti:customResource activiti:name="supervisor">
+          <resourceAssignmentExpression>
+            <formalExpression>user(dave), group(managers)</formalExpression>
+          </resourceAssignmentExpression>
+        </activiti:customResource>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="f_byCustomResource_end" sourceRef="byCustomResource" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="assignmentForms">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="byAssignee_di" bpmnElement="byAssignee">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="byExpression_di" bpmnElement="byExpression">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="byCandidates_di" bpmnElement="byCandidates">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="byCandidateExpressions_di" bpmnElement="byCandidateExpressions">
+        <dc:Bounds x="670" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="byHumanPerformer_di" bpmnElement="byHumanPerformer">
+        <dc:Bounds x="820" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="byPotentialOwner_di" bpmnElement="byPotentialOwner">
+        <dc:Bounds x="970" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="byCustomResource_di" bpmnElement="byCustomResource">
+        <dc:Bounds x="1120" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1302" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_byAssignee_di" bpmnElement="f_start_byAssignee">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_byAssignee_byExpression_di" bpmnElement="f_byAssignee_byExpression">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_byExpression_byCandidates_di" bpmnElement="f_byExpression_byCandidates">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_byCandidates_byCandidateExpressions_di" bpmnElement="f_byCandidates_byCandidateExpressions">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="670" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_byCandidateExpressions_byHumanPerformer_di" bpmnElement="f_byCandidateExpressions_byHumanPerformer">
+        <di:waypoint x="770" y="110"/>
+        <di:waypoint x="820" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_byHumanPerformer_byPotentialOwner_di" bpmnElement="f_byHumanPerformer_byPotentialOwner">
+        <di:waypoint x="920" y="110"/>
+        <di:waypoint x="970" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_byPotentialOwner_byCustomResource_di" bpmnElement="f_byPotentialOwner_byCustomResource">
+        <di:waypoint x="1070" y="110"/>
+        <di:waypoint x="1120" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_byCustomResource_end_di" bpmnElement="f_byCustomResource_end">
+        <di:waypoint x="1220" y="110"/>
+        <di:waypoint x="1302" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

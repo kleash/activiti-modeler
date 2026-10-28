@@ -1,0 +1,24 @@
+# The workflows pin every action to a commit SHA (with the version in a comment). Dependabot keeps those pins current: it opens one pull
+# request a month with the new SHAs and updates the version comments.
+#
+# Vulnerable Maven and npm dependencies are handled by the repository settings "Dependabot alerts" and "Dependabot security updates"
+# (Settings > Advanced Security), which open a fix pull request for each advisory; OSV (the required check) reports and opens nothing.
+# Maven and npm are deliberately not version-update ecosystems here, to keep the pull requests to security fixes.
+#
+# The Dockerfile pins its two base images by digest (eclipse-temurin:25-jdk, which builds the jar, and alpine, which supplies musl): the docker ecosystem opens the
+# pull request that moves a digest, which is how the operating-system layer of the image gets its fixes. The OSV scan of the image (osv-scan.yml)
+# says when one is due. The Temurin JDK that the image's Java runtime is linked from is not an image but a pinned download (docker/jdk-alpine.env):
+# Dependabot cannot move it; scripts/update-jdk-alpine.sh does, and the release workflow warns when it is behind.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly

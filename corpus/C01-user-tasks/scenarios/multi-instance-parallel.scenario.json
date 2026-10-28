@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C01 parallel multi-instance user task",
+  "users": { "ann": [], "bob": [], "carl": [] },
+  "scenarios": [
+    {
+      "name": "all instances finish and their verdicts are collected in completion order",
+      "start": { "process": "reviewParallel", "user": "ann", "variables": { "reviewers": ["ann", "bob", "carl"], "quorum": 3 } },
+      "steps": [
+        { "expectTask": { "activity": "reviewEach", "count": 3 } },
+        { "expectTask": { "activity": "reviewEach", "match": { "localVariables": { "assignedTo": "bob" } },
+            "name": "Review by bob", "assignee": "bob", "localVariables": { "assignedTo": "bob", "rule": "four-eyes" } } },
+        { "completeTask": { "activity": "reviewEach", "match": { "assignee": "carl" }, "user": "carl", "variables": { "verdict": "approve" } } },
+        { "completeTask": { "activity": "reviewEach", "match": { "assignee": "ann" }, "user": "ann", "variables": { "verdict": "reject" } } },
+        { "expectTask": { "activity": "summarize", "count": 0 } },
+        { "completeTask": { "activity": "reviewEach", "match": { "assignee": "bob" }, "user": "bob", "variables": { "verdict": "abstain" } } },
+        { "expectTask": { "activity": "summarize", "localVariables": { "verdicts": ["approve", "reject", "abstain"] } } },
+        { "completeTask": { "activity": "summarize", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "verdicts": ["approve", "reject", "abstain"], "quorum": 3 },
+        "absentVariables": ["verdict", "reviewer"],
+        "path": { "order": [["reviewEach", "summarize"]], "sequenceFlows": ["f_start_reviewEach", "f_reviewEach_summarize", "f_summarize_end"] }
+      }
+    },
+    {
+      "name": "the completion condition ends the loop after the quorum and cancels the remaining task",
+      "start": { "process": "reviewParallel", "user": "ann", "variables": { "reviewers": ["ann", "bob", "carl"], "quorum": 2 } },
+      "steps": [
+        { "completeTask": { "activity": "reviewEach", "match": { "assignee": "bob" }, "user": "bob", "variables": { "verdict": "approve" } } },
+        { "expectTask": { "activity": "reviewEach", "count": 2 } },
+        { "completeTask": { "activity": "reviewEach", "match": { "assignee": "ann" }, "user": "ann", "variables": { "verdict": "reject" } } },
+        { "expectTask": { "activity": "reviewEach", "count": 0 } },
+        { "expectTask": { "activity": "summarize", "localVariables": { "verdicts": ["approve", "reject"] } } },
+        { "completeTask": { "activity": "summarize", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "variables": { "verdicts": ["approve", "reject"] } }
+    }
+  ]
+}

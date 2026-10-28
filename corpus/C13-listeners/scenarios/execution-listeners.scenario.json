@@ -1,0 +1,87 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C13 execution listeners on the process, flow nodes and sequence flows",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "direct path: listeners of every type fire in element order (process start, node start and end, flow take)",
+      "start": { "process": "executionListeners", "user": "ann", "variables": { "needsReview": false, "reviewer": "nobody" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["done"],
+        "variables": {
+          "executionListenerCalls": [
+            "start:executionListeners",
+            "end:begin",
+            "take:f_begin_prepare",
+            "start:prepare",
+            "end:prepare",
+            "take:f_prepare_decide",
+            "start:decide",
+            "start:finish",
+            "start:done"
+          ],
+          "fieldExecutionListenerCalls": ["process:start:executionListeners", "prepare-end:end:prepare", "nobody:take:f_decide_finish"],
+          "prepared": true,
+          "prepareStartedByExpression": true,
+          "finished": true
+        },
+        "path": {
+          "notContains": ["review"],
+          "sequenceFlows": ["f_begin_prepare", "f_prepare_decide", "f_decide_finish", "f_finish_done"],
+          "notSequenceFlows": ["f_decide_review", "f_review_finish"]
+        }
+      }
+    },
+    {
+      "name": "review path: the user task and the other sequence flows have their own listeners",
+      "start": { "process": "executionListeners", "user": "ann", "variables": { "needsReview": true, "reviewer": "ann" } },
+      "steps": [
+        { "expectActive": ["review"] },
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["done"],
+        "variables": {
+          "executionListenerCalls": [
+            "start:executionListeners",
+            "end:begin",
+            "take:f_begin_prepare",
+            "start:prepare",
+            "end:prepare",
+            "take:f_prepare_decide",
+            "start:decide",
+            "take:f_decide_review",
+            "start:review",
+            "end:review",
+            "take:f_review_finish",
+            "start:finish",
+            "start:done"
+          ],
+          "fieldExecutionListenerCalls": ["process:start:executionListeners", "prepare-end:end:prepare", "review-start:start:review"]
+        },
+        "path": {
+          "order": [["decide", "review"], ["review", "finish"]],
+          "sequenceFlows": ["f_decide_review", "f_review_finish"],
+          "notSequenceFlows": ["f_decide_finish"]
+        }
+      }
+    },
+    {
+      "name": "process end listener of type class runs after the instance has ended (it throws on request)",
+      "start": { "process": "executionListeners", "user": "ann", "businessKey": "fail-class", "variables": { "needsReview": false, "reviewer": "nobody" },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "process end listener ran: class" } }
+    },
+    {
+      "name": "process end listener of type delegateExpression runs after the instance has ended (it throws on request)",
+      "start": { "process": "executionListeners", "user": "ann", "businessKey": "fail-delegateExpression", "variables": { "needsReview": false, "reviewer": "nobody" },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "process end listener ran: delegateExpression" } }
+    },
+    {
+      "name": "process end listener of type expression runs after the instance has ended (it throws on request)",
+      "start": { "process": "executionListeners", "user": "ann", "businessKey": "fail-expression", "variables": { "needsReview": false, "reviewer": "nobody" },
+                 "expectFailure": { "exception": "ActivitiException", "messageContains": "process end listener ran: expression" } }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "groups": [
+    { "name": "activiti.dmn", "type": "io.github.kleash.activiti.dmn.DmnConnectorProperties", "sourceType": "io.github.kleash.activiti.dmn.DmnConnectorProperties" }
+  ],
+  "properties": [
+    {
+      "name": "activiti.dmn.engine",
+      "type": "java.lang.String",
+      "description": "Engine that evaluates decisions: operaton (default) or kie (needs the module activiti-dmn-connector-kie).",
+      "defaultValue": "operaton",
+      "sourceType": "io.github.kleash.activiti.dmn.DmnConnectorProperties"
+    },
+    {
+      "name": "activiti.dmn.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether to register the connector bean dmn-connector.EXECUTE_TABLE and the evaluation service.",
+      "defaultValue": true,
+      "sourceType": "io.github.kleash.activiti.dmn.DmnConnectorProperties"
+    },
+    {
+      "name": "activiti.dmn.cache-size",
+      "type": "java.lang.Integer",
+      "description": "How many parsed DMN documents, resolved deployments and process definition lookups each cache keeps.",
+      "defaultValue": 256,
+      "sourceType": "io.github.kleash.activiti.dmn.DmnConnectorProperties"
+    }
+  ],
+  "hints": [
+    {
+      "name": "activiti.dmn.engine",
+      "values": [
+        { "value": "operaton", "description": "Operaton DMN (default), with PRIORITY and OUTPUT ORDER added by the connector." },
+        { "value": "kie", "description": "Apache KIE DMN: business knowledge models, boxed expressions, decision services." }
+      ]
+    }
+  ]
+}

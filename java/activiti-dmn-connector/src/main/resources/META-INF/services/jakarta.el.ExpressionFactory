@@ -1,0 +1,4 @@
+# Operaton DMN brings its own JUEL, which registers here too. Activiti takes its expression language from
+# ExpressionFactory.newInstance(), the first registration on the class path: this jar comes before its dependencies, so the
+# engine keeps Activiti's JUEL whatever the order of the jars. Operaton DMN creates its own JUEL directly and is not affected.
+org.activiti.core.el.juel.ExpressionFactoryImpl

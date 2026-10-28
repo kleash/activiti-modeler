@@ -1,0 +1,118 @@
+{
+  "name": "timers, messages, signals and receive tasks",
+  "users": { "alice": [], "bob": [], "carol": [] },
+  "clock": "2030-06-01T08:00:00Z",
+  "scenarios": [
+    {
+      "name": "fireTimer releases a timer catch event",
+      "start": { "process": "delayed", "user": "alice" },
+      "steps": [
+        { "expectActive": ["wait"] },
+        { "expectTimer": { "activity": "wait", "count": 1, "dueDate": "2030-06-01T09:00:00Z" } },
+        { "expectTask": { "activity": "afterWait", "count": 0 } },
+        { "fireTimer": { "activity": "wait" } },
+        { "expectTimer": { "activity": "wait", "count": 0 } },
+        { "expectTask": { "activity": "afterWait", "candidateUsers": ["alice", "carol"], "assignee": null } },
+        { "expectActive": { "exactly": ["afterWait"], "notContains": ["wait"] } },
+        { "claim": { "activity": "afterWait", "user": "alice" } },
+        { "assign": { "activity": "afterWait", "assignee": "carol", "user": "alice" } },
+        { "expectTask": { "activity": "afterWait", "assignee": "carol", "visibleTo": ["carol"], "notVisibleTo": ["alice"] } },
+        { "completeTask": { "activity": "afterWait", "user": "carol" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["dEnd"], "path": { "contains": ["wait", "afterWait"], "sequenceFlows": ["f_wait_afterWait"] } }
+    },
+    {
+      "name": "advanceClock and executeJobs release a due timer",
+      "start": { "process": "delayed", "user": "alice" },
+      "steps": [
+        { "executeJobs": {} },
+        { "expectActive": ["wait"] },
+        { "advanceClock": "PT59M" },
+        { "executeJobs": {} },
+        { "expectActive": ["wait"] },
+        { "advanceClock": "PT2M" },
+        { "executeJobs": {} },
+        { "expectActive": ["afterWait"] },
+        { "completeTask": { "activity": "afterWait", "user": "alice" } }
+      ],
+      "expect": { "state": "COMPLETED" }
+    },
+    {
+      "name": "boundary timer interrupts the task and escalates",
+      "start": { "process": "escalating", "user": "alice" },
+      "steps": [
+        { "expectTask": { "activity": "work", "candidateUsers": ["bob"] } },
+        { "fireTimer": { "activity": "timeout" } },
+        { "expectTask": { "activity": "work", "count": 0 } },
+        { "expectTask": { "activity": "manager", "assignee": "carol" } },
+        { "completeTask": { "activity": "manager", "user": "carol" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["escalatedEnd"], "path": { "notContains": ["doneEnd"], "sequenceFlows": ["f_timeout_manager"] } }
+    },
+    {
+      "name": "the task finishes before the boundary timer",
+      "start": { "process": "escalating", "user": "alice" },
+      "steps": [ { "completeTask": { "activity": "work", "user": "bob" } } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["doneEnd"], "path": { "notContains": ["manager", "timeout"] } }
+    },
+    {
+      "name": "receive task, correlated message and broadcast signal",
+      "start": { "process": "payment", "businessKey": "O-1", "user": "alice", "variables": { "orderNo": "O-1" } },
+      "steps": [
+        { "expectActive": ["waitPayment"] },
+        { "triggerReceiveTask": { "activity": "waitPayment", "variables": { "paid": true } } },
+        { "expectActive": ["docs"] },
+        { "message": { "name": "docsReceived", "correlationKey": "O-1", "variables": { "docs": 3 } } },
+        { "expectActive": ["audit"] },
+        { "signal": { "name": "audit" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["pEnd"],
+        "path": { "order": [["waitPayment", "docs"], ["docs", "audit"], ["audit", "pEnd"]] },
+        "variables": { "orderNo": "O-1", "docs": 3, "paid": true }
+      }
+    },
+    {
+      "name": "a message with the wrong correlation key finds no subscription",
+      "start": { "process": "payment", "user": "alice", "variables": { "orderNo": "O-2" } },
+      "steps": [
+        { "triggerReceiveTask": { "activity": "waitPayment" } },
+        { "message": { "name": "docsReceived", "correlationKey": "O-999", "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "not found" } } },
+        { "message": { "name": "docsReceived", "correlationKey": "O-2", "variables": { "docs": 1 } } },
+        { "signal": { "name": "audit" } }
+      ],
+      "expect": { "state": "COMPLETED", "variables": { "docs": 1 } }
+    },
+    {
+      "name": "fireTimer fires one timer, or all of them at the same activity",
+      "start": { "process": "batch", "user": "alice" },
+      "steps": [
+        { "expectActive": { "contains": ["batchWait"] } },
+        { "fireTimer": { "activity": "batchWait" } },
+        { "expectActive": { "contains": ["batchWait"] } },
+        { "fireTimer": { "activity": "batchWait", "all": true } },
+        { "expectActive": { "notContains": ["batchWait"] } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["bEnd", "eachEnd"], "path": { "contains": ["each", "eachStart", "batchWait", "eachEnd"] } }
+    },
+    {
+      "name": "a message start event creates the root instance",
+      "start": { "message": "newOrder", "businessKey": "M-1", "user": "alice" },
+      "steps": [ { "expectTask": { "activity": "pack", "candidateUsers": ["alice"] } }, { "completeTask": { "activity": "pack", "user": "alice" } } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["mEnd"] }
+    },
+    {
+      "name": "a signal start event creates the root instance",
+      "start": { "signal": "go", "process": "sigStarted", "user": "alice" },
+      "steps": [ { "expectActive": ["ship"] }, { "completeTask": { "activity": "ship", "user": "alice" } } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["sEnd"] }
+    },
+    {
+      "name": "a timer start event creates the root instance",
+      "start": { "timer": "tStart", "process": "timerStarted" },
+      "steps": [ { "expectActive": ["report"] }, { "completeTask": { "activity": "report", "user": "alice" } } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["tEnd"] }
+    }
+  ]
+}

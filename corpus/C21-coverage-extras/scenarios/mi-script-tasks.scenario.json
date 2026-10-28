@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 multi-instance script tasks",
+  "description": "Script tasks as multi-instance activities: a JUEL script in a parallel loop, a JavaScript script in a sequential loop with a result variable (written with setVariable, so one process variable shared by all rounds) and a JavaScript script in a parallel loop driven by a loop cardinality.",
+  "scenarios": [
+    {
+      "name": "parallel over a collection, sequential with a shared result variable, parallel with a cardinality",
+      "start": { "process": "miScriptTasks", "variables": { "numbers": [2, 3, 4], "rounds": 4 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "squares": [4, 9, 16],
+          "trails": ["0:2", "1:5", "2:9"],
+          "running": 9,
+          "cubes": [0, 1, 8, 27]
+        },
+        "absentVariables": ["n", "pos", "step", "round", "square", "trail", "cube", "before", "total"],
+        "path": {
+          "order": [["squareEach", "runningTotal"], ["runningTotal", "cubeEach"], ["cubeEach", "end"]],
+          "sequenceFlows": ["f_start_squareEach", "f_squareEach_runningTotal", "f_runningTotal_cubeEach", "f_cubeEach_end"]
+        }
+      }
+    },
+    {
+      "name": "no elements and a cardinality of zero run nothing: the result lists are empty and the result variable is never set",
+      "start": { "process": "miScriptTasks", "variables": { "numbers": [], "rounds": 0 } },
+      "expect": {
+        "state": "COMPLETED",
+        "variables": { "squares": [], "trails": [], "cubes": [] },
+        "absentVariables": ["running"]
+      }
+    },
+    {
+      "name": "a negative loop cardinality rejects the start",
+      "start": { "process": "miScriptTasks", "variables": { "numbers": [1], "rounds": -1 },
+                 "expectFailure": { "exception": "ActivitiIllegalArgumentException", "messageContains": "Invalid number of instances" } }
+    }
+  ]
+}

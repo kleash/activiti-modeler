@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C07">
+  <signal id="childDoneSignal" name="childDone" activiti:scope="processInstance"/>
+  <process id="signalChildLocal" name="Child that throws childDone (processInstance scope)" isExecutable="true">
+    <documentation>Sets a result variable and throws the signal childDone with scope processInstance.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_prepare" sourceRef="start" targetRef="prepare"/>
+    <serviceTask id="prepare" name="Prepare the result" activiti:expression="${execution.setVariable('childResult', 'done')}"/>
+    <sequenceFlow id="f_prepare_raise" sourceRef="prepare" targetRef="raise"/>
+    <intermediateThrowEvent id="raise" name="Raise childDone">
+      <signalEventDefinition signalRef="childDoneSignal"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="f_raise_end" sourceRef="raise" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="signalChildLocal">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepare_di" bpmnElement="prepare">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="raise_di" bpmnElement="raise">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_prepare_di" bpmnElement="f_start_prepare">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_prepare_raise_di" bpmnElement="f_prepare_raise">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="402" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_raise_end_di" bpmnElement="f_raise_end">
+        <di:waypoint x="438" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

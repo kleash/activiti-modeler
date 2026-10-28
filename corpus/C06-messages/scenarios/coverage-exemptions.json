@@ -1,0 +1,11 @@
+{
+  "$schema": "../../../schemas/coverage-exemptions.schema.json",
+  "exemptions": [
+    { "process": "messageEventSubprocess", "element": "escalationHandler", "reason": "the engine records no historic activity instance for an event sub process; its inner flows are visited" },
+    { "process": "messageEventSubprocess", "element": "escalateStart", "reason": "the engine records no historic activity instance for the start event of an event sub process; f_escalateStart_markEscalated is taken" },
+    { "process": "messageEventSubprocess", "element": "noteHandler", "reason": "the engine records no historic activity instance for an event sub process; its inner flows are visited" },
+    { "process": "messageEventSubprocess", "element": "noteStart", "reason": "the engine records no historic activity instance for the start event of an event sub process; f_noteStart_recordNote is taken" },
+    { "process": "messageClash", "element": "docsHandler", "reason": "the engine records no historic activity instance for an event sub process; its inner flows are visited" },
+    { "process": "messageClash", "element": "docsStart", "reason": "the engine records no historic activity instance for the start event of an event sub process; f_docsStart_handlerEnd is taken" }
+  ]
+}

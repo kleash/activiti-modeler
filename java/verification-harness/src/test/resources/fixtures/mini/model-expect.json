@@ -1,0 +1,12 @@
+{
+  "processes": {
+    "mini": {
+      "definition": { "name": "Mini", "category": "http://example.org/harness-fixture" },
+      "candidateStarters": { "groups": ["starters"], "users": [] },
+      "elements": {
+        "check": { "type": "userTask", "attributes": { "category": "quality", "candidateGroups": ["checkers"] } },
+        "gate": { "type": "exclusiveGateway", "attributes": { "defaultFlow": "f_gate_rejected" } }
+      }
+    }
+  }
+}

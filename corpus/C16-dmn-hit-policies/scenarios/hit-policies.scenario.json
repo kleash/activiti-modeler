@@ -1,0 +1,1077 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "DMN hit policies",
+  "users": {
+    "alice": []
+  },
+  "scenarios": [
+    {
+      "name": "large score and amount: every table matches",
+      "start": {
+        "process": "hitPolicies",
+        "user": "alice",
+        "variables": {
+          "score": 85,
+          "amount": 2000,
+          "country": "DE",
+          "delay": 10
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "end"
+        ],
+        "path": {
+          "contains": [
+            "decideUnique",
+            "decideFirst",
+            "decideAny",
+            "decidePriority",
+            "decideRuleOrder",
+            "decidePriorityTwo",
+            "decideOutputOrder",
+            "decideCollect",
+            "decideSum",
+            "decideMin",
+            "decideMax",
+            "decideCount"
+          ],
+          "order": [
+            [
+              "start",
+              "decideUnique"
+            ],
+            [
+              "decideUnique",
+              "decideFirst"
+            ],
+            [
+              "decideFirst",
+              "decideAny"
+            ],
+            [
+              "decideAny",
+              "decidePriority"
+            ],
+            [
+              "decidePriority",
+              "decideRuleOrder"
+            ],
+            [
+              "decideRuleOrder",
+              "decidePriorityTwo"
+            ],
+            [
+              "decidePriorityTwo",
+              "decideOutputOrder"
+            ],
+            [
+              "decideOutputOrder",
+              "decideCollect"
+            ],
+            [
+              "decideCollect",
+              "decideSum"
+            ],
+            [
+              "decideSum",
+              "decideMin"
+            ],
+            [
+              "decideMin",
+              "decideMax"
+            ],
+            [
+              "decideMax",
+              "decideCount"
+            ],
+            [
+              "decideCount",
+              "end"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideUnique",
+            "flow_decideUnique_decideFirst",
+            "flow_decideFirst_decideAny",
+            "flow_decideAny_decidePriority",
+            "flow_decidePriority_decideRuleOrder",
+            "flow_decideRuleOrder_decidePriorityTwo",
+            "flow_decidePriorityTwo_decideOutputOrder",
+            "flow_decideOutputOrder_decideCollect",
+            "flow_decideCollect_decideSum",
+            "flow_decideSum_decideMin",
+            "flow_decideMin_decideMax",
+            "flow_decideMax_decideCount",
+            "flow_decideCount_end"
+          ]
+        },
+        "variables": {
+          "grade": "high",
+          "rulesUnique": [
+            "uniqueGrade_high"
+          ],
+          "tier": "gold",
+          "rulesFirst": [
+            "firstTier_gold"
+          ],
+          "region": "DACH",
+          "rulesAny": [
+            "anyRegion_dach1"
+          ],
+          "risk": "medium",
+          "rulesPriority": [
+            "priorityRisk_medium"
+          ],
+          "riskLevel": "high",
+          "action": "none",
+          "rulesPriorityTwo": [
+            "priorityTwoOutputs_highNone"
+          ],
+          "badgesInRuleOrder": [
+            {
+              "badge": "participant"
+            },
+            {
+              "badge": "achiever"
+            },
+            {
+              "badge": "star"
+            }
+          ],
+          "rulesRuleOrder": [
+            "ruleOrderBadges_participant",
+            "ruleOrderBadges_achiever",
+            "ruleOrderBadges_star"
+          ],
+          "badgesByPriority": [
+            {
+              "badge": "star"
+            },
+            {
+              "badge": "achiever"
+            },
+            {
+              "badge": "participant"
+            }
+          ],
+          "rulesOutputOrder": [
+            "outputOrderBadges_star",
+            "outputOrderBadges_achiever",
+            "outputOrderBadges_participant"
+          ],
+          "flags": [
+            {
+              "flag": "base-check"
+            },
+            {
+              "flag": "manual-review"
+            }
+          ],
+          "rulesCollect": [
+            "collectFlags_base",
+            "collectFlags_review"
+          ],
+          "points": 111,
+          "rulesSum": [
+            "collectSumPoints_base",
+            "collectSumPoints_silver",
+            "collectSumPoints_gold"
+          ],
+          "unitPrice": 10,
+          "rulesMin": [
+            "collectMinPrice_list",
+            "collectMinPrice_bulk",
+            "collectMinPrice_wholesale"
+          ],
+          "penalty": 50,
+          "rulesMax": [
+            "collectMaxPenalty_late",
+            "collectMaxPenalty_weekLate"
+          ],
+          "alerts": 2,
+          "rulesCount": [
+            "collectCountAlerts_large",
+            "collectCountAlerts_huge"
+          ]
+        },
+        "absentVariables": []
+      }
+    },
+    {
+      "name": "small score and amount: first rules only",
+      "start": {
+        "process": "hitPolicies",
+        "user": "alice",
+        "variables": {
+          "score": 30,
+          "amount": 50,
+          "country": "US",
+          "delay": 3
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "end"
+        ],
+        "path": {
+          "contains": [
+            "decideUnique",
+            "decideFirst",
+            "decideAny",
+            "decidePriority",
+            "decideRuleOrder",
+            "decidePriorityTwo",
+            "decideOutputOrder",
+            "decideCollect",
+            "decideSum",
+            "decideMin",
+            "decideMax",
+            "decideCount"
+          ],
+          "order": [
+            [
+              "start",
+              "decideUnique"
+            ],
+            [
+              "decideUnique",
+              "decideFirst"
+            ],
+            [
+              "decideFirst",
+              "decideAny"
+            ],
+            [
+              "decideAny",
+              "decidePriority"
+            ],
+            [
+              "decidePriority",
+              "decideRuleOrder"
+            ],
+            [
+              "decideRuleOrder",
+              "decidePriorityTwo"
+            ],
+            [
+              "decidePriorityTwo",
+              "decideOutputOrder"
+            ],
+            [
+              "decideOutputOrder",
+              "decideCollect"
+            ],
+            [
+              "decideCollect",
+              "decideSum"
+            ],
+            [
+              "decideSum",
+              "decideMin"
+            ],
+            [
+              "decideMin",
+              "decideMax"
+            ],
+            [
+              "decideMax",
+              "decideCount"
+            ],
+            [
+              "decideCount",
+              "end"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideUnique",
+            "flow_decideUnique_decideFirst",
+            "flow_decideFirst_decideAny",
+            "flow_decideAny_decidePriority",
+            "flow_decidePriority_decideRuleOrder",
+            "flow_decideRuleOrder_decidePriorityTwo",
+            "flow_decidePriorityTwo_decideOutputOrder",
+            "flow_decideOutputOrder_decideCollect",
+            "flow_decideCollect_decideSum",
+            "flow_decideSum_decideMin",
+            "flow_decideMin_decideMax",
+            "flow_decideMax_decideCount",
+            "flow_decideCount_end"
+          ]
+        },
+        "variables": {
+          "grade": "low",
+          "rulesUnique": [
+            "uniqueGrade_low"
+          ],
+          "tier": "bronze",
+          "rulesFirst": [
+            "firstTier_bronze"
+          ],
+          "region": "NA",
+          "rulesAny": [
+            "anyRegion_us"
+          ],
+          "risk": "low",
+          "rulesPriority": [
+            "priorityRisk_low"
+          ],
+          "riskLevel": "low",
+          "action": "escalate",
+          "rulesPriorityTwo": [
+            "priorityTwoOutputs_lowEscalate"
+          ],
+          "badgesInRuleOrder": [
+            {
+              "badge": "participant"
+            }
+          ],
+          "rulesRuleOrder": [
+            "ruleOrderBadges_participant"
+          ],
+          "badgesByPriority": [
+            {
+              "badge": "participant"
+            }
+          ],
+          "rulesOutputOrder": [
+            "outputOrderBadges_participant"
+          ],
+          "flags": [
+            {
+              "flag": "base-check"
+            }
+          ],
+          "rulesCollect": [
+            "collectFlags_base"
+          ],
+          "points": 1,
+          "rulesSum": [
+            "collectSumPoints_base"
+          ],
+          "unitPrice": 30,
+          "rulesMin": [
+            "collectMinPrice_list"
+          ],
+          "penalty": 5,
+          "rulesMax": [
+            "collectMaxPenalty_late"
+          ],
+          "alerts": 0,
+          "rulesCount": []
+        },
+        "absentVariables": []
+      }
+    },
+    {
+      "name": "nothing matches where a table can miss: outputs are not emitted",
+      "start": {
+        "process": "hitPolicies",
+        "user": "alice",
+        "variables": {
+          "score": 0,
+          "amount": 0,
+          "country": "FR",
+          "delay": 0
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "end"
+        ],
+        "path": {
+          "contains": [
+            "decideUnique",
+            "decideFirst",
+            "decideAny",
+            "decidePriority",
+            "decideRuleOrder",
+            "decidePriorityTwo",
+            "decideOutputOrder",
+            "decideCollect",
+            "decideSum",
+            "decideMin",
+            "decideMax",
+            "decideCount"
+          ],
+          "order": [
+            [
+              "start",
+              "decideUnique"
+            ],
+            [
+              "decideUnique",
+              "decideFirst"
+            ],
+            [
+              "decideFirst",
+              "decideAny"
+            ],
+            [
+              "decideAny",
+              "decidePriority"
+            ],
+            [
+              "decidePriority",
+              "decideRuleOrder"
+            ],
+            [
+              "decideRuleOrder",
+              "decidePriorityTwo"
+            ],
+            [
+              "decidePriorityTwo",
+              "decideOutputOrder"
+            ],
+            [
+              "decideOutputOrder",
+              "decideCollect"
+            ],
+            [
+              "decideCollect",
+              "decideSum"
+            ],
+            [
+              "decideSum",
+              "decideMin"
+            ],
+            [
+              "decideMin",
+              "decideMax"
+            ],
+            [
+              "decideMax",
+              "decideCount"
+            ],
+            [
+              "decideCount",
+              "end"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideUnique",
+            "flow_decideUnique_decideFirst",
+            "flow_decideFirst_decideAny",
+            "flow_decideAny_decidePriority",
+            "flow_decidePriority_decideRuleOrder",
+            "flow_decideRuleOrder_decidePriorityTwo",
+            "flow_decidePriorityTwo_decideOutputOrder",
+            "flow_decideOutputOrder_decideCollect",
+            "flow_decideCollect_decideSum",
+            "flow_decideSum_decideMin",
+            "flow_decideMin_decideMax",
+            "flow_decideMax_decideCount",
+            "flow_decideCount_end"
+          ]
+        },
+        "variables": {
+          "grade": "low",
+          "rulesUnique": [
+            "uniqueGrade_low"
+          ],
+          "tier": "bronze",
+          "rulesFirst": [
+            "firstTier_bronze"
+          ],
+          "rulesAny": [],
+          "rulesPriority": [],
+          "rulesPriorityTwo": [],
+          "badgesInRuleOrder": [
+            {
+              "badge": "participant"
+            }
+          ],
+          "rulesRuleOrder": [
+            "ruleOrderBadges_participant"
+          ],
+          "badgesByPriority": [
+            {
+              "badge": "participant"
+            }
+          ],
+          "rulesOutputOrder": [
+            "outputOrderBadges_participant"
+          ],
+          "flags": [],
+          "rulesCollect": [],
+          "rulesSum": [],
+          "rulesMin": [],
+          "rulesMax": [],
+          "alerts": 0,
+          "rulesCount": []
+        },
+        "absentVariables": [
+          "region",
+          "risk",
+          "riskLevel",
+          "action",
+          "points",
+          "unitPrice",
+          "penalty"
+        ]
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "uniqueGrade",
+      "inputs": {
+        "score": 85
+      },
+      "expect": {
+        "result": [
+          {
+            "grade": "high"
+          }
+        ],
+        "matchedRules": [
+          "uniqueGrade_high"
+        ]
+      }
+    },
+    {
+      "decision": "uniqueGrade",
+      "inputs": {
+        "score": 50
+      },
+      "expect": {
+        "result": [
+          {
+            "grade": "mid"
+          }
+        ],
+        "matchedRules": [
+          "uniqueGrade_mid"
+        ]
+      }
+    },
+    {
+      "decision": "unique-grade",
+      "inputs": {
+        "score": 49
+      },
+      "expect": {
+        "result": [
+          {
+            "grade": "low"
+          }
+        ],
+        "matchedRules": [
+          "uniqueGrade_low"
+        ]
+      }
+    },
+    {
+      "decision": "firstTier",
+      "inputs": {
+        "score": 95
+      },
+      "expect": {
+        "result": [
+          {
+            "tier": "platinum"
+          }
+        ],
+        "matchedRules": [
+          "firstTier_platinum"
+        ]
+      }
+    },
+    {
+      "decision": "firstTier",
+      "inputs": {
+        "score": 70
+      },
+      "expect": {
+        "result": [
+          {
+            "tier": "gold"
+          }
+        ],
+        "matchedRules": [
+          "firstTier_gold"
+        ]
+      }
+    },
+    {
+      "decision": "firstTier",
+      "inputs": {
+        "score": 10
+      },
+      "expect": {
+        "result": [
+          {
+            "tier": "bronze"
+          }
+        ],
+        "matchedRules": [
+          "firstTier_bronze"
+        ]
+      }
+    },
+    {
+      "decision": "anyRegion",
+      "inputs": {
+        "country": "DE"
+      },
+      "expect": {
+        "result": [
+          {
+            "region": "DACH"
+          }
+        ],
+        "matchedRules": [
+          "anyRegion_dach1"
+        ]
+      }
+    },
+    {
+      "decision": "anyRegion",
+      "inputs": {
+        "country": "CH"
+      },
+      "expect": {
+        "result": [
+          {
+            "region": "DACH"
+          }
+        ],
+        "matchedRules": [
+          "anyRegion_dach2"
+        ]
+      }
+    },
+    {
+      "decision": "anyRegion",
+      "inputs": {
+        "country": "US"
+      },
+      "expect": {
+        "result": [
+          {
+            "region": "NA"
+          }
+        ],
+        "matchedRules": [
+          "anyRegion_us"
+        ]
+      }
+    },
+    {
+      "decision": "anyRegion",
+      "inputs": {
+        "country": "FR"
+      },
+      "expect": {
+        "result": [],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "priorityRisk",
+      "inputs": {
+        "amount": 20000
+      },
+      "expect": {
+        "result": [
+          {
+            "risk": "high"
+          }
+        ],
+        "matchedRules": [
+          "priorityRisk_high"
+        ]
+      }
+    },
+    {
+      "decision": "priorityRisk",
+      "inputs": {
+        "amount": 2000
+      },
+      "expect": {
+        "result": [
+          {
+            "risk": "medium"
+          }
+        ],
+        "matchedRules": [
+          "priorityRisk_medium"
+        ]
+      }
+    },
+    {
+      "decision": "priorityRisk",
+      "inputs": {
+        "amount": 10
+      },
+      "expect": {
+        "result": [
+          {
+            "risk": "low"
+          }
+        ],
+        "matchedRules": [
+          "priorityRisk_low"
+        ]
+      }
+    },
+    {
+      "decision": "priorityRisk",
+      "inputs": {
+        "amount": 0
+      },
+      "expect": {
+        "result": [],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "priorityTwoOutputs",
+      "inputs": {
+        "amount": 20000
+      },
+      "expect": {
+        "result": [
+          {
+            "risk": "high",
+            "action": "escalate"
+          }
+        ],
+        "matchedRules": [
+          "priorityTwoOutputs_highEscalate"
+        ]
+      }
+    },
+    {
+      "decision": "priorityTwoOutputs",
+      "inputs": {
+        "amount": 2000
+      },
+      "expect": {
+        "result": [
+          {
+            "risk": "high",
+            "action": "none"
+          }
+        ],
+        "matchedRules": [
+          "priorityTwoOutputs_highNone"
+        ]
+      }
+    },
+    {
+      "decision": "priorityTwoOutputs",
+      "inputs": {
+        "amount": 5
+      },
+      "expect": {
+        "result": [
+          {
+            "risk": "low",
+            "action": "escalate"
+          }
+        ],
+        "matchedRules": [
+          "priorityTwoOutputs_lowEscalate"
+        ]
+      }
+    },
+    {
+      "decision": "priorityTwoOutputs",
+      "inputs": {
+        "amount": 0
+      },
+      "expect": {
+        "result": [],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "ruleOrderBadges",
+      "inputs": {
+        "score": 85
+      },
+      "expect": {
+        "result": [
+          {
+            "badge": "participant"
+          },
+          {
+            "badge": "achiever"
+          },
+          {
+            "badge": "star"
+          }
+        ],
+        "matchedRules": [
+          "ruleOrderBadges_participant",
+          "ruleOrderBadges_achiever",
+          "ruleOrderBadges_star"
+        ]
+      }
+    },
+    {
+      "decision": "ruleOrderBadges",
+      "inputs": {
+        "score": -1
+      },
+      "expect": {
+        "result": [],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "outputOrderBadges",
+      "inputs": {
+        "score": 85
+      },
+      "expect": {
+        "result": [
+          {
+            "badge": "star"
+          },
+          {
+            "badge": "achiever"
+          },
+          {
+            "badge": "participant"
+          }
+        ],
+        "matchedRules": [
+          "outputOrderBadges_star",
+          "outputOrderBadges_achiever",
+          "outputOrderBadges_participant"
+        ]
+      }
+    },
+    {
+      "decision": "outputOrderBadges",
+      "inputs": {
+        "score": 60
+      },
+      "expect": {
+        "result": [
+          {
+            "badge": "achiever"
+          },
+          {
+            "badge": "participant"
+          }
+        ],
+        "matchedRules": [
+          "outputOrderBadges_achiever",
+          "outputOrderBadges_participant"
+        ]
+      }
+    },
+    {
+      "decision": "collectFlags",
+      "inputs": {
+        "amount": 6000
+      },
+      "expect": {
+        "result": [
+          {
+            "flag": "base-check"
+          },
+          {
+            "flag": "manual-review"
+          },
+          {
+            "flag": "approval-needed"
+          }
+        ],
+        "matchedRules": [
+          "collectFlags_base",
+          "collectFlags_review",
+          "collectFlags_approval"
+        ]
+      }
+    },
+    {
+      "decision": "collectFlags",
+      "inputs": {
+        "amount": 0
+      },
+      "expect": {
+        "result": [],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "collectSumPoints",
+      "inputs": {
+        "amount": 2000
+      },
+      "expect": {
+        "result": [
+          {
+            "points": 111
+          }
+        ],
+        "matchedRules": [
+          "collectSumPoints_base",
+          "collectSumPoints_silver",
+          "collectSumPoints_gold"
+        ]
+      }
+    },
+    {
+      "decision": "collectSumPoints",
+      "inputs": {
+        "amount": 500
+      },
+      "expect": {
+        "result": [
+          {
+            "points": 11
+          }
+        ],
+        "matchedRules": [
+          "collectSumPoints_base",
+          "collectSumPoints_silver"
+        ]
+      }
+    },
+    {
+      "decision": "collectSumPoints",
+      "inputs": {
+        "amount": 0
+      },
+      "expect": {
+        "result": [],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "collectMinPrice",
+      "inputs": {
+        "amount": 2000
+      },
+      "expect": {
+        "result": [
+          {
+            "unitPrice": 10
+          }
+        ],
+        "matchedRules": [
+          "collectMinPrice_list",
+          "collectMinPrice_bulk",
+          "collectMinPrice_wholesale"
+        ]
+      }
+    },
+    {
+      "decision": "collectMinPrice",
+      "inputs": {
+        "amount": 50
+      },
+      "expect": {
+        "result": [
+          {
+            "unitPrice": 30
+          }
+        ],
+        "matchedRules": [
+          "collectMinPrice_list"
+        ]
+      }
+    },
+    {
+      "decision": "collectMaxPenalty",
+      "inputs": {
+        "delay": 40
+      },
+      "expect": {
+        "result": [
+          {
+            "penalty": 500
+          }
+        ],
+        "matchedRules": [
+          "collectMaxPenalty_late",
+          "collectMaxPenalty_weekLate",
+          "collectMaxPenalty_monthLate"
+        ]
+      }
+    },
+    {
+      "decision": "collectMaxPenalty",
+      "inputs": {
+        "delay": 3
+      },
+      "expect": {
+        "result": [
+          {
+            "penalty": 5
+          }
+        ],
+        "matchedRules": [
+          "collectMaxPenalty_late"
+        ]
+      }
+    },
+    {
+      "decision": "collectMaxPenalty",
+      "inputs": {
+        "delay": 0
+      },
+      "expect": {
+        "result": [],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "collectCountAlerts",
+      "inputs": {
+        "amount": 20000
+      },
+      "expect": {
+        "result": [
+          {
+            "alerts": 3
+          }
+        ],
+        "matchedRules": [
+          "collectCountAlerts_large",
+          "collectCountAlerts_huge",
+          "collectCountAlerts_extreme"
+        ]
+      }
+    },
+    {
+      "decision": "collectCountAlerts",
+      "inputs": {
+        "amount": 2000
+      },
+      "expect": {
+        "result": [
+          {
+            "alerts": 2
+          }
+        ],
+        "matchedRules": [
+          "collectCountAlerts_large",
+          "collectCountAlerts_huge"
+        ]
+      }
+    },
+    {
+      "decision": "collectCountAlerts",
+      "inputs": {
+        "amount": 10
+      },
+      "expect": {
+        "result": [
+          {
+            "alerts": 0
+          }
+        ],
+        "matchedRules": []
+      }
+    }
+  ]
+}

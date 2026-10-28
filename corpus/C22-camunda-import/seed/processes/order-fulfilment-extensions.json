@@ -1,0 +1,65 @@
+{
+  "id": "process-order-fulfilment",
+  "extensions": {
+    "fulfilOrder": {
+      "properties": {
+        "var-1": {
+          "id": "var-1",
+          "name": "risk",
+          "type": "string",
+          "required": false
+        },
+        "var-2": {
+          "id": "var-2",
+          "name": "approved",
+          "type": "json",
+          "required": false
+        }
+      },
+      "mappings": {
+        "classifyRisk": {
+          "inputs": {
+            "quantity": {
+              "type": "VARIABLE",
+              "value": "quantity"
+            }
+          },
+          "outputs": {
+            "risk": {
+              "type": "VARIABLE",
+              "value": "riskClass"
+            }
+          }
+        },
+        "reviewOrder": {
+          "inputs": {
+            "maxDiscount": {
+              "type": "VALUE",
+              "value": "20"
+            },
+            "orderValue": {
+              "type": "VALUE",
+              "value": "${quantity * 10}"
+            }
+          },
+          "outputs": {
+            "approved": {
+              "type": "VARIABLE",
+              "value": "decision"
+            }
+          }
+        },
+        "confirmDispatch": {
+          "mappingType": "MAP_ALL"
+        }
+      },
+      "constants": {
+        "classifyRisk": {
+          "_activiti_dmn_table_": {
+            "value": "orderRisk"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C07 signal start event",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a broadcast signal starts an instance and its variables become process variables",
+      "start": { "signal": "newOrder", "process": "signalStart", "user": "ann", "variables": { "orderId": "O-1", "amount": 99 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "orderId": "O-1", "amount": 99, "registered": true },
+        "path": { "order": [["startOnSignal", "register"], ["register", "end"]], "sequenceFlows": ["f_startOnSignal_register", "f_register_end"] }
+      }
+    },
+    {
+      "name": "a signal with another name starts nothing",
+      "start": { "signal": "somethingElse", "process": "signalStart", "user": "ann",
+                 "expectFailure": { "messageContains": "created no process instance of process 'signalStart'" } }
+    }
+  ]
+}

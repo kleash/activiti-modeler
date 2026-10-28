@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 compensating a completed sub process",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "order completed: the sub process is not compensated",
+      "start": { "process": "compensationScopes", "user": "ann", "variables": { "cancelled": false } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["pEnd", "completed"],
+        "variables": { "picked": true },
+        "absentVariables": ["delegateCalls"],
+        "path": { "contains": ["packing", "pickItems"], "notContains": ["cancelOrder", "restockItems"], "sequenceFlows": ["f_orderCheck_completed"] }
+      }
+    },
+    {
+      "name": "order cancelled: activityRef set to the sub process id runs the handler inside the sub process scope",
+      "start": { "process": "compensationScopes", "user": "ann", "variables": { "cancelled": true } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["pEnd", "cancelledEnd"],
+        "variables": { "picked": true, "delegateCalls": ["restockItems"] },
+        "path": {
+          "contains": ["pickItems", "cancelOrder", "restockItems", "cancelledEnd"],
+          "order": [["pickItems", "cancelOrder"], ["cancelOrder", "restockItems"], ["restockItems", "cancelledEnd"]],
+          "sequenceFlows": ["f_orderCheck_cancelOrder", "f_cancelOrder_cancelledEnd"]
+        }
+      }
+    }
+  ]
+}

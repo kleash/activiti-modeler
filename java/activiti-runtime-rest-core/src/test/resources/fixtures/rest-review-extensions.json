@@ -1,0 +1,18 @@
+{
+  "id": "rest-review-extensions",
+  "extensions": {
+    "restReview": {
+      "properties": {
+        "p1": { "id": "p1", "name": "amount", "type": "integer" },
+        "p2": { "id": "p2", "name": "approved", "type": "boolean" },
+        "p3": { "id": "p3", "name": "startedBy", "type": "string" }
+      },
+      "mappings": {
+        "review": {
+          "inputs": { "amount": { "type": "VARIABLE", "value": "amount" } },
+          "outputs": { "approved": { "type": "VARIABLE", "value": "approved" } }
+        }
+      }
+    }
+  }
+}

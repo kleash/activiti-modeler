@@ -1,0 +1,22 @@
+{
+  "name": "decision task",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the recording wrapper sees the decision task's connector call",
+      "start": { "process": "decide", "user": "ann", "variables": { "score": 70 } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "decideGrade", "connector": "dmn-connector.EXECUTE_TABLE", "count": 1,
+            "inbound": { "score": 70, "_activiti_dmn_table_": "grade" },
+            "outbound": { "grade": "pass", "_activiti_dmn_matched_": true, "_activiti_dmn_matched_rules_": ["R1"] } } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "variables": { "grade": "pass" }, "path": { "sequenceFlows": ["f_start_decideGrade", "f_decideGrade_end"] } }
+    }
+  ],
+  "decisions": [
+    { "name": "direct evaluation of the same decision, by id", "decision": "grade", "inputs": { "score": 30 },
+      "expect": { "result": [ { "grade": "fail" } ], "matchedRules": ["R2"] } },
+    { "name": "direct evaluation, by file base name", "decision": "grading", "inputs": { "score": 50 },
+      "expect": { "result": [ { "grade": "pass" } ], "matchedRules": ["R1"] } }
+  ]
+}

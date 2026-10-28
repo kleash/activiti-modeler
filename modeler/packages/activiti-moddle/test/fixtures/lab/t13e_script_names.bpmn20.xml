@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t13e_script_names" name="t13e_script_names" isExecutable="true">
+    <startEvent id="s"/>
+    <scriptTask id="s1" scriptFormat="javascript" activiti:resultVariable="r1"><script>1</script></scriptTask>
+    <scriptTask id="s2" scriptFormat="JavaScript" activiti:resultVariable="r2"><script>2</script></scriptTask>
+    <scriptTask id="s3" scriptFormat="js" activiti:resultVariable="r3"><script>3</script></scriptTask>
+    <scriptTask id="s4" scriptFormat="nashorn" activiti:resultVariable="r4"><script>4</script></scriptTask>
+    <scriptTask id="s5" scriptFormat="ECMAScript" activiti:resultVariable="r5"><script>5</script></scriptTask>
+    <scriptTask id="s6" scriptFormat="juel" activiti:resultVariable="r6"><script>${6}</script></scriptTask>
+    <scriptTask id="s7" scriptFormat="application/javascript" activiti:resultVariable="r7"><script>7</script></scriptTask>
+    <userTask id="u"/>
+    <endEvent id="e"/>
+    <sequenceFlow id="f_s_s1" sourceRef="s" targetRef="s1"/>
+    <sequenceFlow id="f_s1_s2" sourceRef="s1" targetRef="s2"/>
+    <sequenceFlow id="f_s2_s3" sourceRef="s2" targetRef="s3"/>
+    <sequenceFlow id="f_s3_s4" sourceRef="s3" targetRef="s4"/>
+    <sequenceFlow id="f_s4_s5" sourceRef="s4" targetRef="s5"/>
+    <sequenceFlow id="f_s5_s6" sourceRef="s5" targetRef="s6"/>
+    <sequenceFlow id="f_s6_s7" sourceRef="s6" targetRef="s7"/>
+    <sequenceFlow id="f_s7_u" sourceRef="s7" targetRef="u"/>
+    <sequenceFlow id="f_u_e" sourceRef="u" targetRef="e"/>
+
+  </process>
+</definitions>

@@ -1,0 +1,338 @@
+{
+  "files": {
+    "business-rule-task.bpmn20.xml": {
+      "expect": [
+        "activiti/no-business-rule-task@decide"
+      ],
+      "context": [
+        "processes/grade.dmn"
+      ],
+      "afterFixes": []
+    },
+    "complex-gateway.bpmn20.xml": {
+      "expect": [
+        "bpmnlint/no-complex-gateway@route"
+      ],
+      "afterFixes": []
+    },
+    "ad-hoc-sub-process.bpmn20.xml": {
+      "expect": [
+        "activiti/no-ad-hoc-sub-process@ahp"
+      ]
+    },
+    "escalation-throw.bpmn20.xml": {
+      "expect": [
+        "activiti/no-unsupported-event-definition@escalate"
+      ]
+    },
+    "escalation-boundary.bpmn20.xml": {
+      "expect": [
+        "activiti/boundary-event-no-event-definition@late",
+        "activiti/no-unsupported-event-definition@late"
+      ]
+    },
+    "conditional-start.bpmn20.xml": {
+      "expect": [
+        "activiti/no-unsupported-event-definition@start"
+      ]
+    },
+    "signal-start-in-event-sub-process.bpmn20.xml": {
+      "expect": [
+        "activiti/no-signal-start-in-event-subprocess@espStart"
+      ]
+    },
+    "timer-start-in-event-sub-process.bpmn20.xml": {
+      "expect": [
+        "activiti/event-subprocess-invalid-start-event-definition@esp"
+      ]
+    },
+    "signal-end-event.bpmn20.xml": {
+      "expect": [
+        "activiti/no-signal-end-event@raise"
+      ],
+      "afterFixes": []
+    },
+    "compensate-end-event.bpmn20.xml": {
+      "expect": [
+        "activiti/no-unsupported-end-event@comp"
+      ]
+    },
+    "escalation-end-event.bpmn20.xml": {
+      "expect": [
+        "activiti/no-unsupported-event-definition@esc"
+      ]
+    },
+    "service-task-type-dmn.bpmn20.xml": {
+      "expect": [
+        "activiti/unsupported-service-task-type@decide"
+      ]
+    },
+    "service-task-type-camel.bpmn20.xml": {
+      "expect": [
+        "activiti/unsupported-service-task-type@route"
+      ]
+    },
+    "send-task-type-mule.bpmn20.xml": {
+      "expect": [
+        "activiti/unsupported-service-task-type@send"
+      ]
+    },
+    "web-service-task.bpmn20.xml": {
+      "expect": [
+        "activiti/no-web-service-task@call"
+      ]
+    },
+    "standard-loop.bpmn20.xml": {
+      "expect": [
+        "activiti/no-standard-loop@repeat"
+      ],
+      "afterFixes": []
+    },
+    "groovy-script.bpmn20.xml": {
+      "expect": [
+        "activiti/unsupported-script-format@calc"
+      ]
+    },
+    "send-task-without-mail.bpmn20.xml": {
+      "expect": [
+        "activiti/send-task-invalid-implementation@notify"
+      ]
+    },
+    "event-gateway-receive-task.bpmn20.xml": {
+      "expect": [
+        "activiti/event-gateway-only-connected-to-intermediate-events@wait"
+      ]
+    },
+    "typed-start-in-sub-process.bpmn20.xml": {
+      "expect": [
+        "activiti/subprocess-start-event-event-definition-not-allowed@subStart",
+        "bpmnlint/sub-process-blank-start-event@subStart"
+      ]
+    },
+    "group.bpmn20.xml": {
+      "expect": [
+        "activiti/di-invalid-reference@grp",
+        "activiti/no-group@grp"
+      ],
+      "afterFixes": []
+    },
+    "signal-expression-with-declared-signal.bpmn20.xml": {
+      "expect": [
+        "activiti/signal-expression-catch-stale-subscription@catch",
+        "activiti/signal-expression-with-declared-signal@catch",
+        "bpmnlint/global@Signal_go"
+      ]
+    },
+    "signal-expression-catch.bpmn20.xml": {
+      "expect": [
+        "activiti/signal-expression-catch-stale-subscription@catch"
+      ]
+    },
+    "auto-store-variables.bpmn20.xml": {
+      "expect": [
+        "activiti/auto-store-variables-no-effect@calc"
+      ]
+    },
+    "string-plus.bpmn20.xml": {
+      "expect": [
+        "activiti/juel-string-concatenation@catch",
+        "activiti/signal-expression-catch-stale-subscription@catch"
+      ]
+    },
+    "message-field.bpmn20.xml": {
+      "expect": [
+        "activiti/message-definition-field-ignored@say",
+        "activiti/message-throw-without-delegate@say"
+      ]
+    },
+    "artifact-before-flow.bpmn20.xml": {
+      "expect": [
+        "activiti/artifact-before-flow-element@artifactFirst"
+      ]
+    },
+    "message-clash.bpmn20.xml": {
+      "expect": [
+        "activiti/message-subscription-clash@docsBoundary",
+        "activiti/message-subscription-clash@docsStart"
+      ]
+    },
+    "timer-end-date-before-start.bpmn20.xml": {
+      "expect": [
+        "activiti/timer-end-date-before-start@start"
+      ]
+    },
+    "invalid-timer.bpmn20.xml": {
+      "expect": [
+        "activiti/invalid-timer-value@start"
+      ]
+    },
+    "data-object-reference.bpmn20.xml": {
+      "expect": [
+        "activiti/di-invalid-reference@orderRef"
+      ]
+    },
+    "undeclared-prefix.bpmn20.xml": {
+      "expect": [
+        "activiti/undeclared-qname-prefix@amount"
+      ]
+    },
+    "minified-multi-instance.bpmn20.xml": {
+      "expect": [
+        "activiti/multi-instance-minified-xml@review"
+      ]
+    },
+    "missing-mapping.bpmn20.xml": {
+      "expect": [
+        "activiti/missing-mapping@review"
+      ],
+      "afterFixes": [
+        "activiti/user-task-map-all-copies-assignee@review"
+      ]
+    },
+    "extensions-orphan-keys.bpmn20.xml": {
+      "expect": [
+        "activiti/extensions-unknown-element@orphanKeys",
+        "activiti/extensions-unknown-process@orphanKeys"
+      ],
+      "afterFixes": []
+    },
+    "undeclared-output-target.bpmn20.xml": {
+      "expect": [
+        "activiti/output-target-undeclared@lookup"
+      ],
+      "context": [
+        "connectors/crm.json"
+      ],
+      "afterFixes": []
+    },
+    "connector-unknown.bpmn20.xml": {
+      "expect": [
+        "activiti/connector-bean-unknown@send"
+      ],
+      "context": [
+        "connectors/crm.json"
+      ]
+    },
+    "connector-input-unmapped.bpmn20.xml": {
+      "expect": [
+        "activiti/connector-required-input-unmapped@lookup"
+      ],
+      "context": [
+        "connectors/crm.json"
+      ]
+    },
+    "decision-unknown.bpmn20.xml": {
+      "expect": [
+        "activiti/decision-task-unknown-decision@decide"
+      ],
+      "context": [
+        "processes/grade.dmn"
+      ]
+    },
+    "decision-input-unmapped.bpmn20.xml": {
+      "expect": [
+        "activiti/decision-input-unmapped@decide"
+      ],
+      "context": [
+        "processes/grade.dmn"
+      ]
+    },
+    "skip-expression.bpmn20.xml": {
+      "expect": [
+        "activiti/skip-expression-needs-enable-variable@review"
+      ]
+    },
+    "invalid-property-type.bpmn20.xml": {
+      "expect": [
+        "activiti/property-type-invalid@badProperty"
+      ]
+    },
+    "call-unknown-process.bpmn20.xml": {
+      "expect": [
+        "activiti/called-element-unknown@call"
+      ],
+      "context": [
+        "processes/other.bpmn20.xml"
+      ]
+    },
+    "call-activity-invalid.bpmn20.xml": {
+      "expect": [
+        "activiti/called-element-invalid@call"
+      ]
+    },
+    "cancel-end-without-compensation.bpmn20.xml": {
+      "expect": [
+        "activiti/cancel-end-without-compensation@txCancel"
+      ]
+    },
+    "failed-job-retry-on-user-task.bpmn20.xml": {
+      "expect": [
+        "activiti/failed-job-retry-ignored@review"
+      ]
+    },
+    "map-exception-delegate-expression.bpmn20.xml": {
+      "expect": [
+        "activiti/map-exception-ignored@call"
+      ]
+    },
+    "process-end-listener-sets-variable.bpmn20.xml": {
+      "expect": [
+        "activiti/process-end-listener-sets-variable@endListener"
+      ]
+    },
+    "camunda-modeler.bpmn20.xml": {
+      "expect": [
+        "activiti/missing-mapping@review",
+        "activiti/no-camunda-extensions@Definitions_camunda",
+        "activiti/no-camunda-extensions@Definitions_camunda",
+        "activiti/no-camunda-extensions@approval",
+        "activiti/no-camunda-extensions@archive",
+        "activiti/no-camunda-extensions@archive",
+        "activiti/no-camunda-extensions@archive",
+        "activiti/no-camunda-extensions@archive",
+        "activiti/no-camunda-extensions@notify",
+        "activiti/no-camunda-extensions@review",
+        "activiti/no-camunda-extensions@review",
+        "activiti/no-camunda-extensions@review",
+        "activiti/no-camunda-extensions@review",
+        "activiti/no-camunda-extensions@review",
+        "activiti/no-camunda-extensions@review",
+        "activiti/no-camunda-extensions@start",
+        "activiti/no-camunda-extensions@start",
+        "activiti/service-task-missing-implementation@archive",
+        "activiti/service-task-missing-implementation@notify"
+      ],
+      "afterFixes": [
+        "activiti/initiator-needs-authenticated-user@start",
+        "activiti/json-property-without-default@approval"
+      ]
+    },
+    "camunda-external-task.bpmn20.xml": {
+      "expect": [
+        "activiti/no-camunda-extensions@work",
+        "activiti/no-camunda-extensions@work",
+        "activiti/service-task-missing-implementation@work"
+      ],
+      "afterFixes": [
+        "activiti/service-task-missing-implementation@work"
+      ]
+    },
+    "legacy-discount.dmn": {
+      "expect": [
+        "activiti/dmn-legacy-version",
+        "activiti/dmn-output-without-name@output1"
+      ]
+    },
+    "link-end-event.bpmn20.xml": {
+      "expect": [
+        "activiti/no-unsupported-end-event@jump"
+      ]
+    },
+    "multiple-event-definitions.bpmn20.xml": {
+      "expect": [
+        "bpmnlint/single-event-definition@multi",
+        "bpmnlint/single-event-definition@both"
+      ]
+    }
+  }
+}

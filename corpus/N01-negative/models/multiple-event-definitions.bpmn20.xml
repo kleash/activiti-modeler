@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_multipleEvents" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:signal id="Signal_go" name="go" />
+  <bpmn:process id="multipleEvents" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:intermediateCatchEvent id="multi" name="Timer or signal"><bpmn:timerEventDefinition id="m_timer"><bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT1H</bpmn:timeDuration></bpmn:timerEventDefinition><bpmn:signalEventDefinition id="m_signal" signalRef="Signal_go" /></bpmn:intermediateCatchEvent>
+    <bpmn:intermediateCatchEvent id="both" name="Timer and signal" parallelMultiple="true"><bpmn:timerEventDefinition id="p_timer"><bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT2H</bpmn:timeDuration></bpmn:timerEventDefinition><bpmn:signalEventDefinition id="p_signal" signalRef="Signal_go" /></bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_multi" sourceRef="start" targetRef="multi" />
+    <bpmn:sequenceFlow id="f_multi_both" sourceRef="multi" targetRef="both" />
+    <bpmn:sequenceFlow id="f_both_end" sourceRef="both" targetRef="end" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_multipleEvents">
+    <bpmndi:BPMNPlane id="BPMNPlane_multipleEvents" bpmnElement="multipleEvents">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="150" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="multi_di" bpmnElement="multi"><dc:Bounds x="246" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="both_di" bpmnElement="both"><dc:Bounds x="342" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end"><dc:Bounds x="438" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_multi_di" bpmnElement="f_start_multi"><di:waypoint x="186" y="160" /><di:waypoint x="246" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_multi_both_di" bpmnElement="f_multi_both"><di:waypoint x="282" y="160" /><di:waypoint x="342" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_both_end_di" bpmnElement="f_both_end"><di:waypoint x="378" y="160" /><di:waypoint x="438" y="160" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,18 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C03 autoStoreVariables",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "variables assigned by a JavaScript are not stored, with or without activiti:autoStoreVariables",
+      "description": "Engine finding 25: the flag only makes ScriptBindings.put write to the process, and Nashorn never calls put for global assignments.",
+      "start": { "process": "autoStore", "user": "ann" },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "absentVariables": ["plainGlobal", "plainLocal", "storedGlobal", "storedLocal"],
+        "path": { "order": [["assignPlain", "assignStored"]], "sequenceFlows": ["f_start_assignPlain", "f_assignPlain_assignStored", "f_assignStored_end"] }
+      }
+    }
+  ]
+}

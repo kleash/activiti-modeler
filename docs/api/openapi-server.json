@@ -1,0 +1,3103 @@
+{
+  "components" : {
+    "schemas" : {
+      "AssignRequest" : {
+        "properties" : {
+          "assignee" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "assignee" ],
+        "type" : "object"
+      },
+      "CompleteRequest" : {
+        "properties" : {
+          "variables" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "DeadLetterRetryRequest" : {
+        "properties" : {
+          "execute" : {
+            "type" : "boolean"
+          },
+          "retries" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "DecisionInfo" : {
+        "properties" : {
+          "aggregation" : {
+            "type" : "string"
+          },
+          "hitPolicy" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "inputCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "outputs" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "requires" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "ruleIds" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "id", "inputCount", "kind", "outputs", "requires", "ruleIds" ],
+        "type" : "object"
+      },
+      "DecisionOutcome" : {
+        "properties" : {
+          "decisionId" : {
+            "type" : "string"
+          },
+          "decisions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DecisionStep"
+            },
+            "type" : "array"
+          },
+          "engine" : {
+            "type" : "string"
+          },
+          "matched" : {
+            "type" : "boolean"
+          },
+          "matchedRules" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "rows" : {
+            "items" : {
+              "additionalProperties" : { },
+              "type" : "object"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "decisionId", "decisions", "engine", "matched", "matchedRules", "rows" ],
+        "type" : "object"
+      },
+      "DecisionReport" : {
+        "properties" : {
+          "durationMs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "failures" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "PASSED", "FAILED", "SKIPPED" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "DecisionRequest" : {
+        "properties" : {
+          "decisionRef" : {
+            "type" : "string"
+          },
+          "deploymentId" : {
+            "type" : "string"
+          },
+          "dmn" : {
+            "type" : "string"
+          },
+          "inputs" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "DecisionResource" : {
+        "properties" : {
+          "decisions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DecisionInfo"
+            },
+            "type" : "array"
+          },
+          "definitionsName" : {
+            "type" : "string"
+          },
+          "error" : {
+            "type" : "string"
+          },
+          "resourceName" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "decisions", "resourceName" ],
+        "type" : "object"
+      },
+      "DecisionStep" : {
+        "properties" : {
+          "aggregation" : {
+            "type" : "string"
+          },
+          "decisionId" : {
+            "type" : "string"
+          },
+          "decisionName" : {
+            "type" : "string"
+          },
+          "hitPolicy" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "matchedRules" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "multiResult" : {
+            "type" : "boolean"
+          },
+          "rows" : {
+            "items" : {
+              "additionalProperties" : { },
+              "type" : "object"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "decisionId", "kind", "matchedRules", "multiResult", "rows" ],
+        "type" : "object"
+      },
+      "DefinitionDecisions" : {
+        "properties" : {
+          "dmnAvailable" : {
+            "type" : "boolean"
+          },
+          "resources" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DecisionResource"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "dmnAvailable", "resources" ],
+        "type" : "object"
+      },
+      "DefinitionExtensions" : {
+        "properties" : {
+          "extensions" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "resourceName" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "extensions", "resourceName" ],
+        "type" : "object"
+      },
+      "Delivered" : {
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "name", "type" ],
+        "type" : "object"
+      },
+      "DeployRequest" : {
+        "properties" : {
+          "files" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FileEntry"
+            },
+            "type" : "array"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "files" ],
+        "type" : "object"
+      },
+      "DeployResponse" : {
+        "properties" : {
+          "decisions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DecisionResource"
+            },
+            "type" : "array"
+          },
+          "definitions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DeployedDefinition"
+            },
+            "type" : "array"
+          },
+          "deploymentId" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "problems" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Problem"
+            },
+            "type" : "array"
+          },
+          "resources" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "decisions", "definitions", "deploymentId", "problems", "resources" ],
+        "type" : "object"
+      },
+      "DeployedDefinition" : {
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "resourceName" : {
+            "type" : "string"
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "id", "key", "resourceName", "version" ],
+        "type" : "object"
+      },
+      "Deployment" : {
+        "properties" : {
+          "category" : {
+            "type" : "string"
+          },
+          "deploymentTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "tenantId" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id" ],
+        "type" : "object"
+      },
+      "DeploymentResource" : {
+        "properties" : {
+          "kind" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "kind", "name" ],
+        "type" : "object"
+      },
+      "EngineAsyncExecutor" : {
+        "properties" : {
+          "active" : {
+            "type" : "boolean"
+          },
+          "configured" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "active", "configured" ],
+        "type" : "object"
+      },
+      "EngineDmn" : {
+        "properties" : {
+          "available" : {
+            "type" : "boolean"
+          },
+          "engine" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "available" ],
+        "type" : "object"
+      },
+      "EngineInfo" : {
+        "properties" : {
+          "activitiVersion" : {
+            "type" : "string"
+          },
+          "asyncExecutor" : {
+            "$ref" : "#/components/schemas/EngineAsyncExecutor"
+          },
+          "basePath" : {
+            "type" : "string"
+          },
+          "beans" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "connectors" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "dbHistoryUsed" : {
+            "type" : "boolean"
+          },
+          "deploymentMode" : {
+            "type" : "string"
+          },
+          "dmn" : {
+            "$ref" : "#/components/schemas/EngineDmn"
+          },
+          "historyLevel" : {
+            "type" : "string"
+          },
+          "javaVersion" : {
+            "type" : "string"
+          },
+          "scriptEngines" : {
+            "items" : {
+              "$ref" : "#/components/schemas/EngineScriptEngine"
+            },
+            "type" : "array"
+          },
+          "springBootVersion" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "activitiVersion", "asyncExecutor", "basePath", "beans", "connectors", "dbHistoryUsed", "dmn", "javaVersion", "scriptEngines", "springBootVersion" ],
+        "type" : "object"
+      },
+      "EngineScriptEngine" : {
+        "properties" : {
+          "extensions" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "languages" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "extensions", "languages", "name" ],
+        "type" : "object"
+      },
+      "FileEntry" : {
+        "properties" : {
+          "content" : {
+            "type" : "string"
+          },
+          "path" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "content", "path" ],
+        "type" : "object"
+      },
+      "FileReport" : {
+        "properties" : {
+          "decisions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DecisionReport"
+            },
+            "type" : "array"
+          },
+          "durationMs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "scenarios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ScenarioReport"
+            },
+            "type" : "array"
+          },
+          "source" : {
+            "type" : "string"
+          },
+          "visited" : {
+            "$ref" : "#/components/schemas/VisitedElements"
+          }
+        },
+        "type" : "object"
+      },
+      "FireResult" : {
+        "properties" : {
+          "executableJobId" : {
+            "type" : "string"
+          },
+          "executedBy" : {
+            "type" : "string"
+          },
+          "timerJobId" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "executableJobId", "executedBy", "timerJobId" ],
+        "type" : "object"
+      },
+      "Health" : {
+        "properties" : {
+          "app" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "time" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "InstanceActivityStep" : {
+        "properties" : {
+          "activityId" : {
+            "type" : "string"
+          },
+          "activityName" : {
+            "type" : "string"
+          },
+          "activityType" : {
+            "type" : "string"
+          },
+          "assignee" : {
+            "type" : "string"
+          },
+          "calledProcessInstanceId" : {
+            "type" : "string"
+          },
+          "deleteReason" : {
+            "type" : "string"
+          },
+          "durationMillis" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "endTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "executionId" : {
+            "type" : "string"
+          },
+          "startTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "taskId" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "activityId", "activityType", "startTime" ],
+        "type" : "object"
+      },
+      "InstanceDetail" : {
+        "properties" : {
+          "activeActivityIds" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "businessKey" : {
+            "type" : "string"
+          },
+          "children" : {
+            "items" : {
+              "$ref" : "#/components/schemas/InstanceSummary"
+            },
+            "type" : "array"
+          },
+          "deleteReason" : {
+            "type" : "string"
+          },
+          "deploymentId" : {
+            "type" : "string"
+          },
+          "durationMillis" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "endActivityId" : {
+            "type" : "string"
+          },
+          "endTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "executions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/InstanceExecution"
+            },
+            "type" : "array"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "jobs" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Job"
+            },
+            "type" : "array"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "path" : {
+            "$ref" : "#/components/schemas/InstancePath"
+          },
+          "processDefinitionId" : {
+            "type" : "string"
+          },
+          "processDefinitionKey" : {
+            "type" : "string"
+          },
+          "processDefinitionName" : {
+            "type" : "string"
+          },
+          "processDefinitionVersion" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "startActivityId" : {
+            "type" : "string"
+          },
+          "startTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "startUserId" : {
+            "type" : "string"
+          },
+          "state" : {
+            "type" : "string"
+          },
+          "superProcessInstanceId" : {
+            "type" : "string"
+          },
+          "tasks" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Task"
+            },
+            "type" : "array"
+          },
+          "variables" : {
+            "items" : {
+              "$ref" : "#/components/schemas/InstanceVariable"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "activeActivityIds", "children", "deploymentId", "executions", "id", "jobs", "path", "processDefinitionId", "processDefinitionKey", "state", "tasks", "variables" ],
+        "type" : "object"
+      },
+      "InstanceExecution" : {
+        "properties" : {
+          "activityId" : {
+            "type" : "string"
+          },
+          "activityName" : {
+            "type" : "string"
+          },
+          "activityType" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "parentId" : {
+            "type" : "string"
+          },
+          "suspended" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "activityId", "id", "suspended" ],
+        "type" : "object"
+      },
+      "InstanceFlowStep" : {
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "order" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "sourceActivityId" : {
+            "type" : "string"
+          },
+          "targetActivityId" : {
+            "type" : "string"
+          },
+          "time" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [ "id" ],
+        "type" : "object"
+      },
+      "InstancePath" : {
+        "properties" : {
+          "activities" : {
+            "items" : {
+              "$ref" : "#/components/schemas/InstanceActivityStep"
+            },
+            "type" : "array"
+          },
+          "sequenceFlows" : {
+            "items" : {
+              "$ref" : "#/components/schemas/InstanceFlowStep"
+            },
+            "type" : "array"
+          },
+          "sequenceFlowsSource" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "activities", "sequenceFlows", "sequenceFlowsSource" ],
+        "type" : "object"
+      },
+      "InstanceSummary" : {
+        "properties" : {
+          "businessKey" : {
+            "type" : "string"
+          },
+          "deleteReason" : {
+            "type" : "string"
+          },
+          "endTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "processDefinitionId" : {
+            "type" : "string"
+          },
+          "processDefinitionKey" : {
+            "type" : "string"
+          },
+          "processDefinitionName" : {
+            "type" : "string"
+          },
+          "processDefinitionVersion" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "startTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "startUserId" : {
+            "type" : "string"
+          },
+          "state" : {
+            "type" : "string"
+          },
+          "superProcessInstanceId" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "id", "processDefinitionId", "processDefinitionKey", "state" ],
+        "type" : "object"
+      },
+      "InstanceVariable" : {
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "value" : { }
+        },
+        "required" : [ "name" ],
+        "type" : "object"
+      },
+      "InstanceVariableUpdate" : {
+        "properties" : {
+          "executionId" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "revision" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "taskId" : {
+            "type" : "string"
+          },
+          "time" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "value" : { }
+        },
+        "required" : [ "name", "revision" ],
+        "type" : "object"
+      },
+      "Job" : {
+        "properties" : {
+          "activityId" : {
+            "type" : "string"
+          },
+          "dueDate" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "exceptionMessage" : {
+            "type" : "string"
+          },
+          "exclusive" : {
+            "type" : "boolean"
+          },
+          "executionId" : {
+            "type" : "string"
+          },
+          "handlerType" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "jobType" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "processDefinitionId" : {
+            "type" : "string"
+          },
+          "processInstanceId" : {
+            "type" : "string"
+          },
+          "retries" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "exclusive", "id", "kind", "retries" ],
+        "type" : "object"
+      },
+      "JobDetail" : {
+        "properties" : {
+          "job" : {
+            "$ref" : "#/components/schemas/Job"
+          },
+          "stacktrace" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "job" ],
+        "type" : "object"
+      },
+      "JsonNode" : { },
+      "Mailbox" : {
+        "properties" : {
+          "host" : {
+            "type" : "string"
+          },
+          "messages" : {
+            "items" : {
+              "additionalProperties" : { },
+              "type" : "object"
+            },
+            "type" : "array"
+          },
+          "port" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "MessageRequest" : {
+        "properties" : {
+          "correlationKey" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "variables" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          }
+        },
+        "required" : [ "name" ],
+        "type" : "object"
+      },
+      "PageDtoDeployment" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Deployment"
+            },
+            "type" : "array"
+          },
+          "page" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "items", "page", "size", "total" ],
+        "type" : "object"
+      },
+      "PageDtoInstanceSummary" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/InstanceSummary"
+            },
+            "type" : "array"
+          },
+          "page" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "items", "page", "size", "total" ],
+        "type" : "object"
+      },
+      "PageDtoJob" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Job"
+            },
+            "type" : "array"
+          },
+          "page" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "items", "page", "size", "total" ],
+        "type" : "object"
+      },
+      "PageDtoProcessDefinition" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ProcessDefinition"
+            },
+            "type" : "array"
+          },
+          "page" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "items", "page", "size", "total" ],
+        "type" : "object"
+      },
+      "PageDtoTask" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Task"
+            },
+            "type" : "array"
+          },
+          "page" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "items", "page", "size", "total" ],
+        "type" : "object"
+      },
+      "Problem" : {
+        "properties" : {
+          "column" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "elementId" : {
+            "type" : "string"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "line" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "path" : {
+            "type" : "string"
+          },
+          "severity" : {
+            "type" : "string"
+          },
+          "source" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "key", "message", "severity", "source" ],
+        "type" : "object"
+      },
+      "ProcessDefinition" : {
+        "properties" : {
+          "category" : {
+            "type" : "string"
+          },
+          "deploymentId" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "diagramResourceName" : {
+            "type" : "string"
+          },
+          "hasStartFormKey" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "resourceName" : {
+            "type" : "string"
+          },
+          "runningInstances" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "suspended" : {
+            "type" : "boolean"
+          },
+          "tenantId" : {
+            "type" : "string"
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "deploymentId", "hasStartFormKey", "id", "key", "resourceName", "suspended", "version" ],
+        "type" : "object"
+      },
+      "RetriesRequest" : {
+        "properties" : {
+          "retries" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "retries" ],
+        "type" : "object"
+      },
+      "ScenarioReport" : {
+        "properties" : {
+          "durationMs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "failures" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "rootProcessInstanceId" : {
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "PASSED", "FAILED", "SKIPPED" ],
+            "type" : "string"
+          },
+          "steps" : {
+            "items" : {
+              "$ref" : "#/components/schemas/StepReport"
+            },
+            "type" : "array"
+          },
+          "visited" : {
+            "$ref" : "#/components/schemas/VisitedElements"
+          }
+        },
+        "type" : "object"
+      },
+      "ScenarioRunRequest" : {
+        "properties" : {
+          "files" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FileEntry"
+            },
+            "type" : "array"
+          },
+          "scenario" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          }
+        },
+        "required" : [ "files", "scenario" ],
+        "type" : "object"
+      },
+      "ScenarioRunResponse" : {
+        "properties" : {
+          "durationMillis" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "passed" : {
+            "type" : "boolean"
+          },
+          "rendered" : {
+            "type" : "string"
+          },
+          "report" : {
+            "$ref" : "#/components/schemas/FileReport"
+          }
+        },
+        "required" : [ "durationMillis", "passed", "rendered", "report" ],
+        "type" : "object"
+      },
+      "SignalRequest" : {
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "variables" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          }
+        },
+        "required" : [ "name" ],
+        "type" : "object"
+      },
+      "StartRequest" : {
+        "properties" : {
+          "businessKey" : {
+            "type" : "string"
+          },
+          "messageName" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "processDefinitionId" : {
+            "type" : "string"
+          },
+          "processKey" : {
+            "type" : "string"
+          },
+          "variables" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "StepReport" : {
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "durationMs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "index" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "PASSED", "FAILED", "SKIPPED" ],
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Task" : {
+        "properties" : {
+          "assignee" : {
+            "type" : "string"
+          },
+          "candidateGroups" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "candidateUsers" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "category" : {
+            "type" : "string"
+          },
+          "claimTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "createTime" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "dueDate" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "executionId" : {
+            "type" : "string"
+          },
+          "formKey" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "localVariables" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "owner" : {
+            "type" : "string"
+          },
+          "parentTaskId" : {
+            "type" : "string"
+          },
+          "priority" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "processDefinitionId" : {
+            "type" : "string"
+          },
+          "processInstanceId" : {
+            "type" : "string"
+          },
+          "suspended" : {
+            "type" : "boolean"
+          },
+          "taskDefinitionKey" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "createTime", "id", "priority", "suspended" ],
+        "type" : "object"
+      },
+      "TriggerRequest" : {
+        "properties" : {
+          "variables" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "ValidateRequest" : {
+        "properties" : {
+          "files" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FileEntry"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "files" ],
+        "type" : "object"
+      },
+      "ValidateResponse" : {
+        "properties" : {
+          "asyncExecutorActive" : {
+            "type" : "boolean"
+          },
+          "checked" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "problems" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Problem"
+            },
+            "type" : "array"
+          },
+          "valid" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "asyncExecutorActive", "checked", "problems", "valid" ],
+        "type" : "object"
+      },
+      "VariablesRequest" : {
+        "properties" : {
+          "variables" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "VisitedElements" : {
+        "properties" : {
+          "byProcess" : {
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/Visits"
+            },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "Visits" : {
+        "properties" : {
+          "flows" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "nodes" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          }
+        },
+        "type" : "object"
+      },
+      "WorkspaceEntry" : {
+        "properties" : {
+          "modified" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "path" : {
+            "type" : "string"
+          },
+          "size" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "path", "type" ],
+        "type" : "object"
+      },
+      "WorkspaceListing" : {
+        "properties" : {
+          "entries" : {
+            "items" : {
+              "$ref" : "#/components/schemas/WorkspaceEntry"
+            },
+            "type" : "array"
+          },
+          "path" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "entries", "path" ],
+        "type" : "object"
+      }
+    },
+    "securitySchemes" : {
+      "basic" : {
+        "scheme" : "basic",
+        "type" : "http"
+      }
+    }
+  },
+  "info" : {
+    "description" : "Runtime REST core (definitions, instances, tasks, events, jobs), dev endpoints (validate, deploy, scenarios, decisions, workspace, mail) and the server's own endpoints. HTTP Basic.",
+    "title" : "Activiti modeler server API",
+    "version" : "0.1.0"
+  },
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/api/deadletter/{id}/retry" : {
+      "post" : {
+        "operationId" : "retryDeadLetterJob",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeadLetterRetryRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Job"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Move a dead-letter job back to the executable table (moveDeadLetterJobToExecutableJob)",
+        "tags" : [ "Jobs" ]
+      }
+    },
+    "/api/deployments" : {
+      "get" : {
+        "operationId" : "listDeployments",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "nameLike",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageDtoDeployment"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Deployments, newest first",
+        "tags" : [ "Deployments" ]
+      }
+    },
+    "/api/deployments/{id}" : {
+      "get" : {
+        "operationId" : "getDeployment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Deployment"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "One deployment",
+        "tags" : [ "Deployments" ]
+      }
+    },
+    "/api/deployments/{id}/resource" : {
+      "get" : {
+        "operationId" : "getDeploymentResource",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "format" : "byte",
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The content of one resource of a deployment (name as listed, a query parameter because names may be paths)",
+        "tags" : [ "Deployments" ]
+      }
+    },
+    "/api/deployments/{id}/resources" : {
+      "get" : {
+        "operationId" : "listDeploymentResources",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/DeploymentResource"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Resource names of a deployment, with their kind (bpmn, dmn, extensions, image, other)",
+        "tags" : [ "Deployments" ]
+      }
+    },
+    "/api/dev/decisions/evaluate" : {
+      "post" : {
+        "operationId" : "devEvaluateDecision",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DecisionOutcome"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Evaluate a decision of an uploaded DMN document or of a deployment: result rows and matched rule ids",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/deployments" : {
+      "post" : {
+        "operationId" : "devDeploy",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeployRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeployResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Deploy the files as one deployment, with their names as given; refused with 422 and the findings when the project has errors",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/deployments/{id}" : {
+      "delete" : {
+        "operationId" : "devDeleteDeployment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "cascade",
+          "required" : false,
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Delete a deployment with its instances, jobs and history",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/mail" : {
+      "delete" : {
+        "operationId" : "devMailPurge",
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Delete every received message",
+        "tags" : [ "Dev" ]
+      },
+      "get" : {
+        "operationId" : "devMailList",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Mailbox"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Messages received by the embedded SMTP server",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/scenarios/run" : {
+      "post" : {
+        "operationId" : "devRunScenario",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ScenarioRunRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ScenarioRunResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Run a scenario file against the files, on the running engine in EXECUTOR mode; the files are deployed for the run and removed afterwards",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/validate" : {
+      "post" : {
+        "operationId" : "devValidate",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ValidateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidateResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Check a project: BPMN XSD, RepositoryService.validateProcess, a trial deployment into a scratch engine, a dry load of the extensions JSON, a DMN parse",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/workspace" : {
+      "get" : {
+        "operationId" : "devWorkspaceRoot",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "recursive",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkspaceListing"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The root of the workspace: JSON listing (recursive=true for the whole tree)",
+        "tags" : [ "Workspace" ]
+      }
+    },
+    "/api/dev/workspace/{path}" : {
+      "delete" : {
+        "operationId" : "devWorkspaceDelete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "recursive",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "summary" : "Delete a file, or a directory (empty, or with recursive=true)",
+        "tags" : [ "Workspace" ]
+      },
+      "get" : {
+        "operationId" : "devWorkspaceGet",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "recursive",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "A directory (JSON listing; recursive=true for the whole tree) or the content of a file",
+        "tags" : [ "Workspace" ]
+      },
+      "put" : {
+        "operationId" : "devWorkspacePut",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "format" : "byte",
+                "type" : "string"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "summary" : "Create or replace a file with the request body (atomically); parent directories are created",
+        "tags" : [ "Workspace" ]
+      }
+    },
+    "/api/engine" : {
+      "get" : {
+        "operationId" : "getEngine",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EngineInfo"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Versions, history level, async executor, DMN engine, connector names, bean names and script engines",
+        "tags" : [ "Engine" ]
+      }
+    },
+    "/api/executions/{id}/trigger" : {
+      "post" : {
+        "operationId" : "triggerExecution",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TriggerRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Delivered"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Trigger an execution that waits at a receive task (RuntimeService.trigger)",
+        "tags" : [ "Events" ]
+      }
+    },
+    "/api/health" : {
+      "get" : {
+        "operationId" : "getHealth",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Health"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Liveness; public",
+        "tags" : [ "Server" ]
+      }
+    },
+    "/api/jobs" : {
+      "get" : {
+        "operationId" : "listJobs",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "kind",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "JOB", "TIMER", "SUSPENDED", "DEADLETTER" ],
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "processInstanceId",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "withException",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageDtoJob"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Jobs of all tables (JOB, TIMER, SUSPENDED, DEADLETTER) or of one kind",
+        "tags" : [ "Jobs" ]
+      }
+    },
+    "/api/jobs/{id}" : {
+      "get" : {
+        "operationId" : "getJob",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/JobDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "A job in whichever table it is, with the stack trace of its last failure",
+        "tags" : [ "Jobs" ]
+      }
+    },
+    "/api/jobs/{id}/execute" : {
+      "post" : {
+        "operationId" : "executeJob",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Execute an executable job now (ManagementService.executeJob)",
+        "tags" : [ "Jobs" ]
+      }
+    },
+    "/api/jobs/{id}/retries" : {
+      "post" : {
+        "operationId" : "setJobRetries",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RetriesRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Set the retries of an executable or timer job",
+        "tags" : [ "Jobs" ]
+      }
+    },
+    "/api/messages" : {
+      "post" : {
+        "operationId" : "sendMessage",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MessageRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Delivered"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Send a message to the one waiting subscription of that name and correlation key (ProcessRuntime.receive); to start an instance by message use POST /process-instances",
+        "tags" : [ "Events" ]
+      }
+    },
+    "/api/process-definitions" : {
+      "get" : {
+        "operationId" : "listProcessDefinitions",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "key",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "nameLike",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "latest",
+          "required" : false,
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "deploymentId",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "suspended",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "includeCounts",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageDtoProcessDefinition"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Process definitions (latest versions by default)",
+        "tags" : [ "Process definitions" ]
+      }
+    },
+    "/api/process-definitions/{id}" : {
+      "get" : {
+        "operationId" : "getProcessDefinition",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "includeCounts",
+          "required" : false,
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProcessDefinition"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "One definition, by id or by key (the latest version)",
+        "tags" : [ "Process definitions" ]
+      }
+    },
+    "/api/process-definitions/{id}/activate" : {
+      "post" : {
+        "operationId" : "activateProcessDefinition",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Activate a suspended definition",
+        "tags" : [ "Process definitions" ]
+      }
+    },
+    "/api/process-definitions/{id}/decisions" : {
+      "get" : {
+        "operationId" : "getProcessDefinitionDecisions",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DefinitionDecisions"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The DMN decisions in the definition's deployment",
+        "tags" : [ "Process definitions" ]
+      }
+    },
+    "/api/process-definitions/{id}/extensions" : {
+      "get" : {
+        "operationId" : "getProcessDefinitionExtensions",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DefinitionExtensions"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The entry of the definition in the *-extensions.json of its deployment",
+        "tags" : [ "Process definitions" ]
+      }
+    },
+    "/api/process-definitions/{id}/suspend" : {
+      "post" : {
+        "operationId" : "suspendProcessDefinition",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Suspend a definition: no new instances",
+        "tags" : [ "Process definitions" ]
+      }
+    },
+    "/api/process-definitions/{id}/xml" : {
+      "get" : {
+        "operationId" : "getProcessDefinitionXml",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/xml" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The BPMN XML of a definition",
+        "tags" : [ "Process definitions" ]
+      }
+    },
+    "/api/process-instances" : {
+      "get" : {
+        "operationId" : "listProcessInstances",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "state",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "definitionKey",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "definitionId",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "businessKey",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "startedBy",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "parentId",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageDtoInstanceSummary"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Instances, newest first; running and ended",
+        "tags" : [ "Process instances" ]
+      },
+      "post" : {
+        "operationId" : "startProcessInstance",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StartRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InstanceDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Start an instance by key, definition id or message, as the authenticated user (ProcessRuntime)",
+        "tags" : [ "Process instances" ]
+      }
+    },
+    "/api/process-instances/{id}" : {
+      "delete" : {
+        "operationId" : "deleteProcessInstance",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "reason",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "purgeHistory",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Cancel a running instance; with purgeHistory=true (admin only) delete the history of an ended one",
+        "tags" : [ "Process instances" ]
+      },
+      "get" : {
+        "operationId" : "getProcessInstance",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InstanceDetail"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "State, active activities, path (activities and sequence flows taken), variables, tasks, jobs, executions and child instances",
+        "tags" : [ "Process instances" ]
+      }
+    },
+    "/api/process-instances/{id}/activate" : {
+      "post" : {
+        "operationId" : "activateProcessInstance",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Activate a suspended instance",
+        "tags" : [ "Process instances" ]
+      }
+    },
+    "/api/process-instances/{id}/path" : {
+      "get" : {
+        "operationId" : "getProcessInstancePath",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InstancePath"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The activities an instance entered and the sequence flows it took",
+        "tags" : [ "Process instances" ]
+      }
+    },
+    "/api/process-instances/{id}/suspend" : {
+      "post" : {
+        "operationId" : "suspendProcessInstance",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Suspend a running instance",
+        "tags" : [ "Process instances" ]
+      }
+    },
+    "/api/process-instances/{id}/variables" : {
+      "delete" : {
+        "operationId" : "removeProcessInstanceVariables",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "name",
+          "required" : true,
+          "schema" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Remove process variables of a running instance (repeat the name parameter)",
+        "tags" : [ "Process instances" ]
+      },
+      "get" : {
+        "operationId" : "getProcessInstanceVariables",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/InstanceVariable"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Process variables: live while running, from history afterwards",
+        "tags" : [ "Process instances" ]
+      },
+      "put" : {
+        "operationId" : "setProcessInstanceVariables",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/VariablesRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Set process variables of a running instance",
+        "tags" : [ "Process instances" ]
+      }
+    },
+    "/api/process-instances/{id}/variables/history" : {
+      "get" : {
+        "operationId" : "getProcessInstanceVariableHistory",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/InstanceVariableUpdate"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Every update of every process variable",
+        "tags" : [ "Process instances" ]
+      }
+    },
+    "/api/signals" : {
+      "post" : {
+        "operationId" : "sendSignal",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SignalRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Delivered"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Broadcast a signal to every waiting instance (ProcessRuntime.signal)",
+        "tags" : [ "Events" ]
+      }
+    },
+    "/api/tasks" : {
+      "get" : {
+        "operationId" : "listTasks",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "processInstanceId",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "assignee",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "candidateUser",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "candidateGroup",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "unassigned",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "nameLike",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "taskDefinitionKey",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "mine",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "candidates",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "variables",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageDtoTask"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Open tasks, newest first; mine=true shows the tasks TaskRuntime shows the authenticated user",
+        "tags" : [ "Tasks" ]
+      }
+    },
+    "/api/tasks/{id}" : {
+      "get" : {
+        "operationId" : "getTask",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Task"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "One open task with its candidates and local variables",
+        "tags" : [ "Tasks" ]
+      }
+    },
+    "/api/tasks/{id}/assign" : {
+      "post" : {
+        "operationId" : "assignTask",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AssignRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Task"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Assign a task to a candidate user: the assignee hands it over (TaskRuntime); an admin reassigns any task (TaskAdminRuntime)",
+        "tags" : [ "Tasks" ]
+      }
+    },
+    "/api/tasks/{id}/claim" : {
+      "post" : {
+        "operationId" : "claimTask",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Task"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Claim a task for the authenticated user",
+        "tags" : [ "Tasks" ]
+      }
+    },
+    "/api/tasks/{id}/complete" : {
+      "post" : {
+        "operationId" : "completeTask",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CompleteRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Complete a task the authenticated user has claimed; the variables are local to the task and reach the process through the output mapping",
+        "tags" : [ "Tasks" ]
+      }
+    },
+    "/api/tasks/{id}/release" : {
+      "post" : {
+        "operationId" : "releaseTask",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Task"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Release a task the authenticated user has claimed",
+        "tags" : [ "Tasks" ]
+      }
+    },
+    "/api/timers/{id}/fire" : {
+      "post" : {
+        "operationId" : "fireTimer",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FireResult"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Fire a timer now: moveTimerToExecutableJob, then executeJob",
+        "tags" : [ "Jobs" ]
+      }
+    }
+  },
+  "security" : [ {
+    "basic" : [ ]
+  } ],
+  "tags" : [ {
+    "description" : "Project files on disk (modeler.workspace.dir): list, read, write, delete",
+    "name" : "Workspace"
+  }, {
+    "description" : "Development-only endpoints (activiti.rest.dev.enabled=true): validate, deploy, run scenarios, evaluate decisions, workspace files",
+    "name" : "Dev"
+  }, {
+    "description" : "Jobs, timers and dead-letter jobs",
+    "name" : "Jobs"
+  }, {
+    "description" : "Messages, signals and triggers",
+    "name" : "Events"
+  }, {
+    "description" : "Start, observe and manage process instances",
+    "name" : "Process instances"
+  }, {
+    "description" : "What the embedded runtime is and what a model can rely on",
+    "name" : "Engine"
+  }, {
+    "description" : "Definitions and their BPMN, extensions JSON and DMN decisions",
+    "name" : "Process definitions"
+  }, {
+    "description" : "User tasks, worked on as the authenticated user",
+    "name" : "Tasks"
+  }, {
+    "description" : "Deployments and the resources in them",
+    "name" : "Deployments"
+  }, {
+    "description" : "Mail sent by mail tasks to the embedded SMTP server",
+    "name" : "Dev"
+  }, {
+    "description" : "The modeler server itself",
+    "name" : "Server"
+  } ]
+}

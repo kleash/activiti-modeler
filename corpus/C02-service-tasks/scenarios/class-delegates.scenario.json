@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C02 class delegates with fields",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "string and expression fields reach the delegates",
+      "start": { "process": "classDelegates", "user": "ann", "variables": { "customerName": "Ann", "price": 12, "quantity": 5 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "greeting": "Hello, Ann", "total": 60, "counter": 2 },
+        "path": {
+          "order": [["setGreeting", "setTotal"], ["setTotal", "countOnce"], ["countOnce", "countTwice"]],
+          "sequenceFlows": ["f_start_setGreeting", "f_setGreeting_setTotal", "f_setTotal_countOnce", "f_countOnce_countTwice", "f_countTwice_end"]
+        }
+      }
+    }
+  ]
+}

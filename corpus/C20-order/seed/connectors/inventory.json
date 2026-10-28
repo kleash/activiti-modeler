@@ -1,0 +1,21 @@
+{
+  "id": "inventory",
+  "name": "inventory",
+  "description": "Stock reservations (bean inventory.RESERVE)",
+  "actions": {
+    "RESERVE": {
+      "id": "RESERVE",
+      "name": "Reserve stock",
+      "description": "Reserves a quantity of an item for an order",
+      "inputs": [
+        { "id": "sku", "name": "sku", "type": "string", "required": true },
+        { "id": "quantity", "name": "quantity", "type": "integer", "required": true }
+      ],
+      "outputs": [
+        { "id": "reservationId", "name": "reservationId", "type": "string" },
+        { "id": "reservedQuantity", "name": "reservedQuantity", "type": "integer" },
+        { "id": "reserved", "name": "reserved", "type": "boolean" }
+      ]
+    }
+  }
+}

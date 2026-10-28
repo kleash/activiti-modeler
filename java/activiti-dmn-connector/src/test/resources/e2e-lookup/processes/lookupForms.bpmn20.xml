@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_lookupForms"
+             targetNamespace="http://kleash.github.io/test/lookup">
+  <process id="lookupForms" name="lookupForms" isExecutable="true">
+    <startEvent id="start" />
+    <serviceTask id="byFileName" name="byFileName" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="byModelName" name="byModelName" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="byDecisionId" name="byDecisionId" implementation="dmn-connector.EXECUTE_TABLE" />
+    <endEvent id="end" />
+    <sequenceFlow id="flow_start_byFileName" sourceRef="start" targetRef="byFileName" />
+    <sequenceFlow id="flow_byFileName_byModelName" sourceRef="byFileName" targetRef="byModelName" />
+    <sequenceFlow id="flow_byModelName_byDecisionId" sourceRef="byModelName" targetRef="byDecisionId" />
+    <sequenceFlow id="flow_byDecisionId_end" sourceRef="byDecisionId" targetRef="end" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_lookupForms">
+    <bpmndi:BPMNPlane id="BPMNPlane_lookupForms" bpmnElement="lookupForms">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="40" y="120" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="byFileName_di" bpmnElement="byFileName">
+        <dc:Bounds x="130" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="byModelName_di" bpmnElement="byModelName">
+        <dc:Bounds x="300" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="byDecisionId_di" bpmnElement="byDecisionId">
+        <dc:Bounds x="470" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="640" y="120" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_start_byFileName_di" bpmnElement="flow_start_byFileName">
+        <di:waypoint x="76" y="138" />
+        <di:waypoint x="130" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_byFileName_byModelName_di" bpmnElement="flow_byFileName_byModelName">
+        <di:waypoint x="260" y="138" />
+        <di:waypoint x="300" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_byModelName_byDecisionId_di" bpmnElement="flow_byModelName_byDecisionId">
+        <di:waypoint x="430" y="138" />
+        <di:waypoint x="470" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_byDecisionId_end_di" bpmnElement="flow_byDecisionId_end">
+        <di:waypoint x="600" y="138" />
+        <di:waypoint x="640" y="138" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

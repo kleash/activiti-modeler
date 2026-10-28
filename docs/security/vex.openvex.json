@@ -1,0 +1,129 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://github.com/kleash/activiti-modeler/security/vex/2026-10-27",
+  "author": "Activiti Modeler maintainers",
+  "role": "Maintainers of the Activiti Modeler",
+  "timestamp": "2026-10-27T00:00:00Z",
+  "last_updated": "2026-10-27T00:00:00Z",
+  "version": 1,
+  "tooling": "Written by hand; checked against osv-scanner.toml by scripts/cve-scan-check.py",
+  "statements": [
+    {
+      "vulnerability": {
+        "name": "CVE-2026-47884",
+        "@id": "https://github.com/advisories/GHSA-pc63-qcmh-9cmg",
+        "description": "Spring Framework: use of XsltView in a Spring MVC application can result in SSRF and RCE if the application has a /** mapping that results in view rendering and the view name is not set explicitly.",
+        "aliases": [
+          "GHSA-pc63-qcmh-9cmg"
+        ]
+      },
+      "products": [
+        {
+          "@id": "pkg:maven/io.github.kleash.activiti/activiti-modeler-server",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/activiti-modeler?repository_url=ghcr.io/kleash/activiti-modeler",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:generic/activiti-modeler-desktop",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The server renders no XSLT views: it has no XsltView, no view resolver of its own and no template engine, its controllers are JSON REST endpoints, and its only catch-all mapping is a static resource handler that returns files without rendering a view. The embeddable libraries declare Spring MVC only as provided, so the host application's own Spring version applies to them; a host that adds XSLT views decides for itself. The fix exists only in Spring Framework 6.2.20 (Enterprise Support Only) and 7.0.9 (Spring Boot 4, not supported by a stable Activiti release)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-47890",
+        "@id": "https://github.com/advisories/GHSA-j9f9-w8pj-32f8",
+        "description": "Spring Framework: Spring MVC and WebFlux applications are vulnerable to Server-Sent Events stream corruption when SSE is used with view fragments.",
+        "aliases": [
+          "GHSA-j9f9-w8pj-32f8"
+        ]
+      },
+      "products": [
+        {
+          "@id": "pkg:maven/io.github.kleash.activiti/activiti-modeler-server",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/activiti-modeler?repository_url=ghcr.io/kleash/activiti-modeler",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:generic/activiti-modeler-desktop",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/org.springframework/spring-webmvc@6.2.19"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The server uses no Server-Sent Events (no SseEmitter, ServerSentEvent or text/event-stream) and renders no view fragments. The fix exists only in Spring Framework 6.2.20 (Enterprise Support Only) and 7.0.9 (Spring Boot 4, not supported by a stable Activiti release)."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-113730",
+        "@id": "https://github.com/advisories/GHSA-crwc-vw2r-qr6m",
+        "description": "OGNL: the optional stricter-invocation block list can be bypassed through java.lang.reflect proxies (a hardening of a secondary layer; the primary access control is the MemberAccess of the integrating framework).",
+        "aliases": [
+          "GHSA-crwc-vw2r-qr6m"
+        ]
+      },
+      "products": [
+        {
+          "@id": "pkg:maven/io.github.kleash.activiti/activiti-modeler-server",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/ognl/ognl@3.4.4"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/activiti-modeler?repository_url=ghcr.io/kleash/activiti-modeler",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/ognl/ognl@3.4.4"
+            }
+          ]
+        },
+        {
+          "@id": "pkg:generic/activiti-modeler-desktop",
+          "subcomponents": [
+            {
+              "@id": "pkg:maven/ognl/ognl@3.4.4"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_cannot_be_controlled_by_adversary",
+      "impact_statement": "OGNL 3.4.4 is repackaged inside org.mybatis:mybatis 3.5.19 (org.apache.ibatis.ognl). The advisory matters only to an application that evaluates attacker-controlled OGNL expressions. MyBatis evaluates OGNL only for the expressions written in mapper XML, which for the engine are packaged in the activiti-engine jar; user input supplies values, never expression text, and the server configures no custom mapper. The fixed OGNL (3.4.13 and newer) ships only in MyBatis 3.6.0, which activiti-engine 9.0.0 and 8.8.1 cannot run on (the engine fails to start with NoSuchMethodError TypeHandlerRegistry.register)."
+    }
+  ]
+}

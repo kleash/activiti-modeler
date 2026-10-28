@@ -1,0 +1,17 @@
+{
+  "id": "mi-connector-tasks-extensions",
+  "extensions": {
+    "miConnectorTasks": {
+      "properties": {
+        "p1": { "id": "p1", "name": "lastTier", "type": "string" }
+      },
+      "mappings": {
+        "lookupEach": {
+          "inputs": { "customerId": { "type": "VARIABLE", "value": "customerId" } },
+          "outputs": { "lastTier": { "type": "VARIABLE", "value": "tier" } }
+        },
+        "echoEach": { "mappingType": "MAP_ALL_INPUTS" }
+      }
+    }
+  }
+}

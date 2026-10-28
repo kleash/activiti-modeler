@@ -1,0 +1,190 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C20 insurance claim: default mappings on a multi-instance user task and on message start events of event sub processes",
+  "description": "No mapping on a user task or a message start event was written by hand: they carry the MAP_ALL the modeler gives them. The parallel multi-instance review has the modeler's default for a multi-instance user task, MAP_ALL_OUTPUTS (MAP_ALL would wedge it on the engine, map-all-multi-instance.scenario.json); its completion variable stays local to the instance and is collected into verdicts. The scenarios assert that the verdicts of the parallel reviewers are collected, that the sign-off of the manager and the payloads of the withdrawal and document messages reach the process, and that the exclusive gateway decides on those variables. Two engine limits shape the model: a non-interrupting message event sub process starts only once per instance, and an interrupting message event sub process cannot interrupt an active multi-instance user task (the withdrawal is a boundary event for that reason).",
+  "users": {
+    "ann": [],
+    "adj1": ["adjusters"],
+    "adj2": ["adjusters"],
+    "adj3": ["adjusters"],
+    "mia": ["claims-managers"]
+  },
+  "scenarios": [
+    {
+      "name": "a minor claim has one reviewer and is paid",
+      "start": {
+        "process": "insuranceClaim",
+        "businessKey": "CL-1",
+        "user": "ann",
+        "variables": { "claimId": "CL-1", "claimType": "AUTO", "claimAmount": 500 }
+      },
+      "steps": [
+        {
+          "expectTask": {
+            "activity": "assessClaim",
+            "count": 1,
+            "name": "Assess the claim",
+            "assignee": null,
+            "candidateGroups": ["adjusters"],
+            "visibleTo": ["adj1"],
+            "notVisibleTo": ["mia"],
+            "localVariables": {}
+          }
+        },
+        { "completeTask": { "activity": "assessClaim", "user": "adj1", "variables": { "verdict": "APPROVE" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["paidEnd"],
+        "path": {
+          "contains": ["triage", "assessClaim", "outcomeGateway", "payout", "paidEnd"],
+          "notContains": ["rejectedEnd", "managerSignOff", "onWithdrawal", "documentStart"],
+          "sequenceFlows": ["f_start_triage", "f_triage_assessClaim", "f_assessClaim_outcomeGateway", "f_outcomeGateway_payout", "f_payout_paidEnd"],
+          "notSequenceFlows": ["f_outcomeGateway_rejectedEnd", "f_outcomeGateway_managerSignOff"]
+        },
+        "variables": { "severity": "MINOR", "reviewers": 1, "triageRules": ["claimTriage_minor"], "verdicts": ["APPROVE"], "paidAmount": 500 },
+        "absentVariables": ["verdict", "status", "signedOff"]
+      }
+    },
+    {
+      "name": "a moderate claim has two reviewers; one rejection rejects the claim",
+      "start": {
+        "process": "insuranceClaim",
+        "businessKey": "CL-2",
+        "user": "ann",
+        "variables": { "claimId": "CL-2", "claimType": "PROPERTY", "claimAmount": 5000 }
+      },
+      "steps": [
+        { "expectTask": { "activity": "assessClaim", "count": 2, "candidateGroups": ["adjusters"], "localVariables": {} } },
+        { "completeTask": { "activity": "assessClaim", "match": { "index": 1 }, "user": "adj1", "variables": { "verdict": "APPROVE", "note": "damage confirmed" } } },
+        { "expectTask": { "activity": "assessClaim", "count": 1 } },
+        { "completeTask": { "activity": "assessClaim", "match": { "index": 1 }, "user": "adj2", "variables": { "verdict": "REJECT", "note": "not covered by the policy" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["rejectedEnd"],
+        "path": {
+          "contains": ["assessClaim", "outcomeGateway", "rejectedEnd"],
+          "notContains": ["managerSignOff", "payout", "paidEnd"],
+          "sequenceFlows": ["f_assessClaim_outcomeGateway", "f_outcomeGateway_rejectedEnd"],
+          "notSequenceFlows": ["f_outcomeGateway_payout", "f_outcomeGateway_managerSignOff"]
+        },
+        "variables": { "severity": "MODERATE", "reviewers": 2, "triageRules": ["claimTriage_moderate"], "verdicts": ["APPROVE", "REJECT"] },
+        "absentVariables": ["verdict", "note", "paidAmount"]
+      }
+    },
+    {
+      "name": "a health claim is major: three approvals and the manager's sign-off lead to the payout",
+      "start": {
+        "process": "insuranceClaim",
+        "businessKey": "CL-3",
+        "user": "ann",
+        "variables": { "claimId": "CL-3", "claimType": "HEALTH", "claimAmount": 3000 }
+      },
+      "steps": [
+        { "expectTask": { "activity": "assessClaim", "count": 3, "localVariables": {} } },
+        { "completeTask": { "activity": "assessClaim", "match": { "index": 1 }, "user": "adj1", "variables": { "verdict": "APPROVE" } } },
+        { "completeTask": { "activity": "assessClaim", "match": { "index": 1 }, "user": "adj2", "variables": { "verdict": "APPROVE" } } },
+        { "expectTask": { "activity": "managerSignOff", "count": 0 } },
+        { "completeTask": { "activity": "assessClaim", "match": { "index": 1 }, "user": "adj3", "variables": { "verdict": "APPROVE" } } },
+        {
+          "expectTask": {
+            "activity": "managerSignOff",
+            "count": 1,
+            "name": "Sign off the payout",
+            "assignee": null,
+            "candidateGroups": ["claims-managers"],
+            "visibleTo": ["mia"],
+            "notVisibleTo": ["adj1"],
+            "partial": true,
+            "localVariables": { "claimId": "CL-3", "severity": "MAJOR", "verdicts": ["APPROVE", "APPROVE", "APPROVE"] }
+          }
+        },
+        { "completeTask": { "activity": "managerSignOff", "user": "mia", "variables": { "signedOff": true, "signOffNote": "within the health policy limits" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["paidEnd"],
+        "path": {
+          "contains": ["assessClaim", "outcomeGateway", "managerSignOff", "payout", "paidEnd"],
+          "notContains": ["rejectedEnd"],
+          "order": [["assessClaim", "outcomeGateway"], ["outcomeGateway", "managerSignOff"], ["managerSignOff", "payout"]],
+          "sequenceFlows": ["f_outcomeGateway_managerSignOff", "f_managerSignOff_payout", "f_payout_paidEnd"],
+          "notSequenceFlows": ["f_outcomeGateway_payout"]
+        },
+        "variables": {
+          "severity": "MAJOR",
+          "reviewers": 3,
+          "verdicts": ["APPROVE", "APPROVE", "APPROVE"],
+          "signedOff": true,
+          "signOffNote": "within the health policy limits",
+          "sys_task_assignee": "mia",
+          "paidAmount": 3000
+        }
+      }
+    },
+    {
+      "name": "the withdrawal message ends the assessment through the boundary event and its payload reaches the process",
+      "start": {
+        "process": "insuranceClaim",
+        "businessKey": "CL-4",
+        "user": "ann",
+        "variables": { "claimId": "CL-4", "claimType": "AUTO", "claimAmount": 4000 }
+      },
+      "steps": [
+        { "expectTask": { "activity": "assessClaim", "count": 2 } },
+        { "message": { "name": "claimWithdrawn", "correlationKey": "CL-4", "variables": { "withdrawalReason": "the customer repaired the car" } } },
+        { "expectTask": { "activity": "assessClaim", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["withdrawnEnd"],
+        "path": {
+          "contains": ["assessClaim", "onWithdrawal", "recordWithdrawal", "withdrawnEnd"],
+          "notContains": ["outcomeGateway", "payout", "paidEnd", "rejectedEnd"],
+          "order": [["onWithdrawal", "recordWithdrawal"], ["recordWithdrawal", "withdrawnEnd"]],
+          "sequenceFlows": ["f_onWithdrawal_recordWithdrawal", "f_recordWithdrawal_withdrawnEnd"]
+        },
+        "variables": { "withdrawalReason": "the customer repaired the car", "status": "WITHDRAWN", "severity": "MODERATE" },
+        "absentVariables": ["paidAmount", "signedOff"]
+      }
+    },
+    {
+      "name": "a document arrives while the claim is being assessed: it is logged, the claim goes on, and the sub process starts only once",
+      "start": {
+        "process": "insuranceClaim",
+        "businessKey": "CL-5",
+        "user": "ann",
+        "variables": { "claimId": "CL-5", "claimType": "AUTO", "claimAmount": 300 }
+      },
+      "steps": [
+        { "message": { "name": "claimDocuments", "correlationKey": "CL-5", "variables": { "documentName": "photo-1.jpg" } } },
+        { "expectTask": { "activity": "assessClaim", "count": 1 } },
+        { "message": { "name": "claimDocuments", "correlationKey": "CL-5", "variables": { "documentName": "invoice.pdf" },
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "Message subscription name 'claimDocuments' with correlation key 'CL-5' not found" } } },
+        { "completeTask": { "activity": "assessClaim", "user": "adj1", "variables": { "verdict": "APPROVE" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["paidEnd", "documentLoggedEnd"],
+        "path": {
+          "contains": ["logDocument", "documentLoggedEnd", "assessClaim", "payout", "paidEnd"],
+          "notContains": ["onWithdrawal", "withdrawnEnd", "rejectedEnd"],
+          "sequenceFlows": ["f_documentStart_logDocument", "f_logDocument_documentLoggedEnd", "f_payout_paidEnd"]
+        },
+        "variables": { "documentsLogged": 1, "documentName": "photo-1.jpg", "paidAmount": 300, "verdicts": ["APPROVE"] },
+        "absentVariables": ["status", "withdrawalReason"]
+      }
+    }
+  ],
+  "decisions": [
+    { "name": "a small amount is minor whatever the type", "decision": "claimTriage", "inputs": { "claimType": "HEALTH", "claimAmount": 999 },
+      "expect": { "result": [ { "severity": "MINOR", "reviewers": 1 } ], "matchedRules": ["claimTriage_minor"] } },
+    { "name": "a health claim from 1000 up is major", "decision": "claimTriage", "inputs": { "claimType": "HEALTH", "claimAmount": 1000 },
+      "expect": { "result": [ { "severity": "MAJOR", "reviewers": 3 } ], "matchedRules": ["claimTriage_health"] } },
+    { "name": "other claims below 10000 are moderate", "decision": "claimTriage", "inputs": { "claimType": "AUTO", "claimAmount": 9999 },
+      "expect": { "result": [ { "severity": "MODERATE", "reviewers": 2 } ], "matchedRules": ["claimTriage_moderate"] } },
+    { "name": "other claims from 10000 up are major", "decision": "claimTriage", "inputs": { "claimType": "PROPERTY", "claimAmount": 10000 },
+      "expect": { "result": [ { "severity": "MAJOR", "reviewers": 3 } ], "matchedRules": ["claimTriage_major"] } }
+  ]
+}

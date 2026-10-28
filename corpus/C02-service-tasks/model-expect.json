@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "classDelegates": {
+      "definition": { "name": "Class delegates", "category": "http://activiti.org/bpmn/corpus/C02" },
+      "elements": {
+        "setGreeting": { "type": "serviceTask", "attributes": {
+          "implementationType": "class", "implementation": "io.github.kleash.activiti.harness.support.SetVariableDelegate", "async": false,
+          "fieldExtensions": [ { "fieldName": "variable", "stringValue": "greeting" }, { "fieldName": "value", "expression": "Hello, ${customerName}" } ] } },
+        "setTotal": { "type": "serviceTask", "attributes": {
+          "fieldExtensions": [ { "fieldName": "variable", "stringValue": "total" }, { "fieldName": "value", "expression": "${price * quantity}" } ] } }
+      }
+    },
+    "expressions": {
+      "elements": {
+        "computeTotal": { "type": "serviceTask", "attributes": { "implementationType": "expression", "implementation": "${price * quantity}", "resultVariableName": "total" } },
+        "greet": { "type": "serviceTask", "attributes": { "implementationType": "expression", "resultVariableName": "greeting" } },
+        "sideEffect": { "type": "serviceTask", "attributes": { "implementationType": "expression", "resultVariableName": null } }
+      }
+    },
+    "delegateExpressions": {
+      "elements": {
+        "record": { "type": "serviceTask", "attributes": { "implementationType": "delegateExpression", "implementation": "${recordingDelegate}" } },
+        "copyName": { "type": "serviceTask", "attributes": { "implementationType": "delegateExpression", "implementation": "${setVariableDelegate}",
+          "fieldExtensions": [ { "fieldName": "variable", "stringValue": "origin" }, { "fieldName": "value", "expression": "${customerName}" } ] } }
+      }
+    },
+    "connectorMappings": {
+      "elements": {
+        "lookup": { "type": "serviceTask", "attributes": { "implementation": "crm.LOOKUP" } },
+        "echoMapped": { "type": "serviceTask", "attributes": { "implementation": "echo.EXECUTE" } },
+        "flagsEphemeral": { "type": "serviceTask", "attributes": { "implementation": "flags.EXECUTE" } }
+      }
+    },
+    "asyncServiceTasks": {
+      "elements": {
+        "asyncDelegate": { "type": "serviceTask", "attributes": { "async": true, "exclusive": false } },
+        "asyncConnector": { "type": "serviceTask", "attributes": { "async": true, "exclusive": true } },
+        "asyncExpression": { "type": "serviceTask", "attributes": { "async": true, "exclusive": true } }
+      }
+    }
+  }
+}

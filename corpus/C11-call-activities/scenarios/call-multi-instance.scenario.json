@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C11 multi-instance call activities",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a parallel multi-instance call starts one child per item, a sequential one one child per round; nothing comes back from the children",
+      "start": { "process": "callMultiInstance", "user": "ann", "variables": { "items": ["alpha", "beta", "gamma"], "rounds": 2 } },
+      "steps": [
+        { "expectTask": { "activity": "inspect", "count": 3 } },
+        { "expectChildInstance": { "callActivity": "inspectAll", "process": "itemChild", "count": 3, "call": 1, "state": "ACTIVE", "startVariables": { "item": "alpha" } } },
+        { "expectChildInstance": { "callActivity": "inspectAll", "call": 2, "startVariables": { "item": "beta" } } },
+        { "expectChildInstance": { "callActivity": "inspectAll", "call": 3, "startVariables": { "item": "gamma" } } },
+        { "completeTask": { "activity": "inspect", "match": { "index": 2 }, "user": "ann" } },
+        { "completeTask": { "activity": "inspect", "match": { "index": 1 }, "user": "ann" } },
+        { "expectTask": { "activity": "inspect", "count": 1 } },
+        { "completeTask": { "activity": "inspect", "user": "ann" } },
+        { "expectChildInstance": { "callActivity": "stepEach", "process": "positionChild", "count": 2, "call": 1, "state": "COMPLETED", "startVariables": { "position": 0 }, "variables": { "result": 0 } } },
+        { "expectChildInstance": { "callActivity": "stepEach", "call": 2, "state": "COMPLETED", "startVariables": { "position": 1 }, "variables": { "result": 10 } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "itemResults": [null, null, null], "stepResults": [null, null], "rounds": 2 },
+        "absentVariables": ["lastResult", "lastStepResult", "result", "item", "position"],
+        "path": { "order": [["inspectAll", "stepEach"], ["stepEach", "end"]], "sequenceFlows": ["f_start_inspectAll", "f_inspectAll_stepEach", "f_stepEach_end"] }
+      }
+    }
+  ]
+}

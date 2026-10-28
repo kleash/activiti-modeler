@@ -1,0 +1,28 @@
+{
+  "id": "discount-order-extensions",
+  "extensions": {
+    "discountOrder": {
+      "properties": {
+        "p1": { "id": "p1", "name": "customer", "type": "string" },
+        "p2": { "id": "p2", "name": "matched", "type": "boolean" },
+        "p3": { "id": "p3", "name": "Discount", "type": "bigdecimal" },
+        "p4": { "id": "p4", "name": "matchedRules", "type": "array" }
+      },
+      "mappings": {
+        "decideDiscount": {
+          "inputs": { "customer": { "type": "VARIABLE", "value": "customer" } },
+          "outputs": {
+            "Discount": { "type": "VARIABLE", "value": "Discount" },
+            "matched": { "type": "VARIABLE", "value": "_activiti_dmn_matched_" },
+            "matchedRules": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" }
+          }
+        }
+      },
+      "constants": {
+        "decideDiscount": {
+          "_activiti_dmn_table_": { "value": "discount" }
+        }
+      }
+    }
+  }
+}

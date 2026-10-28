@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C06">
+  <message id="closedMsg" name="closed"/>
+  <process id="messageEnd" name="Message end event with a delegate class" isExecutable="true">
+    <documentation>A message end event whose delegate is a Java class (activiti:class on the message event definition). The class receives the message name, the correlation key, the business key and the payload built from the input mapping of the end event: only the mapped values, under the names the mapping gives them.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_closedEnd" sourceRef="start" targetRef="closedEnd"/>
+    <endEvent id="closedEnd" name="Closed (message end, delegate class)">
+      <messageEventDefinition messageRef="closedMsg" activiti:correlationKey="${orderId}" activiti:class="io.github.kleash.activiti.harness.support.RecordingThrowMessageDelegate"/>
+    </endEvent>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="messageEnd">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="closedEnd_di" bpmnElement="closedEnd">
+        <dc:Bounds x="252" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_closedEnd_di" bpmnElement="f_start_closedEnd">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="252" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

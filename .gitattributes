@@ -1,0 +1,9 @@
+# Scripts that run under bash (also Git Bash on Windows), the Maven wrapper and the Dockerfile must keep LF line endings on every checkout:
+# a CR before the end of a line breaks "#!/usr/bin/env bash" and "set -euo pipefail". Windows batch files want CRLF.
+*.sh text eol=lf
+*.py text eol=lf
+mvnw text eol=lf
+Dockerfile text eol=lf
+.dockerignore text eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf

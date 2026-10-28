@@ -1,0 +1,33 @@
+{
+  "id": "mapAllOutputs-extensions",
+  "extensions": {
+    "mapAllOutputs": {
+      "properties": {
+        "Property_amount": {
+          "id": "Property_amount",
+          "name": "amount",
+          "type": "integer",
+          "required": false
+        }
+      },
+      "mappings": {
+        "decideAlerts": {
+          "mappingType": "MAP_ALL_OUTPUTS",
+          "inputs": {
+            "amount": {
+              "type": "variable",
+              "value": "amount"
+            }
+          }
+        }
+      },
+      "constants": {
+        "decideAlerts": {
+          "_activiti_dmn_table_": {
+            "value": "collect-count-alerts"
+          }
+        }
+      }
+    }
+  }
+}

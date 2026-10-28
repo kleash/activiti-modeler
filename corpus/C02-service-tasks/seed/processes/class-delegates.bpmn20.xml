@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C02">
+  <process id="classDelegates" name="Class delegates" isExecutable="true">
+    <documentation>Service tasks with activiti:class. The engine creates the delegate and injects the activiti:field values: a literal (nested string element or stringValue attribute) and an expression, which the delegate evaluates itself.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_setGreeting" sourceRef="start" targetRef="setGreeting"/>
+    <serviceTask id="setGreeting" name="Set the greeting" activiti:class="io.github.kleash.activiti.harness.support.SetVariableDelegate">
+      <extensionElements>
+        <activiti:field name="variable">
+          <activiti:string>greeting</activiti:string>
+        </activiti:field>
+        <activiti:field name="value">
+          <activiti:expression>Hello, ${customerName}</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_setGreeting_setTotal" sourceRef="setGreeting" targetRef="setTotal"/>
+    <serviceTask id="setTotal" name="Set the total" activiti:class="io.github.kleash.activiti.harness.support.SetVariableDelegate">
+      <extensionElements>
+        <activiti:field name="variable" stringValue="total"/>
+        <activiti:field name="value" expression="${price * quantity}"/>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_setTotal_countOnce" sourceRef="setTotal" targetRef="countOnce"/>
+    <serviceTask id="countOnce" name="Count once" activiti:class="io.github.kleash.activiti.harness.support.IncrementDelegate">
+      <extensionElements>
+        <activiti:field name="variable">
+          <activiti:string>counter</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_countOnce_countTwice" sourceRef="countOnce" targetRef="countTwice"/>
+    <serviceTask id="countTwice" name="Count twice" activiti:class="io.github.kleash.activiti.harness.support.IncrementDelegate">
+      <extensionElements>
+        <activiti:field name="variable" stringValue="counter"/>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_countTwice_end" sourceRef="countTwice" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="classDelegates">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="setGreeting_di" bpmnElement="setGreeting">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="setTotal_di" bpmnElement="setTotal">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="countOnce_di" bpmnElement="countOnce">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="countTwice_di" bpmnElement="countTwice">
+        <dc:Bounds x="670" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="852" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_setGreeting_di" bpmnElement="f_start_setGreeting">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_setGreeting_setTotal_di" bpmnElement="f_setGreeting_setTotal">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_setTotal_countOnce_di" bpmnElement="f_setTotal_countOnce">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_countOnce_countTwice_di" bpmnElement="f_countOnce_countTwice">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="670" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_countTwice_end_di" bpmnElement="f_countTwice_end">
+        <di:waypoint x="770" y="110"/>
+        <di:waypoint x="852" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

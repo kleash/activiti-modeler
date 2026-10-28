@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://kleash.github.io/compat">
+
+  <process id="compatCheck" name="Compatibility check" isExecutable="true">
+    <startEvent id="start" activiti:initiator="initiator"/>
+    <sequenceFlow id="f1" sourceRef="start" targetRef="greet"/>
+
+    <serviceTask id="greet" name="Greet (connector)" implementation="greetingConnector"/>
+    <sequenceFlow id="f2" sourceRef="greet" targetRef="score"/>
+
+    <serviceTask id="score" name="Score (delegate)" activiti:delegateExpression="${scoreDelegate}"/>
+    <sequenceFlow id="f3" sourceRef="score" targetRef="label"/>
+
+    <scriptTask id="label" name="Label (juel script)" scriptFormat="juel" activiti:resultVariable="label">
+      <script>${greeting.concat(' / ').concat(score)}</script>
+    </scriptTask>
+    <sequenceFlow id="f4" sourceRef="label" targetRef="route"/>
+
+    <exclusiveGateway id="route" default="toEndLow"/>
+    <sequenceFlow id="toReview" sourceRef="route" targetRef="review">
+      <conditionExpression xsi:type="tFormalExpression">${score == 'high'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="toEndLow" sourceRef="route" targetRef="endLow"/>
+
+    <userTask id="review" name="Review" activiti:candidateGroups="reviewers" activiti:priority="80"/>
+    <sequenceFlow id="f5" sourceRef="review" targetRef="endReviewed"/>
+
+    <endEvent id="endReviewed"/>
+    <endEvent id="endLow"/>
+  </process>
+</definitions>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_serviceRetries"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C19">
+  <process id="serviceRetries" name="Retry cycles of asynchronous service tasks" isExecutable="true">
+    <documentation>Four asynchronous service tasks that fail on request, differing only in their activiti:failedJobRetryTimeCycle. The cycle's repeat count is the number of attempts before the job becomes a dead-letter job (R2 = 2, R5 = 5, R1 = 1); without a cycle the default of 3 retries applies. The delegate numbers its attempts in the exception message, which the dead-letter job keeps. When the task does not fail its job simply succeeds.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_pick" sourceRef="start" targetRef="pick"/>
+    <exclusiveGateway id="pick" name="Which cycle?" default="f_pick_retryDefault"/>
+    <sequenceFlow id="f_pick_retryTwice" name="R2/PT10S" sourceRef="pick" targetRef="retryTwice">
+      <conditionExpression xsi:type="tFormalExpression">${cycle == 'twice'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_pick_retryFive" name="R5/PT1S" sourceRef="pick" targetRef="retryFive">
+      <conditionExpression xsi:type="tFormalExpression">${cycle == 'five'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_pick_retryOnce" name="R1/PT5S" sourceRef="pick" targetRef="retryOnce">
+      <conditionExpression xsi:type="tFormalExpression">${cycle == 'once'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_pick_retryDefault" name="none" sourceRef="pick" targetRef="retryDefault"/>
+    <serviceTask id="retryTwice" name="Call with R2/PT10S" activiti:async="true" activiti:delegateExpression="${countingFailure}">
+      <extensionElements>
+        <activiti:field name="failing">
+          <activiti:expression>${failing}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="message">
+          <activiti:string>partner down</activiti:string>
+        </activiti:field>
+        <activiti:failedJobRetryTimeCycle>R2/PT10S</activiti:failedJobRetryTimeCycle>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="retryFive" name="Call with R5/PT1S" activiti:async="true" activiti:delegateExpression="${countingFailure}">
+      <extensionElements>
+        <activiti:field name="failing">
+          <activiti:expression>${failing}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="message">
+          <activiti:string>partner down</activiti:string>
+        </activiti:field>
+        <activiti:failedJobRetryTimeCycle>R5/PT1S</activiti:failedJobRetryTimeCycle>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="retryOnce" name="Call with R1/PT5S" activiti:async="true" activiti:delegateExpression="${countingFailure}">
+      <extensionElements>
+        <activiti:field name="failing">
+          <activiti:expression>${failing}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="message">
+          <activiti:string>partner down</activiti:string>
+        </activiti:field>
+        <activiti:failedJobRetryTimeCycle>R1/PT5S</activiti:failedJobRetryTimeCycle>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="retryDefault" name="Call without a cycle" activiti:async="true" activiti:delegateExpression="${countingFailure}">
+      <extensionElements>
+        <activiti:field name="failing">
+          <activiti:expression>${failing}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="message">
+          <activiti:string>partner down</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_retryTwice_merge" sourceRef="retryTwice" targetRef="merge"/>
+    <sequenceFlow id="f_retryFive_merge" sourceRef="retryFive" targetRef="merge"/>
+    <sequenceFlow id="f_retryOnce_merge" sourceRef="retryOnce" targetRef="merge"/>
+    <sequenceFlow id="f_retryDefault_merge" sourceRef="retryDefault" targetRef="merge"/>
+    <exclusiveGateway id="merge"/>
+    <sequenceFlow id="f_merge_done" sourceRef="merge" targetRef="done"/>
+    <endEvent id="done" name="Done"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="serviceRetries">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pick_di" bpmnElement="pick" isMarkerVisible="true">
+        <dc:Bounds x="245" y="285" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="retryTwice_di" bpmnElement="retryTwice">
+        <dc:Bounds x="520" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="retryFive_di" bpmnElement="retryFive">
+        <dc:Bounds x="520" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="retryOnce_di" bpmnElement="retryOnce">
+        <dc:Bounds x="520" y="380" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="retryDefault_di" bpmnElement="retryDefault">
+        <dc:Bounds x="520" y="490" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="merge_di" bpmnElement="merge" isMarkerVisible="true">
+        <dc:Bounds x="845" y="285" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="done_di" bpmnElement="done">
+        <dc:Bounds x="1002" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_pick_di" bpmnElement="f_start_pick">
+        <di:waypoint x="138" y="310"/>
+        <di:waypoint x="245" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_pick_retryTwice_di" bpmnElement="f_pick_retryTwice">
+        <di:waypoint x="295" y="310"/>
+        <di:waypoint x="408" y="310"/>
+        <di:waypoint x="408" y="90"/>
+        <di:waypoint x="520" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_pick_retryFive_di" bpmnElement="f_pick_retryFive">
+        <di:waypoint x="295" y="310"/>
+        <di:waypoint x="408" y="310"/>
+        <di:waypoint x="408" y="200"/>
+        <di:waypoint x="520" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_pick_retryOnce_di" bpmnElement="f_pick_retryOnce">
+        <di:waypoint x="295" y="310"/>
+        <di:waypoint x="408" y="310"/>
+        <di:waypoint x="408" y="420"/>
+        <di:waypoint x="520" y="420"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_pick_retryDefault_di" bpmnElement="f_pick_retryDefault">
+        <di:waypoint x="295" y="310"/>
+        <di:waypoint x="408" y="310"/>
+        <di:waypoint x="408" y="530"/>
+        <di:waypoint x="520" y="530"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_retryTwice_merge_di" bpmnElement="f_retryTwice_merge">
+        <di:waypoint x="620" y="90"/>
+        <di:waypoint x="732" y="90"/>
+        <di:waypoint x="732" y="310"/>
+        <di:waypoint x="845" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_retryFive_merge_di" bpmnElement="f_retryFive_merge">
+        <di:waypoint x="620" y="200"/>
+        <di:waypoint x="732" y="200"/>
+        <di:waypoint x="732" y="310"/>
+        <di:waypoint x="845" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_retryOnce_merge_di" bpmnElement="f_retryOnce_merge">
+        <di:waypoint x="620" y="420"/>
+        <di:waypoint x="732" y="420"/>
+        <di:waypoint x="732" y="310"/>
+        <di:waypoint x="845" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_retryDefault_merge_di" bpmnElement="f_retryDefault_merge">
+        <di:waypoint x="620" y="530"/>
+        <di:waypoint x="732" y="530"/>
+        <di:waypoint x="732" y="310"/>
+        <di:waypoint x="845" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_merge_done_di" bpmnElement="f_merge_done">
+        <di:waypoint x="895" y="310"/>
+        <di:waypoint x="1002" y="310"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

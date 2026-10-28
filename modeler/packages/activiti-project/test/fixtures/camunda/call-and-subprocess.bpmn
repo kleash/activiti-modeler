@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_shipping" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:signal id="Signal_cancel" name="orderCancelled" />
+  <bpmn:process id="shipOrder" name="Ship order" isExecutable="true">
+    <bpmn:startEvent id="shipRequested" name="Ship requested">
+      <bpmn:outgoing>Flow_a</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:callActivity id="pickAndPack" name="Pick and pack" calledElement="warehouse" camunda:calledElementBinding="version" camunda:calledElementVersion="7" camunda:calledElementTenantId="eu" camunda:variableMappingClass="com.acme.Mapper" camunda:asyncBefore="true">
+      <bpmn:extensionElements>
+        <camunda:in source="orderId" target="orderRef" />
+        <camunda:in sourceExpression="${order.items.size()}" target="itemCount" />
+        <camunda:in businessKey="#{execution.processBusinessKey}" />
+        <camunda:in variables="all" local="true" />
+        <camunda:out source="parcelId" target="parcel" />
+        <camunda:out sourceExpression="${weight * 2}" target="doubleWeight" local="true" />
+        <camunda:out variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_a</bpmn:incoming>
+      <bpmn:outgoing>Flow_b</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:callActivity id="bookCarrier" name="Book carrier" calledElement="carrierBooking" camunda:calledElementBinding="latest" camunda:caseRef="carrierCase">
+      <bpmn:extensionElements>
+        <camunda:in businessKey="${orderNumber}" />
+        <camunda:in variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_b</bpmn:incoming>
+      <bpmn:outgoing>Flow_c</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:subProcess id="labelling" name="Labelling" camunda:asyncBefore="true">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="format">PDF</camunda:inputParameter>
+        </camunda:inputOutput>
+        <camunda:executionListener class="com.acme.LabelTimer" event="end" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_c</bpmn:incoming>
+      <bpmn:outgoing>Flow_d</bpmn:outgoing>
+      <bpmn:startEvent id="labelStart"><bpmn:outgoing>Flow_l1</bpmn:outgoing></bpmn:startEvent>
+      <bpmn:serviceTask id="printLabel" name="Print label" camunda:class="com.acme.PrintLabel" camunda:asyncBefore="false" camunda:exclusive="true">
+        <bpmn:incoming>Flow_l1</bpmn:incoming>
+        <bpmn:outgoing>Flow_l2</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:endEvent id="labelEnd"><bpmn:incoming>Flow_l2</bpmn:incoming></bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_l1" sourceRef="labelStart" targetRef="printLabel" />
+      <bpmn:sequenceFlow id="Flow_l2" sourceRef="printLabel" targetRef="labelEnd" />
+    </bpmn:subProcess>
+    <bpmn:subProcess id="cancellationHandler" name="Cancellation" triggeredByEvent="true">
+      <bpmn:startEvent id="cancelStart" name="Order cancelled" isInterrupting="true">
+        <bpmn:outgoing>Flow_x1</bpmn:outgoing>
+        <bpmn:signalEventDefinition id="SignalEventDefinition_1" signalRef="Signal_cancel" />
+      </bpmn:startEvent>
+      <bpmn:endEvent id="cancelEnd"><bpmn:incoming>Flow_x1</bpmn:incoming></bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_x1" sourceRef="cancelStart" targetRef="cancelEnd" />
+    </bpmn:subProcess>
+    <bpmn:userTask id="confirmDelivery" name="Confirm delivery" camunda:assignee="${courier}">
+      <bpmn:incoming>Flow_d</bpmn:incoming>
+      <bpmn:outgoing>Flow_e</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:boundaryEvent id="deliveryLate" name="Late" attachedToRef="confirmDelivery" cancelActivity="false">
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1"><bpmn:timeDuration>PT2H</bpmn:timeDuration></bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:endEvent id="shipped" name="Shipped">
+      <bpmn:incoming>Flow_e</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_a" sourceRef="shipRequested" targetRef="pickAndPack" />
+    <bpmn:sequenceFlow id="Flow_b" sourceRef="pickAndPack" targetRef="bookCarrier" />
+    <bpmn:sequenceFlow id="Flow_c" sourceRef="bookCarrier" targetRef="labelling" />
+    <bpmn:sequenceFlow id="Flow_d" sourceRef="labelling" targetRef="confirmDelivery" />
+    <bpmn:sequenceFlow id="Flow_e" sourceRef="confirmDelivery" targetRef="shipped" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="shipOrder">
+      <bpmndi:BPMNShape id="shipRequested_di" bpmnElement="shipRequested"><dc:Bounds x="152" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pickAndPack_di" bpmnElement="pickAndPack"><dc:Bounds x="240" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="bookCarrier_di" bpmnElement="bookCarrier"><dc:Bounds x="390" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="labelling_di" bpmnElement="labelling" isExpanded="true"><dc:Bounds x="540" y="50" width="350" height="140" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="labelStart_di" bpmnElement="labelStart"><dc:Bounds x="572" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="printLabel_di" bpmnElement="printLabel"><dc:Bounds x="660" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="labelEnd_di" bpmnElement="labelEnd"><dc:Bounds x="812" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancellationHandler_di" bpmnElement="cancellationHandler" isExpanded="true"><dc:Bounds x="540" y="260" width="250" height="120" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelStart_di" bpmnElement="cancelStart"><dc:Bounds x="572" y="302" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelEnd_di" bpmnElement="cancelEnd"><dc:Bounds x="692" y="302" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="confirmDelivery_di" bpmnElement="confirmDelivery"><dc:Bounds x="940" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shipped_di" bpmnElement="shipped"><dc:Bounds x="1092" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="deliveryLate_di" bpmnElement="deliveryLate"><dc:Bounds x="972" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_a_di" bpmnElement="Flow_a"><di:waypoint x="188" y="120" /><di:waypoint x="240" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_b_di" bpmnElement="Flow_b"><di:waypoint x="340" y="120" /><di:waypoint x="390" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_c_di" bpmnElement="Flow_c"><di:waypoint x="490" y="120" /><di:waypoint x="540" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_d_di" bpmnElement="Flow_d"><di:waypoint x="890" y="120" /><di:waypoint x="940" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_e_di" bpmnElement="Flow_e"><di:waypoint x="1040" y="120" /><di:waypoint x="1092" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_l1_di" bpmnElement="Flow_l1"><di:waypoint x="608" y="120" /><di:waypoint x="660" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_l2_di" bpmnElement="Flow_l2"><di:waypoint x="760" y="120" /><di:waypoint x="812" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_x1_di" bpmnElement="Flow_x1"><di:waypoint x="608" y="320" /><di:waypoint x="692" y="320" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

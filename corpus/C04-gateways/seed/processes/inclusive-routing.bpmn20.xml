@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C04">
+  <process id="inclusiveRouting" name="Inclusive routing" isExecutable="true">
+    <documentation>Inclusive gateway: every branch whose condition is true runs, the default flow runs when none is; the join waits for the branches that were started.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_split" sourceRef="start" targetRef="split"/>
+    <inclusiveGateway id="split" name="Split" default="f_split_none"/>
+    <sequenceFlow id="f_split_taskA" name="a" sourceRef="split" targetRef="taskA">
+      <conditionExpression xsi:type="tFormalExpression">${a == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_split_taskB" name="b" sourceRef="split" targetRef="taskB">
+      <conditionExpression xsi:type="tFormalExpression">${b == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_split_taskC" name="c" sourceRef="split" targetRef="taskC">
+      <conditionExpression xsi:type="tFormalExpression">${c == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_split_none" name="none" sourceRef="split" targetRef="endNone"/>
+    <userTask id="taskA" name="Branch A" activiti:candidateUsers="ann"/>
+    <userTask id="taskB" name="Branch B" activiti:candidateUsers="ben"/>
+    <userTask id="taskC" name="Branch C" activiti:candidateUsers="cy"/>
+    <sequenceFlow id="f_taskA_join" sourceRef="taskA" targetRef="join"/>
+    <sequenceFlow id="f_taskB_join" sourceRef="taskB" targetRef="join"/>
+    <sequenceFlow id="f_taskC_join" sourceRef="taskC" targetRef="join"/>
+    <inclusiveGateway id="join" name="Join"/>
+    <sequenceFlow id="f_join_afterJoin" sourceRef="join" targetRef="afterJoin"/>
+    <userTask id="afterJoin" name="After the join" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_afterJoin_end" sourceRef="afterJoin" targetRef="end"/>
+    <endEvent id="end"/>
+    <endEvent id="endNone" name="No branch"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="inclusiveRouting">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="split_di" bpmnElement="split">
+        <dc:Bounds x="245" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskA_di" bpmnElement="taskA">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskB_di" bpmnElement="taskB">
+        <dc:Bounds x="370" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskC_di" bpmnElement="taskC">
+        <dc:Bounds x="370" y="290" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="join_di" bpmnElement="join">
+        <dc:Bounds x="545" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="afterJoin_di" bpmnElement="afterJoin">
+        <dc:Bounds x="670" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="852" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endNone_di" bpmnElement="endNone">
+        <dc:Bounds x="402" y="422" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_split_di" bpmnElement="f_start_split">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="245" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_split_taskA_di" bpmnElement="f_split_taskA">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="332" y="220"/>
+        <di:waypoint x="332" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_split_taskB_di" bpmnElement="f_split_taskB">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_split_taskC_di" bpmnElement="f_split_taskC">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="332" y="220"/>
+        <di:waypoint x="332" y="330"/>
+        <di:waypoint x="370" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_split_none_di" bpmnElement="f_split_none">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="348" y="220"/>
+        <di:waypoint x="348" y="440"/>
+        <di:waypoint x="402" y="440"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_taskA_join_di" bpmnElement="f_taskA_join">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="508" y="110"/>
+        <di:waypoint x="508" y="220"/>
+        <di:waypoint x="545" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_taskB_join_di" bpmnElement="f_taskB_join">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="545" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_taskC_join_di" bpmnElement="f_taskC_join">
+        <di:waypoint x="470" y="330"/>
+        <di:waypoint x="508" y="330"/>
+        <di:waypoint x="508" y="220"/>
+        <di:waypoint x="545" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_join_afterJoin_di" bpmnElement="f_join_afterJoin">
+        <di:waypoint x="595" y="220"/>
+        <di:waypoint x="670" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_afterJoin_end_di" bpmnElement="f_afterJoin_end">
+        <di:waypoint x="770" y="220"/>
+        <di:waypoint x="852" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

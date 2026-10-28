@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Helper of the N01 engine checks (not a lint case): a process that waits for the signal "go". A check starts it next to a model that
+     should or should not throw the signal, and sees whether it moves. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_signalWaiter" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:signal id="Signal_go" name="go" />
+  <bpmn:process id="signalWaiter" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:intermediateCatchEvent id="wait" name="Wait for go">
+      <bpmn:signalEventDefinition id="wait_def" signalRef="Signal_go" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_wait" sourceRef="start" targetRef="wait" />
+    <bpmn:sequenceFlow id="f_wait_end" sourceRef="wait" targetRef="end" />
+  </bpmn:process>
+</bpmn:definitions>

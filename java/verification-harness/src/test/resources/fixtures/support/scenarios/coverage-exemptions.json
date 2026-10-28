@@ -1,0 +1,18 @@
+{
+  "exemptions": [
+    { "process": "failingConnector", "element": "fcStart", "reason": "the connector fails inside the start command, which rolls the instance back (asserted with expectFailure)" },
+    { "process": "failingConnector", "element": "f_fcStart_fail", "reason": "the connector fails inside the start command, which rolls the instance back (asserted with expectFailure)" },
+    { "process": "failingConnector", "element": "fail", "reason": "the connector fails inside the start command, which rolls the instance back (asserted with expectFailure)" },
+    { "process": "failingConnector", "element": "f_fail_fcEnd", "reason": "unreachable: the failing connector never completes" },
+    { "process": "failingConnector", "element": "fcEnd", "reason": "unreachable: the failing connector never completes" },
+    { "process": "throwingDelegates", "element": "tdStart", "reason": "the delegate fails inside the start command, which rolls the instance back (asserted with expectFailure)" },
+    { "process": "throwingDelegates", "element": "f_tdStart_throwing", "reason": "the delegate fails inside the start command, which rolls the instance back (asserted with expectFailure)" },
+    { "process": "throwingDelegates", "element": "throwing", "reason": "the delegate fails inside the start command, which rolls the instance back (asserted with expectFailure)" },
+    { "process": "throwingDelegates", "element": "f_throwing_tdEnd", "reason": "unreachable: the throwing delegate never completes" },
+    { "process": "throwingDelegates", "element": "tdEnd", "reason": "unreachable: the throwing delegate never completes" },
+    { "process": "bpmnErrorConnector", "element": "okEnd", "reason": "unreachable: the connector always raises the error" },
+    { "process": "bpmnErrorConnector", "element": "f_err_okEnd", "reason": "unreachable: the connector always raises the error" },
+    { "process": "bpmnErrorDelegate", "element": "bdOkEnd", "reason": "unreachable: the delegate always raises the error" },
+    { "process": "bpmnErrorDelegate", "element": "f_raise_bdOkEnd", "reason": "unreachable: the delegate always raises the error" }
+  ]
+}

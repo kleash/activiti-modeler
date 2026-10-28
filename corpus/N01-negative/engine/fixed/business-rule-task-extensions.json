@@ -1,0 +1,10 @@
+{
+  "id": "businessRuleTask-extensions",
+  "extensions": {
+    "businessRuleTask": {
+      "properties": {},
+      "mappings": { "decide": { "mappingType": "MAP_ALL" } },
+      "constants": { "decide": { "_activiti_dmn_table_": { "value": "grade" } } }
+    }
+  }
+}

@@ -1,0 +1,485 @@
+{
+  "description": "Hand-written engine oracle of the N01 negative corpus: for each file of models/, what Activiti 9.0.0 does with it. Derived from the engine sources (R1 docs/research/activiti-9-bpmn-support.md, docs/engine-findings.md) and confirmed by running; never regenerated from the output of a run. Checked by java/verification-harness N01EngineTest, which deploys every file in a context and database of its own.",
+  "outcomes": {
+    "DEPLOY_ERROR": "The deployment is refused: the context does not start (deployError says with which validator problem key, or which exception).",
+    "DEPLOYS_WITH_WARNING": "It deploys and runs; the engine's validator reports warnings only, and a check lists them.",
+    "DEPLOYS_AND_DEGRADES": "It deploys and runs, but a construct is silently dropped or replaced by another one; the check shows the degraded behaviour.",
+    "RUNTIME_ERROR": "It deploys; a start, a completion, a signal or a message throws, and the call is rolled back.",
+    "HANGS": "It deploys and starts; the instance waits for something that nothing can deliver (no task, job, timer or subscription is left after a bounded drive).",
+    "DEPLOYS_OK": "It deploys and runs as written; the harm the lint reports does not show on this model, or the entry is inert."
+  },
+  "files": {
+    "ad-hoc-sub-process.bpmn20.xml": {
+      "outcome": "HANGS",
+      "details": "Deploys. The instance enters the ad hoc sub process 'ahp' and stays there: the behaviour only marks the execution as a scope, nothing activates the inner tasks 'a' and 'b', and there is no task, job, timer or event subscription that could move it on.",
+      "evidence": ["R1 §0.1-5", "run t10"],
+      "check": "adhoc-waits-forever"
+    },
+    "artifact-before-flow.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "The BPMN XSD the parser validates against wants artifacts after the flow elements: the text annotation before the sequence flows fails the parse.",
+      "evidence": ["engine finding C18.1", "R1 §2.5"],
+      "deployError": { "exception": "XMLException", "messageContains": ["cvc-complex-type.2.4.a", "sequenceFlow"] }
+    },
+    "auto-store-variables.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys and runs without an error, but the script `total = 1;` stores no variable: autoStoreVariables does nothing with the bundled script languages.",
+      "evidence": ["engine finding 25", "run t13f"],
+      "check": "auto-store-variables-stores-nothing"
+    },
+    "business-rule-task.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "A business rule task needs an activiti:class and there is no rules engine behind it: the parse handler throws a NullPointerException ('ruleActivity is null'), wrapped in 'Error parsing XML'.",
+      "evidence": ["R1 §0.1-2", "run t04"],
+      "context": ["processes/grade.dmn"],
+      "deployError": { "exception": "NullPointerException", "messageContains": ["Error parsing XML", "ruleActivity"] },
+      "fixed": {
+        "quickFix": "Converts the task to a decision task: a service task with implementation dmn-connector.EXECUTE_TABLE, the decision as constant _activiti_dmn_table_ and a MAP_ALL mapping.",
+        "variant": "business-rule-task.bpmn20.xml",
+        "check": "fixed-decision-task-grades",
+        "details": "The decision task deploys with the DMN file and evaluates the decision: age 20 gives grade 'adult'.",
+        "context": ["processes/grade.dmn"]
+      }
+    },
+    "call-activity-invalid.bpmn20.xml": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "Deploys (the validator does not look at calledElement). The start fails when the call activity is reached: there is no process with the key 'my child'.",
+      "evidence": ["R1 §4.6"],
+      "check": "call-of-an-invalid-key-fails"
+    },
+    "call-unknown-process.bpmn20.xml": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "Deploys. The start fails when the call activity is reached: no process with the key 'ghostProcess' is deployed (the project has another process, which is not the one called).",
+      "evidence": ["R1 §4.6"],
+      "context": ["processes/other.bpmn20.xml"],
+      "check": "call-of-an-unknown-process-fails"
+    },
+    "camunda-external-task.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "camunda:type and camunda:topic are not read, so the service task has no implementation.",
+      "evidence": ["R1 §0.1-1"],
+      "deployError": { "problems": [{ "key": "SERVICE_TASK_MISSING_IMPLEMENTATION", "activityId": "work" }] },
+      "fixed": {
+        "quickFix": "Removes the camunda: attributes (an external task cannot be translated).",
+        "variant": null,
+        "check": null,
+        "details": "No fixed model: the quick fix leaves the service task without an implementation, which is still SERVICE_TASK_MISSING_IMPLEMENTATION (the lint keeps that error on purpose)."
+      }
+    },
+    "camunda-modeler.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "camunda:class and camunda:delegateExpression are not read: both service tasks have no implementation. Everything else of the file is read as plain BPMN, see the variant.",
+      "evidence": ["R1 §0.1-1", "R1 §5", "run t01", "run t13d"],
+      "deployError": {
+        "problems": [
+          { "key": "SERVICE_TASK_MISSING_IMPLEMENTATION", "activityId": "archive" },
+          { "key": "SERVICE_TASK_MISSING_IMPLEMENTATION", "activityId": "notify" }
+        ]
+      },
+      "variants": {
+        "deployable": {
+          "outcome": "DEPLOYS_AND_DEGRADES",
+          "details": "The same file with an activiti:expression on the two service tasks deploys, and everything camunda: is lost without a message: no assignee, no candidate group, no due date, no form key, no initiator variable, no task variables from camunda:inputOutput, no result variable, no async job.",
+          "evidence": ["R1 §0.1-1", "run t01"],
+          "file": "camunda-modeler-deployable.bpmn20.xml",
+          "check": "camunda-attributes-are-lost"
+        },
+        "task-listener-is-honoured": {
+          "outcome": "RUNTIME_ERROR",
+          "details": "Not everything camunda: is lost: child elements are matched by local name and listener attributes are read without a namespace, so <camunda:taskListener> is a real task listener. The original's class com.example.ReviewCreated is looked up when the task is created, and the start fails with ClassNotFoundException.",
+          "evidence": ["R1 §0.2-15", "run t03", "run t66"],
+          "file": "camunda-modeler-listener.bpmn20.xml",
+          "check": "camunda-task-listener-class-is-called"
+        },
+        "task-listener-fires": {
+          "outcome": "DEPLOYS_OK",
+          "details": "With a bean instead of the missing class the camunda: task listener fires: taskListenerCalls records create:review. The listener is the one thing of the file that works without translation.",
+          "evidence": ["R1 §0.2-15", "run t03", "run t66"],
+          "file": "camunda-modeler-listener.bpmn20.xml",
+          "transform": [{ "replace": "class=\"com.example.ReviewCreated\"", "with": "delegateExpression=\"${recordingTaskListener}\"" }],
+          "check": "camunda-task-listener-fires"
+        }
+      },
+      "fixed": {
+        "quickFix": "Translates the attributes and elements to their activiti: counterparts (assignee, candidateGroups, dueDate, formKey, initiator, listeners, input/output parameters as a mapping, class, delegateExpression, resultVariable, asyncBefore as async) and removes what has none.",
+        "variant": "camunda-modeler.bpmn20.xml",
+        "check": "fixed-camunda-translation-keeps-what-was-lost",
+        "details": "The translated file deploys, the user task has its assignee, candidate group, due date and form key, the initiator is stored, the service tasks run through their translated implementations."
+      }
+    },
+    "cancel-end-without-compensation.bpmn20.xml": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "Deploys. The task before the cancel end is a plain task (a pass-through), so the start itself runs into the cancel end event, which finds no compensable work and no event scope: 'No execution found for sub process of boundary cancel event'. The start is rolled back.",
+      "evidence": ["engine finding C09.1", "R1 §3.2"],
+      "check": "cancel-end-without-compensation-fails"
+    },
+    "compensate-end-event.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The end event gets the behaviour of a none end event; nothing is compensated, the instance just ends.",
+      "evidence": ["R1 §3.2"],
+      "check": "compensation-end-is-none-end"
+    },
+    "complex-gateway.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. ComplexGatewayXMLConverter builds an exclusive gateway: the first flow whose condition is true is taken (small orders go to 'small', large ones to 'large'); an activation condition would be ignored.",
+      "evidence": ["R1 §0.1-4", "run t05"],
+      "check": "complex-gateway-is-exclusive",
+      "fixed": {
+        "quickFix": "Replaces the complex gateway by an exclusive gateway.",
+        "variant": "complex-gateway.bpmn20.xml",
+        "check": "fixed-exclusive-gateway-routes",
+        "details": "The explicit exclusive gateway routes like the degraded complex gateway did, and with a default flow it also routes an amount that no condition covers."
+      }
+    },
+    "conditional-start.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The conditional definition is not read: the start event is a none start event that starts without any condition.",
+      "evidence": ["R1 §0.1-8", "run t11b"],
+      "check": "conditional-start-is-none-start"
+    },
+    "connector-input-unmapped.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The connector crm.LOOKUP runs without its required input customerId (the mapping has no inputs) and answers found=false.",
+      "evidence": ["R1 §6.2.4"],
+      "context": ["connectors/crm.json"],
+      "check": "connector-runs-without-its-required-input"
+    },
+    "connector-unknown.bpmn20.xml": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "Deploys. The start fails when the service task is reached: there is no bean named mailer.SEND (NoSuchBeanDefinitionException).",
+      "evidence": ["R1 §6.1"],
+      "context": ["connectors/crm.json"],
+      "check": "unknown-connector-bean-fails"
+    },
+    "data-object-reference.bpmn20.xml": {
+      "outcome": "DEPLOYS_WITH_WARNING",
+      "details": "Deploys and runs. The data object reference has no converter, so the validator warns DI_INVALID_REFERENCE about its diagram shape; the data object itself becomes a process variable.",
+      "evidence": ["engine finding C18.2"],
+      "check": "data-object-reference-warns"
+    },
+    "decision-input-unmapped.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The decision is evaluated with the input age only; region is a process variable that the mapping does not hand over, so the decision sees null for it.",
+      "evidence": ["ADR 0004"],
+      "context": ["processes/grade.dmn"],
+      "check": "decision-runs-with-a-missing-input"
+    },
+    "decision-unknown.bpmn20.xml": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "Deploys. The start fails when the decision task is reached: no decision 'nothing' exists in the deployment.",
+      "evidence": ["ADR 0004"],
+      "context": ["processes/grade.dmn"],
+      "check": "unknown-decision-fails"
+    },
+    "escalation-boundary.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "The escalation definition is not parsed, so the boundary event has no event definition.",
+      "evidence": ["R1 §0.1-8", "R1 §7", "run t11c"],
+      "deployError": { "problems": [{ "key": "BOUNDARY_EVENT_NO_EVENT_DEFINITION", "activityId": "late" }] }
+    },
+    "escalation-end-event.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The escalation definition is dropped; the event is a none end event and the instance just ends.",
+      "evidence": ["R1 §0.1-8", "run t11d"],
+      "check": "escalation-end-is-none-end"
+    },
+    "escalation-throw.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The escalation definition is dropped; the event runs as a plain none throw event and the token passes.",
+      "evidence": ["R1 §0.1-8", "run t11"],
+      "check": "escalation-throw-passes-through"
+    },
+    "event-gateway-receive-task.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "An event-based gateway may only lead to intermediate catch events; a receive task is refused.",
+      "evidence": ["R1 §7", "R1 §7.1 L19"],
+      "deployError": { "problems": [{ "key": "EVENT_GATEWAY_ONLY_CONNECTED_TO_INTERMEDIATE_EVENTS", "activityId": "wait" }] }
+    },
+    "extensions-orphan-keys.bpmn20.xml": {
+      "outcome": "DEPLOYS_OK",
+      "details": "Deploys and runs as the BPMN says. The mapping key 'gone' names no element and the entry 'otherProcess' no process: both are never read, the extensions file is inert there.",
+      "evidence": ["R1 §6.2.1", "R1 §6.2.4"],
+      "check": "orphan-extension-keys-are-inert",
+      "fixed": {
+        "quickFix": "Removes the entry of the process that is not in the file and the mapping key that names no element.",
+        "variant": null,
+        "check": null,
+        "details": "No fixed model: the engine does not read the removed entries, so the fixed file behaves exactly like the original."
+      }
+    },
+    "failed-job-retry-on-user-task.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The retry cycle R5/PT1S is parsed into the model and ignored: JobRetryCmd reads it for service tasks only, so a failing async user task gets the default three attempts and then a dead-letter job.",
+      "evidence": ["engine finding C19.2"],
+      "check": "failed-job-retry-cycle-ignored-on-a-user-task"
+    },
+    "groovy-script.bpmn20.xml": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "Deploys. The start fails when the script task is reached: no JSR-223 engine for groovy is on the class path.",
+      "evidence": ["R1 §8.2", "run t13b"],
+      "check": "groovy-script-fails"
+    },
+    "group.bpmn20.xml": {
+      "outcome": "DEPLOYS_WITH_WARNING",
+      "details": "Deploys and runs. The group has no converter and is dropped; the validator warns DI_INVALID_REFERENCE about its diagram shape.",
+      "evidence": ["R1 §0.1-11", "run t14", "engine finding C18.2"],
+      "check": "group-is-dropped",
+      "fixed": {
+        "quickFix": "Removes the group.",
+        "variant": null,
+        "check": null,
+        "details": "No fixed model: the engine drops the group anyway, so the fixed process behaves like the original (only the validator warning about its shape is gone)."
+      }
+    },
+    "invalid-property-type.bpmn20.xml": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "Deploys. The first start fails with a NullPointerException: a property of the unknown type 'number' has a default value.",
+      "evidence": ["R1 §6.2.3", "run t17v"],
+      "check": "unknown-property-type-fails-at-start"
+    },
+    "invalid-timer.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "The deployment creates the timer job of the start event: 'every hour' is neither an ISO 8601 repeat nor a cron expression.",
+      "evidence": ["R1 §8.3"],
+      "deployError": { "exception": "ParseException", "messageContains": ["Failed to parse cron expression: every hour"] }
+    },
+    "legacy-discount.dmn": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "The DMN 1.1 file is deployed as a resource and loads. A decision task that evaluates it fails: the output column has no name, and the connector hands a column value to the process under the column's name.",
+      "evidence": ["ADR 0004", "docs/user-guide/dmn-conventions.md"],
+      "helpers": ["dmn-caller.bpmn20.xml"],
+      "check": "legacy-dmn-column-without-a-name-fails"
+    },
+    "link-end-event.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys (the validator checks link definitions of intermediate events only). The end event gets the behaviour of a none end event: nothing jumps to the catch link event 'landing', the instance just ends.",
+      "evidence": ["R1 §3.2", "R1 §0.1-8", "FEATURE_MATRIX §C"],
+      "check": "link-end-event-is-a-none-end"
+    },
+    "map-exception-delegate-expression.bpmn20.xml": {
+      "outcome": "DEPLOYS_OK",
+      "details": "Deploys and runs through: the recording delegate does not throw. The mapException entry is parsed into the model; the variant shows that it is never wired.",
+      "evidence": ["engine finding C08.6"],
+      "check": "map-exception-on-a-delegate-expression-is-ignored",
+      "variants": {
+        "throwing-delegate": {
+          "outcome": "RUNTIME_ERROR",
+          "details": "With a delegate bean that throws an IllegalStateException the Java exception comes out of the start, wrapped; it is not turned into the BPMN error E1 (which nothing would catch here anyway).",
+          "evidence": ["engine finding C08.6"],
+          "transform": [{ "replace": "${recordingDelegate}", "with": "${throwingDelegate}" }],
+          "check": "map-exception-does-not-catch-a-bean-exception"
+        }
+      }
+    },
+    "message-clash.bpmn20.xml": {
+      "outcome": "DEPLOYS_OK",
+      "details": "Deploys. 'work' is a plain task, a pass-through: the instance ends at its start, so the two subscriptions of the message 'docs' never exist together. The variant makes 'work' a user task.",
+      "evidence": ["engine findings 31, 32"],
+      "check": "message-clash-needs-a-wait-state",
+      "variants": {
+        "user-task-work": {
+          "outcome": "RUNTIME_ERROR",
+          "details": "With a user task as 'work' the boundary event and the event sub process subscribe to 'docs' at once, and receiving the message fails with 'Query return 2 results instead of max 1'; nothing is delivered.",
+          "evidence": ["engine findings 31, 32"],
+          "transform": [{ "replace": "<bpmn:task id=\"work\" name=\"Work\" />", "with": "<bpmn:userTask id=\"work\" name=\"Work\" />" }],
+          "check": "message-clash-makes-receive-fail"
+        }
+      }
+    },
+    "message-field.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The field is parsed into the model but nothing injects it, and with no delegate the throw event uses the engine's default one, which sends nothing.",
+      "evidence": ["engine finding 33", "R1 §0.1-13", "run t21"],
+      "check": "message-field-is-not-injected"
+    },
+    "minified-multi-instance.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The parser swallows the closing tag of the task and the sequence flows are absorbed into it: the parsed process has no sequence flows and the instance ends at its start, without an error. The variant has a line break before the closing tag.",
+      "evidence": ["R1 §0.2-14", "ADR 0003 guarantee 2", "run t15x"],
+      "check": "minified-multi-instance-swallows-the-flows",
+      "variants": {
+        "pretty-printed": {
+          "outcome": "DEPLOYS_OK",
+          "details": "With a line break between </multiInstanceLoopCharacteristics> and </task> the flows are kept: the instance runs start, three instances of the task, end.",
+          "evidence": ["R1 §0.2-14"],
+          "transform": [{ "replace": "</bpmn:multiInstanceLoopCharacteristics></bpmn:task>", "with": "</bpmn:multiInstanceLoopCharacteristics>\n    </bpmn:task>" }],
+          "check": "pretty-printed-multi-instance-runs"
+        }
+      }
+    },
+    "missing-mapping.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The user task is created without task-local variables (nothing is copied from the process), and the variables it is completed with never reach the process.",
+      "evidence": ["R1 §6.2.4", "engine finding 15"],
+      "check": "user-task-without-mapping-loses-its-variables",
+      "fixed": {
+        "quickFix": "Adds a MAP_ALL mapping for the user task.",
+        "variant": "missing-mapping.bpmn20.xml",
+        "check": "fixed-user-task-mapping-passes-variables",
+        "details": "With the MAP_ALL mapping the task sees the process variables and the completion variables reach the process."
+      }
+    },
+    "multiple-event-definitions.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. Both definitions are kept in the parsed model, but only the first one gets a behaviour: the event with a timer and a signal waits for the timer alone, the signal does not release it, and parallelMultiple is not read (the event is no wait-for-both).",
+      "evidence": ["R1 §0.1-8", "R1 §3.2", "IntermediateCatchEventParseHandler"],
+      "check": "multiple-event-definitions-use-only-the-first"
+    },
+    "process-end-listener-sets-variable.bpmn20.xml": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "Deploys. The process end listener runs after the process instance execution was deleted; setting a variable violates the foreign key (ACT_FK_VAR_EXE) and the whole call fails. The task before the end is a pass-through, so it is the start that fails.",
+      "evidence": ["engine finding C13.1"],
+      "check": "process-end-listener-cannot-set-a-variable"
+    },
+    "send-task-type-mule.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "The mule module is not shipped: the behaviour class cannot be loaded.",
+      "evidence": ["R1 §0.1-9", "run t31b"],
+      "deployError": { "exception": "ClassNotFoundException", "messageContains": ["org.activiti.mule.MuleSendActivitiBehavior"] }
+    },
+    "send-task-without-mail.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "A send task needs a type (mail) or an operation.",
+      "evidence": ["R1 §7", "R1 §7.1 L13", "run t16"],
+      "deployError": { "problems": [{ "key": "SEND_TASK_INVALID_IMPLEMENTATION", "activityId": "notify" }] }
+    },
+    "service-task-type-camel.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "The camel module is not shipped: the behaviour class cannot be loaded.",
+      "evidence": ["R1 §0.1-9", "run t31"],
+      "deployError": { "exception": "ClassNotFoundException", "messageContains": ["org.activiti.camel"] }
+    },
+    "service-task-type-dmn.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys (the validator accepts the type dmn). No behaviour is attached to the task, so the engine silently takes the outgoing flow: no decision is evaluated.",
+      "evidence": ["R1 §0.1-3", "run t06"],
+      "check": "dmn-service-task-is-skipped"
+    },
+    "signal-end-event.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The signal definition is parsed, but the end event behaves like a none end event: the signal is never thrown (a process that waits for it does not move).",
+      "evidence": ["R1 §0.1-7", "run t68"],
+      "helpers": ["signal-waiter.bpmn20.xml"],
+      "check": "signal-end-throws-nothing",
+      "fixed": {
+        "quickFix": "Replaces the signal end event by an intermediate throw signal event followed by a none end event.",
+        "variant": "signal-end-event.bpmn20.xml",
+        "check": "fixed-signal-throw-wakes-the-waiter",
+        "details": "The intermediate throw event throws the signal: the waiting process moves on.",
+        "helpers": ["signal-waiter.bpmn20.xml"]
+      }
+    },
+    "signal-expression-catch.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The catch event waits for the signal named by the variable; it passes when the signal arrives. The instance ends there, so the stale subscription finding 29 describes cannot be seen on this model; the variant has a user task after the event.",
+      "evidence": ["engine finding 29"],
+      "check": "signal-expression-catch-waits-and-passes",
+      "variants": {
+        "then-user-task": {
+          "outcome": "DEPLOYS_AND_DEGRADES",
+          "details": "With a user task after the catch event, the subscription survives the event: a second broadcast of the same name signals the user task and fails with 'UserTask should not be signalled before complete'.",
+          "evidence": ["engine finding 29"],
+          "file": "signal-expression-catch-then-user-task.bpmn20.xml",
+          "check": "signal-expression-catch-leaves-a-stale-subscription"
+        }
+      }
+    },
+    "signal-expression-with-declared-signal.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "BpmnModel.getSignal(null) dereferences the id of the declared signal while the event is named by signalExpression: a NullPointerException, wrapped in 'Error parsing XML'.",
+      "evidence": ["engine finding 28"],
+      "deployError": { "exception": "NullPointerException", "messageContains": ["Error parsing XML", "\"id\" is null"] }
+    },
+    "signal-start-in-event-sub-process.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys (the validator accepts it) but the start event gets no behaviour and no signal subscription is created: the event sub process never starts. Here 'work' is a pass-through task, so the instance ends at its start; the variant makes it wait.",
+      "evidence": ["R1 §0.1-6", "run t09"],
+      "check": "signal-start-in-esp-has-no-behaviour",
+      "variants": {
+        "user-task-work": {
+          "outcome": "DEPLOYS_AND_DEGRADES",
+          "details": "With a user task as 'work' the instance waits and no signal subscription exists; broadcasting 'go' changes nothing, the event sub process never starts.",
+          "evidence": ["R1 §0.1-6", "run t09"],
+          "transform": [{ "replace": "<bpmn:task id=\"work\" name=\"Work\" />", "with": "<bpmn:userTask id=\"work\" name=\"Work\" />" }],
+          "check": "signal-start-in-esp-never-starts"
+        }
+      }
+    },
+    "skip-expression.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The skip expression is ignored because the process variable _ACTIVITI_SKIP_EXPRESSION_ENABLED is not set: the task is created although the expression is true.",
+      "evidence": ["R1 §3.3", "engine finding 6", "run t40"],
+      "check": "skip-expression-is-ignored-without-the-enable-variable"
+    },
+    "standard-loop.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. standardLoopCharacteristics is not read: the task has no loop characteristics and runs once.",
+      "evidence": ["R1 §0.1-11", "run t12"],
+      "check": "standard-loop-runs-once",
+      "fixed": {
+        "quickFix": "Removes the loop characteristics.",
+        "variant": null,
+        "check": null,
+        "details": "No fixed model: the engine ignores the loop anyway, so the fixed process behaves like the original."
+      }
+    },
+    "string-plus.bpmn20.xml": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "Deploys (the file declares no signal). The start fails at the catch event: the expression language has no + for strings, 'go-' + region is arithmetic.",
+      "evidence": ["engine finding 36"],
+      "check": "string-plus-fails-at-start"
+    },
+    "timer-end-date-before-start.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys and creates the timer job (due 2031). When the job fires its due date is after the end date (2030): the job is deleted without running, no instance is started and nothing is reported.",
+      "evidence": ["engine findings 26, 27"],
+      "check": "timer-end-date-before-due-date-is-dropped"
+    },
+    "timer-start-in-event-sub-process.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "The start event of an event sub process must be of type error, message or signal.",
+      "evidence": ["R1 §0.1-6", "R1 §7", "run t08"],
+      "deployError": { "problems": [{ "key": "EVENT_SUBPROCESS_INVALID_START_EVENT_DEFINITION", "activityId": "esp" }] }
+    },
+    "typed-start-in-sub-process.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "An embedded sub process allows a none start event only.",
+      "evidence": ["R1 §7"],
+      "deployError": { "problems": [{ "key": "SUBPROCESS_START_EVENT_EVENT_DEFINITION_NOT_ALLOWED", "activityId": "subStart" }] }
+    },
+    "undeclared-output-target.bpmn20.xml": {
+      "outcome": "DEPLOYS_AND_DEGRADES",
+      "details": "Deploys. The connector returns a tier, but 'tier' is not a declared property, so the output mapping drops it silently.",
+      "evidence": ["engine finding 16"],
+      "context": ["connectors/crm.json"],
+      "check": "undeclared-output-target-is-dropped",
+      "fixed": {
+        "quickFix": "Declares the output target as a process property (string).",
+        "variant": "undeclared-output-target.bpmn20.xml",
+        "check": "fixed-declared-output-target-arrives",
+        "details": "With the property declared the tier reaches the process."
+      }
+    },
+    "undeclared-prefix.bpmn20.xml": {
+      "outcome": "DEPLOY_ERROR",
+      "details": "The parser resolves the QName xsd:int of itemSubjectRef and rejects the undeclared prefix.",
+      "evidence": ["ADR 0003 guarantee 6"],
+      "deployError": { "exception": "XMLException", "messageContains": ["UndeclaredPrefix", "xsd:int"] }
+    },
+    "web-service-task.bpmn20.xml": {
+      "outcome": "RUNTIME_ERROR",
+      "details": "Deploys: without an operationRef the validator has nothing to check, and the parse handler falls back to the default service task behaviour, which looks up a connector bean by the task's implementation. The converter keeps no implementation for ##WebService, so the start fails with \"'name' must not be null\". The variant has the complete wiring.",
+      "evidence": ["R1 §0.1-9", "engine finding N01.1"],
+      "check": "web-service-task-without-operation-fails",
+      "variants": {
+        "wsdl-import-and-operation": {
+          "outcome": "RUNTIME_ERROR",
+          "details": "With an import, an interface, an operation and an operationRef the validator is satisfied and the file deploys with a web service behaviour. The task needs the WSDL importer CxfWSDLImporter, which is in no Activiti 9.0.0 jar: the start fails with 'Could not find importer for type http://schemas.xmlsoap.org/wsdl/'.",
+          "evidence": ["R1 §0.1-9", "run t47", "engine finding N01.1"],
+          "file": "web-service-task-wsdl.bpmn20.xml",
+          "check": "web-service-task-needs-the-cxf-importer"
+        }
+      }
+    }
+  }
+}

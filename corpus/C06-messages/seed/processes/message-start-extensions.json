@@ -1,0 +1,13 @@
+{
+  "id": "message-start-extensions",
+  "extensions": {
+    "messageStart": {
+      "properties": {
+        "p1": { "id": "p1", "name": "orderRef", "type": "string" }
+      },
+      "mappings": {
+        "startOnMessage": { "outputs": { "orderRef": { "type": "VARIABLE", "value": "ref" } } }
+      }
+    }
+  }
+}

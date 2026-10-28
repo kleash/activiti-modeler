@@ -1,0 +1,20 @@
+{
+  "id": "shipping",
+  "name": "shipping",
+  "description": "Shipping labels (bean shipping.CREATE)",
+  "actions": {
+    "CREATE": {
+      "id": "CREATE",
+      "name": "Create a shipping label",
+      "description": "Creates the label and the tracking number of an order",
+      "inputs": [
+        { "id": "orderId", "name": "orderId", "type": "string", "required": true },
+        { "id": "address", "name": "address", "type": "string", "required": true }
+      ],
+      "outputs": [
+        { "id": "trackingNumber", "name": "trackingNumber", "type": "string" },
+        { "id": "labelCreated", "name": "labelCreated", "type": "boolean" }
+      ]
+    }
+  }
+}

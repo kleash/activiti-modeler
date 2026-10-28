@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_callInOut"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C11">
+  <process id="callInOut" name="Call activity with activiti:in and activiti:out" isExecutable="true">
+    <documentation>Explicit parameter passing without inheritVariables and without an extensions mapping: activiti:in with source (renaming) and sourceExpression, activiti:out with source and sourceExpression (evaluated on the child instance). Nothing else crosses the boundary in either direction.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_priceIt" sourceRef="start" targetRef="priceIt"/>
+    <callActivity id="priceIt" name="Calculate price" calledElement="priceCalculator">
+      <extensionElements>
+        <activiti:in source="unitPrice" target="price"/>
+        <activiti:in sourceExpression="${itemCount * 2}" target="quantity"/>
+        <activiti:out source="total" target="orderTotal"/>
+        <activiti:out sourceExpression="${total * 2}" target="doubleTotal"/>
+      </extensionElements>
+    </callActivity>
+    <sequenceFlow id="f_priceIt_markPriced" sourceRef="priceIt" targetRef="markPriced"/>
+    <serviceTask id="markPriced" name="Mark priced" activiti:expression="${execution.setVariable('priced', true)}"/>
+    <sequenceFlow id="f_markPriced_end" sourceRef="markPriced" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="callInOut">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="priceIt_di" bpmnElement="priceIt">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="markPriced_di" bpmnElement="markPriced">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_priceIt_di" bpmnElement="f_start_priceIt">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_priceIt_markPriced_di" bpmnElement="f_priceIt_markPriced">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_markPriced_end_di" bpmnElement="f_markPriced_end">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

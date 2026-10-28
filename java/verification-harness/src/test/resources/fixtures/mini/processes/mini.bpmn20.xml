@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/harness-fixture">
+  <process id="mini" name="Mini" isExecutable="true" activiti:candidateStarterGroups="starters">
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_check" sourceRef="start" targetRef="check"/>
+    <userTask id="check" name="Check" activiti:candidateGroups="checkers" activiti:category="quality"/>
+    <sequenceFlow id="f_check_gate" sourceRef="check" targetRef="gate"/>
+    <exclusiveGateway id="gate" default="f_gate_rejected"/>
+    <sequenceFlow id="f_gate_accepted" sourceRef="gate" targetRef="acceptedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${ok == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_gate_rejected" sourceRef="gate" targetRef="rejectedEnd"/>
+    <endEvent id="acceptedEnd"/>
+    <endEvent id="rejectedEnd"/>
+  </process>
+  <process id="notExecutable" name="Not executable" isExecutable="false">
+    <startEvent id="neStart"/>
+  </process>
+</definitions>

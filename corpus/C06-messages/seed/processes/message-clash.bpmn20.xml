@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C06">
+  <message id="docsMsg" name="docs"/>
+  <process id="messageClash" name="Boundary and event sub process on one message" isExecutable="true">
+    <documentation>The user task has a boundary message docs and the process an event sub process started by the same message docs, neither with a correlation key. While the receive task before the user task waits only the event sub process subscribes; at the user task both do (lint L30).</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_prepare" sourceRef="start" targetRef="prepare"/>
+    <receiveTask id="prepare" name="Prepare"/>
+    <sequenceFlow id="f_prepare_collect" sourceRef="prepare" targetRef="collect"/>
+    <userTask id="collect" name="Collect the documents" activiti:assignee="ann"/>
+    <boundaryEvent id="docsBoundary" name="Docs (boundary)" cancelActivity="false" attachedToRef="collect">
+      <messageEventDefinition messageRef="docsMsg"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_docsBoundary_boundaryEnd" sourceRef="docsBoundary" targetRef="boundaryEnd"/>
+    <endEvent id="boundaryEnd" name="Docs via boundary"/>
+    <sequenceFlow id="f_collect_collectedEnd" sourceRef="collect" targetRef="collectedEnd"/>
+    <endEvent id="collectedEnd" name="Collected"/>
+    <subProcess id="docsHandler" name="Docs handler" triggeredByEvent="true">
+      <startEvent id="docsStart" name="Docs (event sub process)" isInterrupting="false">
+        <messageEventDefinition messageRef="docsMsg"/>
+      </startEvent>
+      <sequenceFlow id="f_docsStart_handlerEnd" sourceRef="docsStart" targetRef="handlerEnd"/>
+      <endEvent id="handlerEnd" name="Docs via event sub process"/>
+    </subProcess>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="messageClash">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepare_di" bpmnElement="prepare">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="collect_di" bpmnElement="collect">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="boundaryEnd_di" bpmnElement="boundaryEnd">
+        <dc:Bounds x="552" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="collectedEnd_di" bpmnElement="collectedEnd">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="docsStart_di" bpmnElement="docsStart">
+        <dc:Bounds x="102" y="532" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="handlerEnd_di" bpmnElement="handlerEnd">
+        <dc:Bounds x="252" y="532" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="docsHandler_di" bpmnElement="docsHandler" isExpanded="true">
+        <dc:Bounds x="62" y="492" width="266" height="116"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="docsBoundary_di" bpmnElement="docsBoundary">
+        <dc:Bounds x="390" y="132" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_prepare_di" bpmnElement="f_start_prepare">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_prepare_collect_di" bpmnElement="f_prepare_collect">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_docsBoundary_boundaryEnd_di" bpmnElement="f_docsBoundary_boundaryEnd">
+        <di:waypoint x="408" y="168"/>
+        <di:waypoint x="408" y="330"/>
+        <di:waypoint x="552" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_collect_collectedEnd_di" bpmnElement="f_collect_collectedEnd">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_docsStart_handlerEnd_di" bpmnElement="f_docsStart_handlerEnd">
+        <di:waypoint x="138" y="550"/>
+        <di:waypoint x="252" y="550"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

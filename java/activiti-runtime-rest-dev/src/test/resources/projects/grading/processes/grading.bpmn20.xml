@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/rest-dev-test">
+  <process id="devGrading" name="Grading" isExecutable="true">
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_decide" sourceRef="start" targetRef="decide"/>
+    <serviceTask id="decide" name="Decide the grade" implementation="dmn-connector.EXECUTE_TABLE"/>
+    <sequenceFlow id="f_decide_check" sourceRef="decide" targetRef="check"/>
+    <exclusiveGateway id="check" default="f_check_done"/>
+    <sequenceFlow id="f_check_review" sourceRef="check" targetRef="review">
+      <conditionExpression xsi:type="tFormalExpression">${grade == 'high'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_check_done" sourceRef="check" targetRef="done"/>
+    <userTask id="review" name="Review the high grade" activiti:candidateGroups="reviewers"/>
+    <sequenceFlow id="f_review_done" sourceRef="review" targetRef="done"/>
+    <endEvent id="done"/>
+  </process>
+</definitions>

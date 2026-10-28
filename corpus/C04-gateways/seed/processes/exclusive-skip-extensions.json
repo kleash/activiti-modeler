@@ -1,0 +1,10 @@
+{
+  "id": "exclusive-skip-extensions",
+  "extensions": {
+    "exclusiveSkip": {
+      "properties": {
+        "p1": { "id": "p1", "name": "_ACTIVITI_SKIP_EXPRESSION_ENABLED", "type": "boolean", "value": true }
+      }
+    }
+  }
+}

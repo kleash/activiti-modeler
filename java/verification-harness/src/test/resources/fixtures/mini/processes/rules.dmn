@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="rules" name="rules" namespace="http://example.org/harness-fixture">
+  <inputData id="score_in" name="score"><variable id="score_in_v" name="score" typeRef="number"/></inputData>
+  <decision id="grade" name="grade">
+    <variable id="grade_v" name="grade" typeRef="string"/>
+    <informationRequirement id="grade_req"><requiredInput href="#score_in"/></informationRequirement>
+    <decisionTable id="grade_t" hitPolicy="UNIQUE">
+      <input id="in1" label="score"><inputExpression id="in1e" typeRef="number"><text>score</text></inputExpression></input>
+      <output id="out1" name="grade" typeRef="string"/>
+      <rule id="R1"><inputEntry id="R1i"><text>&gt;= 50</text></inputEntry><outputEntry id="R1o"><text>"pass"</text></outputEntry></rule>
+      <rule id="R2"><inputEntry id="R2i"><text>&lt; 50</text></inputEntry><outputEntry id="R2o"><text>"fail"</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+</definitions>

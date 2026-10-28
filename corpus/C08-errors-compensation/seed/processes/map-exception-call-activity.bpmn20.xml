@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_mapExceptionCallActivity"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C08">
+  <error id="childFailedError" name="Child failed" errorCode="CHILD_FAILED"/>
+  <error id="childBpmnError" name="Child BPMN error" errorCode="CHILD_BPMN_ERROR"/>
+  <error id="childErrorEndError" name="Child error end" errorCode="CHILD_ERROR_END"/>
+  <process id="mapExceptionCallActivity" name="Errors crossing a call activity" isExecutable="true">
+    <documentation>The called process riskyChild fails in one of three ways. A Java exception of an activiti:class task in the child that the child does not map is mapped by the mapException of the call activity (any RuntimeException, children included) to CHILD_FAILED. A BpmnError thrown in the child and an error end event of the child travel up to the error boundary events of the call activity. The child instance is deleted when the error is caught.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_callChild" sourceRef="start" targetRef="callChild"/>
+    <callActivity id="callChild" name="Call risky child" calledElement="riskyChild">
+      <extensionElements>
+        <activiti:in source="errorCode" target="errorCode"/>
+        <activiti:in source="exceptionClass" target="exceptionClass"/>
+        <activiti:in source="endWithError" target="endWithError"/>
+        <activiti:mapException errorCode="CHILD_FAILED" includeChildExceptions="true">java.lang.RuntimeException</activiti:mapException>
+      </extensionElements>
+    </callActivity>
+    <sequenceFlow id="f_callChild_childOk" sourceRef="callChild" targetRef="childOk"/>
+    <endEvent id="childOk" name="Child ok"/>
+    <boundaryEvent id="onChildFailed" name="Child failed" attachedToRef="callChild">
+      <errorEventDefinition errorRef="childFailedError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onChildFailed_childFailedEnd" sourceRef="onChildFailed" targetRef="childFailedEnd"/>
+    <endEvent id="childFailedEnd" name="Child failed"/>
+    <boundaryEvent id="onChildBpmnError" name="Child BPMN error" attachedToRef="callChild">
+      <errorEventDefinition errorRef="childBpmnError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onChildBpmnError_childBpmnErrorEnd" sourceRef="onChildBpmnError" targetRef="childBpmnErrorEnd"/>
+    <endEvent id="childBpmnErrorEnd" name="Child BPMN error"/>
+    <boundaryEvent id="onChildErrorEnd" name="Child error end" attachedToRef="callChild">
+      <errorEventDefinition errorRef="childErrorEndError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onChildErrorEnd_childErrorEndEnd" sourceRef="onChildErrorEnd" targetRef="childErrorEndEnd"/>
+    <endEvent id="childErrorEndEnd" name="Child error end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="mapExceptionCallActivity">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="callChild_di" bpmnElement="callChild">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="childOk_di" bpmnElement="childOk">
+        <dc:Bounds x="702" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="childFailedEnd_di" bpmnElement="childFailedEnd">
+        <dc:Bounds x="402" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="childBpmnErrorEnd_di" bpmnElement="childBpmnErrorEnd">
+        <dc:Bounds x="552" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="childErrorEndEnd_di" bpmnElement="childErrorEndEnd">
+        <dc:Bounds x="702" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onChildFailed_di" bpmnElement="onChildFailed">
+        <dc:Bounds x="240" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onChildBpmnError_di" bpmnElement="onChildBpmnError">
+        <dc:Bounds x="288" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onChildErrorEnd_di" bpmnElement="onChildErrorEnd">
+        <dc:Bounds x="336" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_callChild_di" bpmnElement="f_start_callChild">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_callChild_childOk_di" bpmnElement="f_callChild_childOk">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="702" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onChildFailed_childFailedEnd_di" bpmnElement="f_onChildFailed_childFailedEnd">
+        <di:waypoint x="258" y="148"/>
+        <di:waypoint x="258" y="310"/>
+        <di:waypoint x="402" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onChildBpmnError_childBpmnErrorEnd_di" bpmnElement="f_onChildBpmnError_childBpmnErrorEnd">
+        <di:waypoint x="306" y="148"/>
+        <di:waypoint x="306" y="310"/>
+        <di:waypoint x="552" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onChildErrorEnd_childErrorEndEnd_di" bpmnElement="f_onChildErrorEnd_childErrorEndEnd">
+        <di:waypoint x="354" y="148"/>
+        <di:waypoint x="354" y="310"/>
+        <di:waypoint x="702" y="310"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

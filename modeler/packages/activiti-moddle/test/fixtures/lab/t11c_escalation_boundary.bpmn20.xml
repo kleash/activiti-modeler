@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t11c_escalation_boundary" name="t11c_escalation_boundary" isExecutable="true">
+    <startEvent id="s"/><userTask id="u"/><endEvent id="e"/><boundaryEvent id="b" attachedToRef="u"><escalationEventDefinition escalationRef="x"/></boundaryEvent><endEvent id="e2"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="u"/>
+    <sequenceFlow id="f2" sourceRef="u" targetRef="e"/>
+    <sequenceFlow id="f3" sourceRef="b" targetRef="e2"/>
+
+  </process>
+</definitions>

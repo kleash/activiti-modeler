@@ -1,0 +1,25 @@
+{
+  "id": "decisionInput-extensions",
+  "extensions": {
+    "decisionInput": {
+      "properties": {},
+      "mappings": {
+        "decide": {
+          "inputs": {
+            "age": {
+              "type": "VARIABLE",
+              "value": "age"
+            }
+          }
+        }
+      },
+      "constants": {
+        "decide": {
+          "_activiti_dmn_table_": {
+            "value": "grade"
+          }
+        }
+      }
+    }
+  }
+}

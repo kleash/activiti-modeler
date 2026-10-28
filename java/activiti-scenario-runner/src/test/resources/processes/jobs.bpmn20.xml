@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/runner-test">
+  <!-- an asynchronous service task that always throws: retried twice, then a dead-letter job -->
+  <process id="flaky" name="Flaky" isExecutable="true">
+    <startEvent id="fStart"/>
+    <sequenceFlow id="f_fStart_flakyCall" sourceRef="fStart" targetRef="flakyCall"/>
+    <serviceTask id="flakyCall" name="Flaky call" activiti:async="true" activiti:delegateExpression="${failingDelegate}">
+      <extensionElements>
+        <activiti:failedJobRetryTimeCycle>R2/PT10S</activiti:failedJobRetryTimeCycle>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_flakyCall_fEnd" sourceRef="flakyCall" targetRef="fEnd"/>
+    <endEvent id="fEnd"/>
+  </process>
+
+  <!-- an asynchronous service task that works -->
+  <process id="asyncOk" name="Async ok" isExecutable="true">
+    <startEvent id="aStart"/>
+    <sequenceFlow id="f_aStart_slow" sourceRef="aStart" targetRef="slow"/>
+    <serviceTask id="slow" name="Slow" activiti:async="true" activiti:delegateExpression="${okDelegate}"/>
+    <sequenceFlow id="f_slow_aEnd" sourceRef="slow" targetRef="aEnd"/>
+    <endEvent id="aEnd"/>
+  </process>
+
+  <!-- a task whose only outgoing flow can never be taken: completing it fails and rolls back -->
+  <process id="stuck" name="Stuck" isExecutable="true">
+    <startEvent id="kStart"/>
+    <sequenceFlow id="f_kStart_bad" sourceRef="kStart" targetRef="bad"/>
+    <userTask id="bad" name="Bad" activiti:candidateUsers="alice"/>
+    <sequenceFlow id="f_bad_kEnd" sourceRef="bad" targetRef="kEnd">
+      <conditionExpression xsi:type="tFormalExpression">${false}</conditionExpression>
+    </sequenceFlow>
+    <endEvent id="kEnd"/>
+  </process>
+
+  <!-- a flow is taken and then the next task throws: the rollback must also forget the flow -->
+  <process id="rollback" name="Rollback" isExecutable="true">
+    <startEvent id="rStart"/>
+    <sequenceFlow id="f_rStart_step" sourceRef="rStart" targetRef="step"/>
+    <userTask id="step" name="Step" activiti:candidateUsers="alice"/>
+    <sequenceFlow id="f_step_explode" sourceRef="step" targetRef="explode"/>
+    <serviceTask id="explode" name="Explode" activiti:delegateExpression="${failingDelegate}"/>
+    <sequenceFlow id="f_explode_rEnd" sourceRef="explode" targetRef="rEnd"/>
+    <endEvent id="rEnd"/>
+  </process>
+
+  <!-- an asynchronous loop: every executed job creates the next one -->
+  <process id="looping" name="Looping" isExecutable="true">
+    <startEvent id="lStart"/>
+    <sequenceFlow id="f_lStart_spin" sourceRef="lStart" targetRef="spin"/>
+    <serviceTask id="spin" name="Spin" activiti:async="true" activiti:delegateExpression="${counterDelegate}"/>
+    <sequenceFlow id="f_spin_again" sourceRef="spin" targetRef="again"/>
+    <exclusiveGateway id="again" default="f_again_lEnd"/>
+    <sequenceFlow id="f_again_spin" sourceRef="again" targetRef="spin">
+      <conditionExpression xsi:type="tFormalExpression">${n &lt; limit}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_again_lEnd" sourceRef="again" targetRef="lEnd"/>
+    <endEvent id="lEnd"/>
+  </process>
+  <!-- an asynchronous service task that fails on its first attempt only: a retry timer, which EXECUTOR mode makes executable at once -->
+  <process id="flakyOnce" name="Flaky once" isExecutable="true">
+    <startEvent id="oStart"/>
+    <sequenceFlow id="f_oStart_onceCall" sourceRef="oStart" targetRef="onceCall"/>
+    <serviceTask id="onceCall" name="Fails once" activiti:async="true" activiti:delegateExpression="${failOnceDelegate}"/>
+    <sequenceFlow id="f_onceCall_oEnd" sourceRef="onceCall" targetRef="oEnd"/>
+    <endEvent id="oEnd"/>
+  </process>
+
+  <!-- fails once with an optimistic locking failure and has a single try: the job ends as dead letter, which EXECUTOR mode revives -->
+  <process id="lockedOnce" name="Locked once" isExecutable="true">
+    <startEvent id="lockedStart"/>
+    <sequenceFlow id="f_lockedStart_lockedCall" sourceRef="lockedStart" targetRef="lockedCall"/>
+    <serviceTask id="lockedCall" name="Optimistic lock once" activiti:async="true" activiti:delegateExpression="${lockFailOnceDelegate}">
+      <extensionElements>
+        <activiti:failedJobRetryTimeCycle>R1/PT1S</activiti:failedJobRetryTimeCycle>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_lockedCall_lEnd" sourceRef="lockedCall" targetRef="lockedEnd"/>
+    <endEvent id="lockedEnd"/>
+  </process>
+</definitions>

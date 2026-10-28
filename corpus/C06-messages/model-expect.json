@@ -1,0 +1,85 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "messageStart": {
+      "definition": { "name": "Message start event", "category": "http://activiti.org/bpmn/corpus/C06" },
+      "elements": {
+        "startOnMessage": { "type": "startEvent", "attributes": { "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "orderPlaced" } ] } },
+        "startPlain": { "type": "startEvent", "attributes": { "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "orderImported" } ] } }
+      }
+    },
+    "messageCatch": {
+      "elements": {
+        "waitPayment": { "type": "intermediateCatchEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "paymentReceived", "correlationKey": "${orderId}", "messageExpression": null } ] } },
+        "waitDocs": { "type": "intermediateCatchEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": null, "messageExpression": "${'docs-'.concat(region)}", "correlationKey": "${orderId}" } ] } }
+      }
+    },
+    "messageBoundary": {
+      "elements": {
+        "cancelBoundary": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "review", "cancelActivity": true, "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "cancelRequest", "correlationKey": "${orderId}" } ] } },
+        "infoBoundary": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "review", "cancelActivity": false, "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "additionalInfo", "correlationKey": "${orderId}" } ] } }
+      }
+    },
+    "messageEventSubprocess": {
+      "elements": {
+        "escalationHandler": { "type": "subProcess", "attributes": { "@class": "EventSubProcess" } },
+        "escalateStart": { "type": "startEvent", "attributes": {
+          "interrupting": true, "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "escalate", "correlationKey": "${orderId}" } ] } },
+        "noteHandler": { "type": "subProcess", "attributes": { "@class": "EventSubProcess" } },
+        "noteStart": { "type": "startEvent", "attributes": {
+          "interrupting": false, "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "note", "correlationKey": "${orderId}" } ] } }
+      }
+    },
+    "messageThrow": {
+      "elements": {
+        "throwExpr": { "type": "intermediateThrowEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "shipped", "correlationKey": "${orderId}" } ] } },
+        "throwClass": { "type": "intermediateThrowEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "notified", "correlationKey": null } ] } },
+        "throwField": { "type": "intermediateThrowEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "tagged", "fieldExtensions": [ { "fieldName": "tag", "stringValue": "T1", "expression": null } ] } ] } },
+        "throwSilent": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "silent", "fieldExtensions": [] } ] } },
+        "archiveEnd": { "type": "endEvent", "attributes": { "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "archived" } ] } }
+      }
+    },
+    "messageEnd": {
+      "definition": { "name": "Message end event with a delegate class", "category": "http://activiti.org/bpmn/corpus/C06" },
+      "extensions": {
+        "mappings": {
+          "closedEnd": {
+            "inputs": {
+              "order": { "type": "VARIABLE", "value": "orderId" },
+              "total": { "type": "VARIABLE", "value": "amount" },
+              "status": { "type": "VALUE", "value": "CLOSED" }
+            },
+            "outputs": { "$size": 0 }
+          }
+        }
+      },
+      "elements": {
+        "closedEnd": { "type": "endEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "closed", "correlationKey": "${orderId}", "fieldExtensions": [] } ] } }
+      }
+    },
+    "messageSameName": {
+      "elements": {
+        "catchA": { "type": "intermediateCatchEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "ticket", "correlationKey": "${keyA}" } ] } },
+        "catchB": { "type": "intermediateCatchEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "ticket", "correlationKey": "${keyB}" } ] } }
+      }
+    },
+    "messageClash": {
+      "elements": {
+        "docsBoundary": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "collect", "cancelActivity": false, "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "docs", "correlationKey": null } ] } },
+        "docsStart": { "type": "startEvent", "attributes": {
+          "interrupting": false, "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "docs", "correlationKey": null } ] } }
+      }
+    }
+  }
+}

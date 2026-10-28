@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+<message id="msg" name="theMessage"/>
+  <process id="t09b_eventsub_message" name="t09b_eventsub_message" isExecutable="true">
+    <startEvent id="s"/><userTask id="u"/><endEvent id="e"/>
+    <subProcess id="es" triggeredByEvent="true"><startEvent id="es_s" isInterrupting="false"><messageEventDefinition messageRef="msg"/></startEvent><scriptTask id="es_t" scriptFormat="juel" activiti:resultVariable="evsub"><script>${'fired'}</script></scriptTask><endEvent id="es_e"/>
+    <sequenceFlow id="g1" sourceRef="es_s" targetRef="es_t"/><sequenceFlow id="g2" sourceRef="es_t" targetRef="es_e"/></subProcess>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="u"/>
+    <sequenceFlow id="f2" sourceRef="u" targetRef="e"/>
+
+  </process>
+</definitions>

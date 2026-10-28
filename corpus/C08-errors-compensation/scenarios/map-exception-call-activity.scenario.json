@@ -1,0 +1,67 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 errors crossing a call activity: mapException on the call activity, BpmnError and error end event of the child",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the child completes normally and the parent continues",
+      "start": { "process": "mapExceptionCallActivity", "user": "ann", "variables": { "errorCode": "", "exceptionClass": "", "endWithError": false } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "callChild", "process": "riskyChild", "state": "COMPLETED",
+                                   "startVariables": { "errorCode": "", "exceptionClass": "", "endWithError": false },
+                                   "path": { "contains": ["risky", "childDone"], "notContains": ["childErrorEnd"] } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["childOk"],
+        "path": { "notContains": ["onChildFailed", "onChildBpmnError", "onChildErrorEnd"], "sequenceFlows": ["f_callChild_childOk"] }
+      }
+    },
+    {
+      "name": "a Java exception in the child, not mapped there, is mapped by the call activity (any RuntimeException) to CHILD_FAILED",
+      "start": { "process": "mapExceptionCallActivity", "user": "ann", "variables": { "errorCode": "", "exceptionClass": "java.lang.IllegalStateException", "endWithError": false } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "callChild", "process": "riskyChild", "count": 1, "path": { "contains": ["risky"], "notContains": ["childDone", "childErrorEnd"] } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["childFailedEnd"],
+        "path": {
+          "contains": ["onChildFailed", "childFailedEnd"],
+          "notContains": ["onChildBpmnError", "onChildErrorEnd", "childOk"],
+          "sequenceFlows": ["f_onChildFailed_childFailedEnd"],
+          "notSequenceFlows": ["f_callChild_childOk"]
+        }
+      }
+    },
+    {
+      "name": "a BpmnError thrown in the child travels up to the error boundary event of the call activity",
+      "start": { "process": "mapExceptionCallActivity", "user": "ann", "variables": { "errorCode": "CHILD_BPMN_ERROR", "exceptionClass": "", "endWithError": false } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["childBpmnErrorEnd"],
+        "path": {
+          "contains": ["onChildBpmnError", "childBpmnErrorEnd"],
+          "notContains": ["onChildFailed", "onChildErrorEnd", "childOk"],
+          "sequenceFlows": ["f_onChildBpmnError_childBpmnErrorEnd"]
+        }
+      }
+    },
+    {
+      "name": "an error end event of the child is caught by the matching boundary event of the call activity",
+      "start": { "process": "mapExceptionCallActivity", "user": "ann", "variables": { "errorCode": "", "exceptionClass": "", "endWithError": true } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "callChild", "process": "riskyChild", "count": 1, "path": { "contains": ["risky", "finishWithError", "childErrorEnd"], "notContains": ["childDone"] } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["childErrorEndEnd"],
+        "path": {
+          "contains": ["onChildErrorEnd", "childErrorEndEnd"],
+          "notContains": ["onChildFailed", "onChildBpmnError", "childOk"],
+          "sequenceFlows": ["f_onChildErrorEnd_childErrorEndEnd"]
+        }
+      }
+    }
+  ]
+}

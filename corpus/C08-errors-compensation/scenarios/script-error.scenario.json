@@ -1,0 +1,38 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 BPMN error thrown by a JavaScript script task",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a valid amount passes the script task and the process is accepted",
+      "start": { "process": "scriptError", "user": "ann", "variables": { "amount": 50 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["accepted"],
+        "variables": { "status": "accepted", "amount": 50 },
+        "path": {
+          "contains": ["checkAmount", "accepted"],
+          "notContains": ["onInvalidAmount", "rejectAmount", "rejected"],
+          "sequenceFlows": ["f_start_checkAmount", "f_checkAmount_accepted"],
+          "notSequenceFlows": ["f_onInvalidAmount_rejectAmount"]
+        }
+      }
+    },
+    {
+      "name": "a negative amount makes the script throw INVALID_AMOUNT and the error boundary event routes to the rejection",
+      "start": { "process": "scriptError", "user": "ann", "variables": { "amount": -5 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["rejected"],
+        "variables": { "status": "rejected" },
+        "path": {
+          "contains": ["onInvalidAmount", "rejectAmount", "rejected"],
+          "notContains": ["accepted"],
+          "order": [["onInvalidAmount", "rejectAmount"], ["rejectAmount", "rejected"]],
+          "sequenceFlows": ["f_onInvalidAmount_rejectAmount", "f_rejectAmount_rejected"],
+          "notSequenceFlows": ["f_checkAmount_accepted"]
+        }
+      }
+    }
+  ]
+}

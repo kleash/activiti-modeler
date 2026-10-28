@@ -1,0 +1,116 @@
+{
+  "id": "insurance-claim-extensions",
+  "extensions": {
+    "insuranceClaim": {
+      "properties": {
+        "p1": {
+          "id": "p1",
+          "name": "claimId",
+          "type": "string"
+        },
+        "p2": {
+          "id": "p2",
+          "name": "claimType",
+          "type": "string"
+        },
+        "p3": {
+          "id": "p3",
+          "name": "claimAmount",
+          "type": "integer"
+        },
+        "p4": {
+          "id": "p4",
+          "name": "severity",
+          "type": "string"
+        },
+        "p5": {
+          "id": "p5",
+          "name": "reviewers",
+          "type": "bigdecimal"
+        },
+        "p6": {
+          "id": "p6",
+          "name": "triageRules",
+          "type": "array"
+        },
+        "p7": {
+          "id": "p7",
+          "name": "signedOff",
+          "type": "boolean"
+        },
+        "p8": {
+          "id": "p8",
+          "name": "paidAmount",
+          "type": "integer"
+        },
+        "p9": {
+          "id": "p9",
+          "name": "status",
+          "type": "string"
+        },
+        "p10": {
+          "id": "p10",
+          "name": "withdrawalReason",
+          "type": "string"
+        },
+        "p11": {
+          "id": "p11",
+          "name": "documentName",
+          "type": "string"
+        },
+        "p12": {
+          "id": "p12",
+          "name": "documentsLogged",
+          "type": "integer"
+        }
+      },
+      "mappings": {
+        "triage": {
+          "inputs": {
+            "claimType": {
+              "type": "VARIABLE",
+              "value": "claimType"
+            },
+            "claimAmount": {
+              "type": "VARIABLE",
+              "value": "claimAmount"
+            }
+          },
+          "outputs": {
+            "severity": {
+              "type": "VARIABLE",
+              "value": "severity"
+            },
+            "reviewers": {
+              "type": "VARIABLE",
+              "value": "reviewers"
+            },
+            "triageRules": {
+              "type": "VARIABLE",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "assessClaim": {
+          "mappingType": "MAP_ALL_OUTPUTS"
+        },
+        "managerSignOff": {
+          "mappingType": "MAP_ALL"
+        },
+        "onWithdrawal": {
+          "mappingType": "MAP_ALL"
+        },
+        "documentStart": {
+          "mappingType": "MAP_ALL"
+        }
+      },
+      "constants": {
+        "triage": {
+          "_activiti_dmn_table_": {
+            "value": "claimTriage"
+          }
+        }
+      }
+    }
+  }
+}

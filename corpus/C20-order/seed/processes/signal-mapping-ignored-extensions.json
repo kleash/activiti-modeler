@@ -1,0 +1,13 @@
+{
+  "id": "signal-mapping-ignored-extensions",
+  "extensions": {
+    "signalMappingIgnored": {
+      "properties": {
+        "p1": { "id": "p1", "name": "renamed", "type": "string" }
+      },
+      "mappings": {
+        "awaitPing": { "outputs": { "renamed": { "type": "VARIABLE", "value": "carrier" } } }
+      }
+    }
+  }
+}

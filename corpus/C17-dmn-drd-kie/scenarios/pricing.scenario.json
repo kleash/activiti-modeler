@@ -1,0 +1,194 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "Pricing decision with a business knowledge model (KIE engine only)",
+  "users": {
+    "alice": []
+  },
+  "scenarios": [
+    {
+      "name": "five loyal years: 10 percent discount",
+      "start": {
+        "process": "pricing",
+        "user": "alice",
+        "variables": {
+          "basePrice": 200,
+          "loyaltyYears": 5
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "end"
+        ],
+        "path": {
+          "contains": [
+            "decidePrice",
+            "end"
+          ],
+          "order": [
+            [
+              "start",
+              "decidePrice"
+            ],
+            [
+              "decidePrice",
+              "end"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decidePrice",
+            "flow_decidePrice_end"
+          ]
+        },
+        "variables": {
+          "price": 180,
+          "priced": true
+        }
+      }
+    },
+    {
+      "name": "two loyal years: 5 percent discount",
+      "start": {
+        "process": "pricing",
+        "user": "alice",
+        "variables": {
+          "basePrice": 200,
+          "loyaltyYears": 2
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "end"
+        ],
+        "path": {
+          "contains": [
+            "decidePrice",
+            "end"
+          ],
+          "order": [
+            [
+              "start",
+              "decidePrice"
+            ],
+            [
+              "decidePrice",
+              "end"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decidePrice",
+            "flow_decidePrice_end"
+          ]
+        },
+        "variables": {
+          "price": 190,
+          "priced": true
+        }
+      }
+    },
+    {
+      "name": "new customer: no discount",
+      "start": {
+        "process": "pricing",
+        "user": "alice",
+        "variables": {
+          "basePrice": 200,
+          "loyaltyYears": 0
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "end"
+        ],
+        "path": {
+          "contains": [
+            "decidePrice",
+            "end"
+          ],
+          "order": [
+            [
+              "start",
+              "decidePrice"
+            ],
+            [
+              "decidePrice",
+              "end"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decidePrice",
+            "flow_decidePrice_end"
+          ]
+        },
+        "variables": {
+          "price": 200,
+          "priced": true
+        }
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "finalPrice",
+      "inputs": {
+        "basePrice": 200,
+        "loyaltyYears": 5
+      },
+      "expect": {
+        "result": [
+          {
+            "finalPrice": 180
+          }
+        ],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "finalPrice",
+      "inputs": {
+        "basePrice": 200,
+        "loyaltyYears": 2
+      },
+      "expect": {
+        "result": [
+          {
+            "finalPrice": 190
+          }
+        ],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "finalPrice",
+      "inputs": {
+        "basePrice": 200,
+        "loyaltyYears": 0
+      },
+      "expect": {
+        "result": [
+          {
+            "finalPrice": 200
+          }
+        ],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "pricing",
+      "inputs": {
+        "basePrice": 1000,
+        "loyaltyYears": 10
+      },
+      "expect": {
+        "result": [
+          {
+            "finalPrice": 900
+          }
+        ],
+        "matchedRules": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C11 calledElement as an expression",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "childKey variantA calls variantA",
+      "start": { "process": "callExpression", "user": "ann", "variables": { "childKey": "variantA" } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "pick", "process": "variantA", "state": "COMPLETED", "variables": { "variant": "A" } } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "variables": { "childKey": "variantA", "chosen": "A" } }
+    },
+    {
+      "name": "childKey variantB calls variantB",
+      "start": { "process": "callExpression", "user": "ann", "variables": { "childKey": "variantB" } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "pick", "process": "variantB", "state": "COMPLETED", "variables": { "variant": "B" } } }
+      ],
+      "expect": { "state": "COMPLETED", "variables": { "chosen": "B" } }
+    },
+    {
+      "name": "a key that is not deployed fails the call and rolls the start back",
+      "start": { "process": "callExpression", "user": "ann", "variables": { "childKey": "missingChild" },
+                 "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "missingChild" } }
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "customerOrder": {
+      "definition": { "name": "Customer order", "category": "http://activiti.org/bpmn/corpus/C18" },
+      "process": {
+        "dataObjects": [ { "name": "orderNote", "value": "draft" } ],
+        "lanes": [
+          { "id": "buyerLane", "name": "Buyer", "flowReferences": [ "custStart", "placeOrder", "orderSent", "awaitConfirmation" ] },
+          { "id": "approverLane", "name": "Approver", "flowReferences": [ "approveDelivery", "custEnd" ] }
+        ]
+      },
+      "elements": {
+        "placeOrder": { "type": "userTask", "attributes": { "assignee": "ann" } },
+        "orderSent": { "type": "intermediateThrowEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "orderPlaced" } ] } },
+        "awaitConfirmation": { "type": "intermediateCatchEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "orderConfirmed", "correlationKey": "${orderId}" } ] } },
+        "approveDelivery": { "type": "userTask", "attributes": { "assignee": "bob" } },
+        "orderStore": { "type": "dataStoreReference", "attributes": { "name": "Orders", "dataStoreRef": null } }
+      }
+    },
+    "supplierFulfilment": {
+      "definition": { "name": "Supplier fulfilment", "category": "http://activiti.org/bpmn/corpus/C18" },
+      "process": {
+        "lanes": [],
+        "artifacts": [
+          { "@class": "TextAnnotation", "id": "shipNote", "text": "The carrier is a black box pool: nothing is deployed for it." },
+          { "@class": "Association", "id": "as_shipOrder_shipNote", "sourceRef": "shipOrder", "targetRef": "shipNote" }
+        ]
+      },
+      "elements": {
+        "supplierStart": { "type": "startEvent", "attributes": { "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "orderPlaced" } ] } },
+        "reserveStock": { "type": "serviceTask", "attributes": { "implementationType": "expression", "implementation": "${execution.setVariable('reserved', true)}" } },
+        "supplierEnd": { "type": "endEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "orderConfirmed" } ] } }
+      }
+    },
+    "colouredReview": {
+      "definition": { "name": "Coloured review", "category": "http://activiti.org/bpmn/corpus/C18" },
+      "process": {
+        "lanes": [ { "id": "reviewerLane", "name": "Reviewer" } ],
+        "artifacts": [
+          { "@class": "TextAnnotation", "id": "colourNote", "text": "Green is the happy path, red the rejection." },
+          { "@class": "Association", "id": "as_decide_colourNote", "sourceRef": "decide", "targetRef": "colourNote" }
+        ]
+      },
+      "elements": {
+        "decide": { "type": "exclusiveGateway", "attributes": { "defaultFlow": "f_decide_rejectedEnd" } },
+        "f_decide_acceptedEnd": { "type": "sequenceFlow", "attributes": { "name": "yes", "conditionExpression": "${accepted == true}" } }
+      }
+    },
+    "annotatedRequest": {
+      "definition": { "name": "Annotated request", "category": "http://activiti.org/bpmn/corpus/C18" },
+      "process": {
+        "lanes": [],
+        "artifacts": [
+          { "@class": "TextAnnotation", "id": "checkNote", "text": "Checked by the clerk on duty." },
+          { "@class": "Association", "id": "as_check_checkNote", "sourceRef": "check", "targetRef": "checkNote" }
+        ]
+      },
+      "elements": {
+        "check": { "type": "userTask", "attributes": { "assignee": "ann" } }
+      }
+    }
+  }
+}

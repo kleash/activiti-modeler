@@ -1,0 +1,114 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C20 an interrupting message event sub process and a multi-instance user task (engine behaviour pinned: ACT_FK_EXE_PARENT)",
+  "description": "Delivering the message of an interrupting event sub process while a multi-instance user task is active fails on Activiti 9.0.0: cancelling the executions of the multi-instance task violates ACT_FK_EXE_PARENT, the delivery is rolled back and the review goes on. The same event sub process works next to a plain user task (C06), and a message boundary event on the multi-instance task works (insurance-claim.scenario.json, onWithdrawal). This file pins the engine behaviour so that a later Activiti that fixes it is noticed; the lint rule message-event-subprocess-multi-instance warns about the construct.",
+  "users": {
+    "adj1": [
+      "adjusters"
+    ],
+    "adj2": [
+      "adjusters"
+    ]
+  },
+  "scenarios": [
+    {
+      "name": "the stop message fails while the multi-instance review is open and the review goes on",
+      "start": {
+        "process": "interruptMultiInstance",
+        "businessKey": "I-1",
+        "user": "adj1"
+      },
+      "steps": [
+        {
+          "expectTask": {
+            "activity": "review",
+            "count": 2,
+            "candidateGroups": [
+              "adjusters"
+            ],
+            "localVariables": {}
+          }
+        },
+        {
+          "message": {
+            "name": "stopReview",
+            "expectFailure": {
+              "exception": "PersistenceException",
+              "messageContains": "ACT_FK_EXE_PARENT"
+            }
+          }
+        },
+        {
+          "expectTask": {
+            "activity": "review",
+            "count": 2
+          }
+        }
+      ],
+      "expect": {
+        "state": "ACTIVE",
+        "path": {
+          "contains": [
+            "start",
+            "review"
+          ],
+          "notContains": [
+            "stoppedEnd",
+            "reviewedEnd"
+          ],
+          "notSequenceFlows": [
+            "f_stopStart_stoppedEnd",
+            "f_review_reviewedEnd"
+          ]
+        }
+      }
+    },
+    {
+      "name": "without the message the review completes",
+      "start": {
+        "process": "interruptMultiInstance",
+        "businessKey": "I-2",
+        "user": "adj1"
+      },
+      "steps": [
+        {
+          "completeTask": {
+            "activity": "review",
+            "match": {
+              "index": 1
+            },
+            "user": "adj1"
+          }
+        },
+        {
+          "completeTask": {
+            "activity": "review",
+            "match": {
+              "index": 1
+            },
+            "user": "adj2"
+          }
+        }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "reviewedEnd"
+        ],
+        "path": {
+          "contains": [
+            "review",
+            "reviewedEnd"
+          ],
+          "sequenceFlows": [
+            "f_start_review",
+            "f_review_reviewedEnd"
+          ],
+          "notContains": [
+            "stoppedEnd"
+          ]
+        }
+      }
+    }
+  ]
+}

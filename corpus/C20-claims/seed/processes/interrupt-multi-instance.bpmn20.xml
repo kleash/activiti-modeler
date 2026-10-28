@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_interruptMultiInstance"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C20">
+  <message id="stopReviewMsg" name="stopReview"/>
+  <process id="interruptMultiInstance" name="Interrupting event sub process and a multi-instance task" isExecutable="true">
+    <documentation>A parallel multi-instance user task and an interrupting message event sub process. While the review is open, delivering the message stopReview fails on Activiti 9.0.0 with an ACT_FK_EXE_PARENT violation (cancelling the executions of the multi-instance task) and the message is not consumed; the review goes on. A message boundary event on the same task works (onWithdrawal of insuranceClaim). Engine behaviour pinned here, not a model to copy.</documentation>
+    <startEvent id="start" name="Reviews requested"/>
+    <sequenceFlow id="f_start_review" sourceRef="start" targetRef="review"/>
+    <userTask id="review" name="Review" activiti:candidateGroups="adjusters">
+      <multiInstanceLoopCharacteristics isSequential="false">
+        <loopCardinality>2</loopCardinality>
+      </multiInstanceLoopCharacteristics>
+    </userTask>
+    <sequenceFlow id="f_review_reviewedEnd" sourceRef="review" targetRef="reviewedEnd"/>
+    <endEvent id="reviewedEnd" name="Reviewed"/>
+    <subProcess id="stopHandler" name="Stop the reviews" triggeredByEvent="true">
+      <startEvent id="stopStart" name="Stop requested" isInterrupting="true">
+        <messageEventDefinition messageRef="stopReviewMsg"/>
+      </startEvent>
+      <sequenceFlow id="f_stopStart_stoppedEnd" sourceRef="stopStart" targetRef="stoppedEnd"/>
+      <endEvent id="stoppedEnd" name="Stopped"/>
+    </subProcess>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="interruptMultiInstance">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review">
+        <dc:Bounds x="220" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewedEnd_di" bpmnElement="reviewedEnd">
+        <dc:Bounds x="402" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="stopStart_di" bpmnElement="stopStart">
+        <dc:Bounds x="252" y="422" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="stoppedEnd_di" bpmnElement="stoppedEnd">
+        <dc:Bounds x="402" y="422" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="stopHandler_di" bpmnElement="stopHandler" isExpanded="true">
+        <dc:Bounds x="212" y="382" width="266" height="116"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_review_di" bpmnElement="f_start_review">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_review_reviewedEnd_di" bpmnElement="f_review_reviewedEnd">
+        <di:waypoint x="320" y="220"/>
+        <di:waypoint x="402" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_stopStart_stoppedEnd_di" bpmnElement="f_stopStart_stoppedEnd">
+        <di:waypoint x="288" y="440"/>
+        <di:waypoint x="402" y="440"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

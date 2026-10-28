@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C10 embedded sub process and local data objects",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the sub process variable exists only inside the sub process, the process variable everywhere",
+      "start": { "process": "embeddedSubProcess", "user": "ann" },
+      "steps": [
+        { "expectActive": { "contains": ["check"], "notContains": ["afterReview"] } },
+        { "expectTask": { "activity": "check", "candidateUsers": ["ann"], "localVariables": { "subScore": 7, "region": "EU" } } },
+        { "completeTask": { "activity": "check", "user": "ann", "variables": { "verdict": "ok" } } },
+        { "expectTask": { "activity": "check", "count": 0 } },
+        { "expectTask": { "activity": "afterReview", "localVariables": { "region": "EU" } } },
+        { "completeTask": { "activity": "afterReview", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end", "reviewEnd"],
+        "path": {
+          "contains": ["start", "review", "reviewStart", "check", "reviewEnd", "afterReview", "end"],
+          "order": [["start", "review"], ["reviewStart", "check"], ["check", "reviewEnd"], ["reviewEnd", "afterReview"], ["afterReview", "end"]],
+          "sequenceFlows": ["f_start_review", "f_reviewStart_check", "f_check_reviewEnd", "f_review_afterReview", "f_afterReview_end"]
+        },
+        "variables": { "region": "EU", "verdict": "ok" },
+        "absentVariables": ["subScore"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_escalationBoundary" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="escalationBoundary" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:task id="work" name="Work on it" />
+    <bpmn:boundaryEvent id="late" name="Too late" attachedToRef="work"><bpmn:escalationEventDefinition id="late_def" /></bpmn:boundaryEvent>
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:endEvent id="endLate" name="End" />
+    <bpmn:sequenceFlow id="f_start_work" sourceRef="start" targetRef="work" />
+    <bpmn:sequenceFlow id="f_work_end" sourceRef="work" targetRef="end" />
+    <bpmn:sequenceFlow id="f_late_endLate" sourceRef="late" targetRef="endLate" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_escalationBoundary">
+    <bpmndi:BPMNPlane id="BPMNPlane_escalationBoundary" bpmnElement="escalationBoundary">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="150" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="work_di" bpmnElement="work"><dc:Bounds x="246" y="120" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="late_di" bpmnElement="late"><dc:Bounds x="328" y="182" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end"><dc:Bounds x="406" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endLate_di" bpmnElement="endLate"><dc:Bounds x="502" y="312" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_work_di" bpmnElement="f_start_work"><di:waypoint x="186" y="160" /><di:waypoint x="246" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_work_end_di" bpmnElement="f_work_end"><di:waypoint x="346" y="160" /><di:waypoint x="406" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_late_endLate_di" bpmnElement="f_late_endLate"><di:waypoint x="364" y="200" /><di:waypoint x="502" y="330" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/harness-fixture">
+  <process id="decide" name="Decide" isExecutable="true">
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_decideGrade" sourceRef="start" targetRef="decideGrade"/>
+    <serviceTask id="decideGrade" name="Decide grade" implementation="dmn-connector.EXECUTE_TABLE"/>
+    <sequenceFlow id="f_decideGrade_end" sourceRef="decideGrade" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+</definitions>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t23_transaction" name="t23_transaction" isExecutable="true">
+    <startEvent id="s"/>
+    <transaction id="tx"><startEvent id="tx_s"/>
+      <serviceTask id="tx_a" activiti:expression="${execution.setVariable('txA','done')}"/>
+      <boundaryEvent id="tx_cb" attachedToRef="tx_a"><compensateEventDefinition/></boundaryEvent>
+      <serviceTask id="tx_undo" isForCompensation="true" activiti:expression="${execution.setVariable('undone','yes')}"/>
+      <userTask id="tx_u"/><endEvent id="tx_e"><cancelEventDefinition/></endEvent>
+      <sequenceFlow id="g1" sourceRef="tx_s" targetRef="tx_a"/><sequenceFlow id="g1b" sourceRef="tx_a" targetRef="tx_u"/><sequenceFlow id="g2" sourceRef="tx_u" targetRef="tx_e"/>
+      <association id="tx_as" associationDirection="One" sourceRef="tx_cb" targetRef="tx_undo"/></transaction>
+    <boundaryEvent id="cb" attachedToRef="tx"><cancelEventDefinition/></boundaryEvent><userTask id="afterCancel"/><endEvent id="e"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="tx"/>
+    <sequenceFlow id="f2" sourceRef="tx" targetRef="e"/>
+    <sequenceFlow id="f3" sourceRef="cb" targetRef="afterCancel"/>
+    <sequenceFlow id="f4" sourceRef="afterCancel" targetRef="e"/>
+
+  </process>
+</definitions>

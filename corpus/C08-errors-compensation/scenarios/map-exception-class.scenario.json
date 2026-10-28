@@ -1,0 +1,62 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 mapException on an activiti:class service task",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "no exception: the task completes and nothing is mapped",
+      "start": { "process": "mapExceptionClass", "user": "ann", "variables": { "exceptionClass": "" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["partnerOk"],
+        "variables": { "failureDelegateCalls": ["callPartner:passed"] },
+        "path": { "notContains": ["onIllegalState", "onBadArgument", "onUnexpected"] }
+      }
+    },
+    {
+      "name": "IllegalStateException matches the exact-class entry (ILLEGAL_STATE)",
+      "start": { "process": "mapExceptionClass", "user": "ann", "variables": { "exceptionClass": "java.lang.IllegalStateException" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["illegalState"],
+        "path": { "contains": ["onIllegalState"], "notContains": ["onBadArgument", "onUnexpected"], "sequenceFlows": ["f_onIllegalState_illegalState"] }
+      }
+    },
+    {
+      "name": "a subclass of IllegalStateException does not match the exact-class entry and falls to the default entry (UNEXPECTED)",
+      "start": { "process": "mapExceptionClass", "user": "ann", "variables": { "exceptionClass": "java.util.concurrent.CancellationException" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["unexpected"],
+        "path": { "contains": ["onUnexpected"], "notContains": ["onIllegalState", "onBadArgument"], "sequenceFlows": ["f_onUnexpected_unexpected"] }
+      }
+    },
+    {
+      "name": "IllegalArgumentException matches the includeChildExceptions entry itself (BAD_ARGUMENT)",
+      "start": { "process": "mapExceptionClass", "user": "ann", "variables": { "exceptionClass": "java.lang.IllegalArgumentException" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["badArgument"],
+        "path": { "contains": ["onBadArgument"], "notContains": ["onIllegalState", "onUnexpected"], "sequenceFlows": ["f_onBadArgument_badArgument"] }
+      }
+    },
+    {
+      "name": "NumberFormatException, a subclass of IllegalArgumentException, matches because includeChildExceptions is true",
+      "start": { "process": "mapExceptionClass", "user": "ann", "variables": { "exceptionClass": "java.lang.NumberFormatException" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["badArgument"],
+        "path": { "contains": ["onBadArgument"], "notContains": ["onIllegalState", "onUnexpected"] }
+      }
+    },
+    {
+      "name": "an unrelated exception is mapped by the default entry without an exception class (UNEXPECTED)",
+      "start": { "process": "mapExceptionClass", "user": "ann", "variables": { "exceptionClass": "java.lang.ArithmeticException" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["unexpected"],
+        "path": { "contains": ["onUnexpected"], "notContains": ["onIllegalState", "onBadArgument", "partnerOk"] }
+      }
+    }
+  ]
+}

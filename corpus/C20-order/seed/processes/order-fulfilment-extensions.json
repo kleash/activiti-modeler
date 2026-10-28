@@ -1,0 +1,68 @@
+{
+  "id": "order-fulfilment-extensions",
+  "extensions": {
+    "orderFulfilment": {
+      "properties": {
+        "p1": { "id": "p1", "name": "orderId", "type": "string" },
+        "p2": { "id": "p2", "name": "customerId", "type": "string" },
+        "p3": { "id": "p3", "name": "sku", "type": "string" },
+        "p4": { "id": "p4", "name": "quantity", "type": "integer" },
+        "p5": { "id": "p5", "name": "amount", "type": "integer" },
+        "p6": { "id": "p6", "name": "cardToken", "type": "string" },
+        "p7": { "id": "p7", "name": "address", "type": "string" },
+        "p8": { "id": "p8", "name": "customerName", "type": "string" },
+        "p9": { "id": "p9", "name": "tier", "type": "string" },
+        "p10": { "id": "p10", "name": "found", "type": "boolean" },
+        "p11": { "id": "p11", "name": "reservationId", "type": "string" },
+        "p12": { "id": "p12", "name": "reservedQuantity", "type": "integer" },
+        "p13": { "id": "p13", "name": "reserved", "type": "boolean" },
+        "p14": { "id": "p14", "name": "paymentId", "type": "string" },
+        "p15": { "id": "p15", "name": "chargedAmount", "type": "integer" },
+        "p16": { "id": "p16", "name": "trackingNumber", "type": "string" },
+        "p17": { "id": "p17", "name": "labelCreated", "type": "boolean" }
+      },
+      "mappings": {
+        "lookupCustomer": {
+          "inputs": { "customerId": { "type": "VARIABLE", "value": "customerId" } },
+          "outputs": {
+            "customerName": { "type": "VARIABLE", "value": "customerName" },
+            "tier": { "type": "VARIABLE", "value": "tier" },
+            "found": { "type": "VARIABLE", "value": "found" }
+          }
+        },
+        "reserveStock": {
+          "inputs": {
+            "sku": { "type": "VARIABLE", "value": "sku" },
+            "quantity": { "type": "VARIABLE", "value": "quantity" }
+          },
+          "outputs": {
+            "reservationId": { "type": "VARIABLE", "value": "reservationId" },
+            "reservedQuantity": { "type": "VARIABLE", "value": "reservedQuantity" },
+            "reserved": { "type": "VARIABLE", "value": "reserved" }
+          }
+        },
+        "chargePayment": {
+          "inputs": {
+            "orderId": { "type": "VARIABLE", "value": "orderId" },
+            "amount": { "type": "VARIABLE", "value": "amount" },
+            "cardToken": { "type": "VARIABLE", "value": "cardToken" }
+          },
+          "outputs": {
+            "paymentId": { "type": "VARIABLE", "value": "paymentId" },
+            "chargedAmount": { "type": "VARIABLE", "value": "chargedAmount" }
+          }
+        },
+        "createShipment": {
+          "inputs": {
+            "orderId": { "type": "VARIABLE", "value": "orderId" },
+            "address": { "type": "VARIABLE", "value": "address" }
+          },
+          "outputs": {
+            "trackingNumber": { "type": "VARIABLE", "value": "trackingNumber" },
+            "labelCreated": { "type": "VARIABLE", "value": "labelCreated" }
+          }
+        }
+      }
+    }
+  }
+}

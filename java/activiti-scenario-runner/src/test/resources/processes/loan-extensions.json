@@ -1,0 +1,30 @@
+{
+  "id": "loan-extensions",
+  "extensions": {
+    "loan": {
+      "properties": {
+        "p1": { "id": "p1", "name": "customerId", "type": "string" },
+        "p2": { "id": "p2", "name": "amount", "type": "integer" },
+        "p3": { "id": "p3", "name": "approved", "type": "boolean" },
+        "p4": { "id": "p4", "name": "customerName", "type": "string" },
+        "p5": { "id": "p5", "name": "riskLevel", "type": "string" }
+      },
+      "mappings": {
+        "lookup": {
+          "inputs": { "customerId": { "type": "VARIABLE", "value": "customerId" } },
+          "outputs": {
+            "customerName": { "type": "VARIABLE", "value": "name" },
+            "riskLevel": { "type": "VARIABLE", "value": "risk" }
+          }
+        },
+        "review": {
+          "inputs": { "amount": { "type": "VARIABLE", "value": "amount" } },
+          "outputs": { "approved": { "type": "VARIABLE", "value": "approved" } }
+        }
+      },
+      "constants": {
+        "lookup": { "source": { "value": "scenario-test" } }
+      }
+    }
+  }
+}

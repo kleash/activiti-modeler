@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Standard BPMN QName references written with the prefix of the target namespace (tns:), as the Activiti Designer and the
+     BPMN XSD allow. bpmn-moddle resolves references by plain id, so the descriptor keeps these as strings. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.org/ws" id="Definitions_prefixed" targetNamespace="http://example.org/ws">
+  <bpmn:import importType="http://schemas.xmlsoap.org/wsdl/" location="http://localhost:9/counter?wsdl" namespace="http://example.org/counter" />
+  <bpmn:itemDefinition id="intItem" structureRef="xsd:int" />
+  <bpmn:message id="incRequest" name="incRequest" itemRef="tns:intItem" />
+  <bpmn:message id="incResponse" name="incResponse" itemRef="tns:intItem" />
+  <bpmn:error id="incError" name="incError" errorCode="E1" />
+  <bpmn:interface id="counterInterface" name="Counter" implementationRef="tns:Counter">
+    <bpmn:operation id="incOperation" name="inc" implementationRef="tns:inc">
+      <bpmn:inMessageRef>tns:incRequest</bpmn:inMessageRef>
+      <bpmn:outMessageRef>tns:incResponse</bpmn:outMessageRef>
+      <bpmn:errorRef>tns:incError</bpmn:errorRef>
+    </bpmn:operation>
+  </bpmn:interface>
+  <bpmn:process id="prefixedReferences" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:serviceTask id="call" name="Call the web service" implementation="##WebService" operationRef="tns:incOperation" />
+    <bpmn:sendTask id="send" name="Send" implementation="##WebService" operationRef="tns:incOperation" messageRef="tns:incRequest" />
+    <bpmn:receiveTask id="receive" name="Receive" operationRef="tns:incOperation" messageRef="tns:incResponse" />
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f1" sourceRef="start" targetRef="call" />
+    <bpmn:sequenceFlow id="f2" sourceRef="call" targetRef="send" />
+    <bpmn:sequenceFlow id="f3" sourceRef="send" targetRef="receive" />
+    <bpmn:sequenceFlow id="f4" sourceRef="receive" targetRef="end" />
+  </bpmn:process>
+</bpmn:definitions>

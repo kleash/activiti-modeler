@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+<message id="msg" name="bMsg"/><signal id="sig" name="bSig"/>
+  <process id="t56_boundary_msg_sig" name="t56_boundary_msg_sig" isExecutable="true">
+    <startEvent id="s"/><userTask id="u"/><endEvent id="e"/>
+    <boundaryEvent id="bm" attachedToRef="u" cancelActivity="false"><messageEventDefinition messageRef="msg"/></boundaryEvent><userTask id="m1"/>
+    <boundaryEvent id="bs" attachedToRef="u"><signalEventDefinition signalRef="sig"/></boundaryEvent><userTask id="s1"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="u"/>
+    <sequenceFlow id="f2" sourceRef="u" targetRef="e"/>
+    <sequenceFlow id="f3" sourceRef="bm" targetRef="m1"/>
+    <sequenceFlow id="f4" sourceRef="bs" targetRef="s1"/>
+    <sequenceFlow id="f5" sourceRef="m1" targetRef="e"/>
+    <sequenceFlow id="f6" sourceRef="s1" targetRef="e"/>
+
+  </process>
+</definitions>

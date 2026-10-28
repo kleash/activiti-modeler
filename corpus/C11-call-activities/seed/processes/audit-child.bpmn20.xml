@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_auditChild"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C11">
+  <process id="auditChild" name="Audit (called)" isExecutable="true">
+    <documentation>Called by callInherit. Reads the inherited orderId and changes the inherited shared counter; the changes stay in the child.</documentation>
+    <startEvent id="cStart"/>
+    <sequenceFlow id="f_cStart_note" sourceRef="cStart" targetRef="note"/>
+    <serviceTask id="note" name="Note the order" activiti:expression="${execution.setVariable('seenOrder', orderId)}"/>
+    <sequenceFlow id="f_note_bump" sourceRef="note" targetRef="bump"/>
+    <serviceTask id="bump" name="Bump shared" activiti:expression="${execution.setVariable('shared', shared + 1)}"/>
+    <sequenceFlow id="f_bump_cEnd" sourceRef="bump" targetRef="cEnd"/>
+    <endEvent id="cEnd"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="auditChild">
+      <bpmndi:BPMNShape id="cStart_di" bpmnElement="cStart">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="note_di" bpmnElement="note">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="bump_di" bpmnElement="bump">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cEnd_di" bpmnElement="cEnd">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_cStart_note_di" bpmnElement="f_cStart_note">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_note_bump_di" bpmnElement="f_note_bump">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_bump_cEnd_di" bpmnElement="f_bump_cEnd">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

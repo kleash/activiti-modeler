@@ -1,0 +1,175 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: verify (Spring Boot ${{ matrix.boot }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.5.16: latest 3.5.x (the build default, what ships); 3.5.7: the version Activiti 9.0.0 is built against (a compatibility run, not scanned by the OSV gate)
+        boot: ['3.5.16', '3.5.7']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Set up Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: modeler/package-lock.json
+
+      # verify-all.sh runs npm ci itself; the browser is installed first because it needs system packages.
+      - name: Install Playwright Chromium
+        working-directory: modeler
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Verify everything
+        env:
+          BOOT_VERSION: ${{ matrix.boot }}
+          # the compatibility matrix itself covers both Boot versions; run it once
+          SKIP_COMPAT_CHECK: ${{ matrix.boot == '3.5.7' && '1' || '0' }}
+        run: scripts/verify-all.sh
+
+      # THIRD-PARTY-NOTICES.md is generated from the dependencies (scripts/generate-notices.py); the versions of the default build are the ones listed.
+      - name: The licence notices match the dependencies
+        if: matrix.boot == '3.5.16'
+        run: python3 -I scripts/generate-notices.py --check
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report-boot-${{ matrix.boot }}
+          path: |
+            modeler/playwright-report/
+            modeler/test-results/
+          if-no-files-found: ignore
+
+  # ADR 0002 (revision 2026-10-27): Activiti 8.8.1 on JDK 21 is a permanent second target next to Activiti 9.0.0 on JDK 25. Same sources and
+  # tests (profile activiti8). Two Spring Boot versions, as in the job above: 3.5.16 is what ships (the OSV gate scans that one), 3.5.7 is
+  # Activiti 8.8.1's own baseline and stays a compatibility run, not a release. verify-all.sh with ACTIVITI_LINE=8 runs the Java build and
+  # tests, the harness over the seed corpus, the npm sections that build the corpus through the modeler, the harness over the generated
+  # corpus, and the 8.8.1 row of the compat-check matrix (run once, in the 3.5.7 leg, since the matrix covers both versions itself). It does
+  # not run the Playwright UI tests (the modeler app and server ship on 9.0.0), but the corpus builds drive the modeler in Chromium.
+  verify-activiti8:
+    name: verify (Activiti 8.8.1, JDK 21, Spring Boot ${{ matrix.boot }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        boot: ['3.5.16', '3.5.7']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Set up Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: modeler/package-lock.json
+
+      # the corpus builds (section 10) run the modeler in Chromium
+      - name: Install Playwright Chromium
+        working-directory: modeler
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Verify everything on Activiti 8.8.1
+        env:
+          ACTIVITI_LINE: '8'
+          BOOT_VERSION: ${{ matrix.boot }}
+          SKIP_COMPAT_CHECK: ${{ matrix.boot == '3.5.16' && '1' || '0' }}
+        run: scripts/verify-all.sh
+
+  # ADR 0008: the ways to get the modeler. Build from source with only a JDK (no Node or Maven set up: the wrapper and the frontend plugin
+  # bring their own), then the jar and the Linux desktop bundle are smoke-tested.
+  distribution:
+    name: build.sh, jar and Linux bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Build from source (one command)
+        run: ./build.sh
+
+      - name: Smoke-test the jar
+        run: scripts/smoke-server.sh
+
+      - name: Build the desktop bundle
+        run: scripts/package-desktop.sh
+
+      - name: Smoke-test the desktop bundle
+        run: scripts/smoke-bundle.sh dist-desktop/*.zip
+
+  docker:
+    name: docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build and smoke-test the image
+        run: scripts/smoke-docker.sh
+
+  pages:
+    name: browser-only build under a sub-path
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: modeler/package-lock.json
+
+      - name: Install dependencies and Chromium
+        working-directory: modeler
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Build for /activiti-modeler/ and smoke-test it with vite preview
+        run: scripts/smoke-pages.sh --base=/activiti-modeler/

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C01">
+  <process id="taskAttributes" name="Task attributes" isExecutable="true">
+    <documentation>Priority, category, form key and due date of a user task: literal values, expressions, a due date as a duration or as a date, and the two business calendars that need no configuration (dueDate, duration).</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_literal" sourceRef="start" targetRef="literal"/>
+    <userTask id="literal" name="Literal attributes" activiti:candidateUsers="ann" activiti:priority="80" activiti:category="credit" activiti:formKey="reviewForm" activiti:dueDate="P2D">
+      <documentation>Please review the loan.</documentation>
+    </userTask>
+    <sequenceFlow id="f_literal_expressions" sourceRef="literal" targetRef="expressions"/>
+    <userTask id="expressions" name="Review ${customerId}" activiti:candidateUsers="ann" activiti:priority="${urgency}" activiti:category="${area}" activiti:formKey="${formName}" activiti:dueDate="${deadline}">
+      <documentation>Review the loan of ${customerId}.</documentation>
+    </userTask>
+    <sequenceFlow id="f_expressions_durationCalendar" sourceRef="expressions" targetRef="durationCalendar"/>
+    <userTask id="durationCalendar" name="Duration calendar" activiti:candidateUsers="ann" activiti:businessCalendarName="duration" activiti:dueDate="PT4H"/>
+    <sequenceFlow id="f_durationCalendar_dueDateCalendar" sourceRef="durationCalendar" targetRef="dueDateCalendar"/>
+    <userTask id="dueDateCalendar" name="Due date calendar" activiti:candidateUsers="ann" activiti:businessCalendarName="dueDate" activiti:dueDate="2030-02-01T12:30:00Z"/>
+    <sequenceFlow id="f_dueDateCalendar_plain" sourceRef="dueDateCalendar" targetRef="plain"/>
+    <userTask id="plain" name="Nothing set" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_plain_end" sourceRef="plain" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="taskAttributes">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="literal_di" bpmnElement="literal">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="expressions_di" bpmnElement="expressions">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="durationCalendar_di" bpmnElement="durationCalendar">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="dueDateCalendar_di" bpmnElement="dueDateCalendar">
+        <dc:Bounds x="670" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="plain_di" bpmnElement="plain">
+        <dc:Bounds x="820" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1002" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_literal_di" bpmnElement="f_start_literal">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_literal_expressions_di" bpmnElement="f_literal_expressions">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_expressions_durationCalendar_di" bpmnElement="f_expressions_durationCalendar">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_durationCalendar_dueDateCalendar_di" bpmnElement="f_durationCalendar_dueDateCalendar">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="670" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_dueDateCalendar_plain_di" bpmnElement="f_dueDateCalendar_plain">
+        <di:waypoint x="770" y="110"/>
+        <di:waypoint x="820" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_plain_end_di" bpmnElement="f_plain_end">
+        <di:waypoint x="920" y="110"/>
+        <di:waypoint x="1002" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

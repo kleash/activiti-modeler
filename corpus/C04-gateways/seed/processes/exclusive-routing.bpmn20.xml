@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C04">
+  <process id="exclusiveRouting" name="Exclusive routing" isExecutable="true">
+    <documentation>Exclusive gateway: the first matching flow in document order wins; otherwise the default flow. The skipExpression on f_route_exact is ignored because the enabling process variable is not set (see exclusiveSkip).</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_route" sourceRef="start" targetRef="route"/>
+    <exclusiveGateway id="route" name="Route" default="f_route_default"/>
+    <sequenceFlow id="f_route_vip" name="vip" sourceRef="route" targetRef="endVip">
+      <conditionExpression xsi:type="tFormalExpression">${vip == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_route_small" name="small" sourceRef="route" targetRef="endSmall">
+      <extensionElements>
+        <activiti:executionListener event="take" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression">${amount &lt; 100}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_route_medium" name="medium" sourceRef="route" targetRef="endMedium">
+      <conditionExpression xsi:type="tFormalExpression">${amount &gt;= 100 and amount &lt; 1000}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_route_exact" name="exactly 5000" sourceRef="route" targetRef="endExact" activiti:skipExpression="${forceSkip == false}">
+      <conditionExpression xsi:type="tFormalExpression">${amount == 5000}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_route_default" name="otherwise" sourceRef="route" targetRef="endDefault"/>
+    <endEvent id="endVip" name="Vip"/>
+    <endEvent id="endSmall" name="Small"/>
+    <endEvent id="endMedium" name="Medium"/>
+    <endEvent id="endExact" name="Exactly 5000"/>
+    <endEvent id="endDefault" name="Default"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="exclusiveRouting">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="route_di" bpmnElement="route" isMarkerVisible="true">
+        <dc:Bounds x="245" y="305" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endVip_di" bpmnElement="endVip">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endSmall_di" bpmnElement="endSmall">
+        <dc:Bounds x="552" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endMedium_di" bpmnElement="endMedium">
+        <dc:Bounds x="552" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endExact_di" bpmnElement="endExact">
+        <dc:Bounds x="552" y="422" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endDefault_di" bpmnElement="endDefault">
+        <dc:Bounds x="552" y="532" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_route_di" bpmnElement="f_start_route">
+        <di:waypoint x="138" y="330"/>
+        <di:waypoint x="245" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_route_vip_di" bpmnElement="f_route_vip">
+        <di:waypoint x="295" y="330"/>
+        <di:waypoint x="424" y="330"/>
+        <di:waypoint x="424" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_route_small_di" bpmnElement="f_route_small">
+        <di:waypoint x="295" y="330"/>
+        <di:waypoint x="424" y="330"/>
+        <di:waypoint x="424" y="220"/>
+        <di:waypoint x="552" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_route_medium_di" bpmnElement="f_route_medium">
+        <di:waypoint x="295" y="330"/>
+        <di:waypoint x="552" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_route_exact_di" bpmnElement="f_route_exact">
+        <di:waypoint x="295" y="330"/>
+        <di:waypoint x="424" y="330"/>
+        <di:waypoint x="424" y="440"/>
+        <di:waypoint x="552" y="440"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_route_default_di" bpmnElement="f_route_default">
+        <di:waypoint x="295" y="330"/>
+        <di:waypoint x="424" y="330"/>
+        <di:waypoint x="424" y="550"/>
+        <di:waypoint x="552" y="550"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

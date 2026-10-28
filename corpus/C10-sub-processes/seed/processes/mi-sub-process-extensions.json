@@ -1,0 +1,37 @@
+{
+  "id": "mi-sub-process-extensions",
+  "extensions": {
+    "miSubProcess": {
+      "properties": {
+        "p1": {
+          "id": "p1",
+          "name": "quorum",
+          "type": "integer"
+        },
+        "p2": {
+          "id": "p2",
+          "name": "lastVerdict",
+          "type": "string"
+        }
+      },
+      "mappings": {
+        "rate": {
+          "outputs": {
+            "lastVerdict": {
+              "type": "VARIABLE",
+              "value": "verdict"
+            }
+          }
+        },
+        "summarize": {
+          "inputs": {
+            "verdicts": {
+              "type": "VARIABLE",
+              "value": "verdicts"
+            }
+          }
+        }
+      }
+    }
+  }
+}

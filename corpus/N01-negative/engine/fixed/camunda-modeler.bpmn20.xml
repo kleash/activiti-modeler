@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- What the quick fix of models/camunda-modeler.bpmn20.xml leads to, written by hand for the engine check (no diagram): the camunda:
+     attributes are their activiti: counterparts (assignee, candidateGroups, dueDate, formKey, initiator, taskListener, async,
+     resultVariable), camunda:inputOutput is a mapping in the extensions file, camunda:followUpDate and historyTimeToLive are gone. The
+     classes and beans of the original (com.example.*, ${notifier}) do not exist in the harness; the harness' own take their place. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_camunda" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="approval" name="Approval" isExecutable="true">
+    <bpmn:startEvent id="start" name="Request received" activiti:initiator="starter" activiti:formKey="request-form" />
+    <bpmn:userTask id="review" name="Review the request" activiti:assignee="${reviewer}" activiti:candidateGroups="managers" activiti:dueDate="${dueDate}">
+      <bpmn:extensionElements>
+        <activiti:taskListener event="create" delegateExpression="${recordingTaskListener}" />
+      </bpmn:extensionElements>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="archive" name="Archive" activiti:expression="${1 + 1}" activiti:resultVariableName="archived" activiti:async="true" />
+    <bpmn:serviceTask id="notify" name="Notify" activiti:delegateExpression="${recordingDelegate}" />
+    <bpmn:endEvent id="end" name="Done" />
+    <bpmn:sequenceFlow id="f1" sourceRef="start" targetRef="review" />
+    <bpmn:sequenceFlow id="f2" sourceRef="review" targetRef="archive" />
+    <bpmn:sequenceFlow id="f3" sourceRef="archive" targetRef="notify" />
+    <bpmn:sequenceFlow id="f4" sourceRef="notify" targetRef="end" />
+  </bpmn:process>
+</bpmn:definitions>

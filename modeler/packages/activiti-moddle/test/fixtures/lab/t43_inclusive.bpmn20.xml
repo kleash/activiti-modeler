@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t43_inclusive" name="t43_inclusive" isExecutable="true">
+    <startEvent id="s"/><inclusiveGateway id="ig"/><userTask id="a"/><userTask id="b"/><inclusiveGateway id="ig2"/><endEvent id="e"/>
+    <sequenceFlow id="f0" sourceRef="s" targetRef="ig"/>
+    <sequenceFlow id="f1" sourceRef="ig" targetRef="a"><conditionExpression xsi:type="tFormalExpression"><![CDATA[${true}]]></conditionExpression></sequenceFlow>
+    <sequenceFlow id="f2" sourceRef="ig" targetRef="b"><conditionExpression xsi:type="tFormalExpression"><![CDATA[${true}]]></conditionExpression></sequenceFlow>
+    <sequenceFlow id="f3" sourceRef="a" targetRef="ig2"/>
+    <sequenceFlow id="f4" sourceRef="b" targetRef="ig2"/>
+    <sequenceFlow id="f5" sourceRef="ig2" targetRef="e"/>
+
+  </process>
+</definitions>

@@ -1,0 +1,31 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C14 shell tasks",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "every shell field: arguments, output, exit code, redirected error, directory, clean environment and no wait",
+      "start": { "process": "shellTasks", "user": "ann", "variables": { "who": "Ann" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "echoOut": "a b c d Ann\n",
+          "echoCode": "0",
+          "exitCode": "3",
+          "mergedOut": "out\nerr\n",
+          "stdoutOnly": "out\n",
+          "cwd": "/\n",
+          "envClean": "",
+          "envFull": { "$regex": "(^|\\n)PATH=" }
+        },
+        "absentVariables": ["noWaitOut", "noWaitCode"],
+        "path": {
+          "order": [["echoArgs", "exitThree"], ["exitThree", "streamsRedirected"], ["streamsRedirected", "streamsSeparate"], ["streamsSeparate", "inDirectory"],
+                    ["inDirectory", "cleanEnvironment"], ["cleanEnvironment", "fullEnvironment"], ["fullEnvironment", "noWait"], ["noWait", "end"]],
+          "sequenceFlows": ["f_start_echoArgs", "f_noWait_end"]
+        }
+      }
+    }
+  ]
+}

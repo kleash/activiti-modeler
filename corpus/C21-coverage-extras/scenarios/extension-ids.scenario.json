@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 activiti:extensionId",
+  "description": "activiti:extensionId changes nothing at run time: the extensions (mappings) of a task are found by its element id. What the engine keeps of the attribute is asserted in model-expect.json.",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "mappings are applied by element id whatever the extension id says",
+      "start": { "process": "extensionIds", "user": "ann", "variables": { "amount": 21, "customerId": "G-9" } },
+      "steps": [
+        { "expectTask": { "activity": "review", "assignee": "ann", "localVariables": { "origin": "found by element id" } } },
+        { "completeTask": { "activity": "review", "user": "ann" } },
+        { "expectConnectorCall": { "activity": "lookup", "connector": "crm.LOOKUP", "count": 1,
+            "inbound": { "customerId": "G-9" },
+            "outbound": { "customerName": "Customer G-9", "tier": "gold", "found": true } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "customerName": "Customer G-9", "tallied": 42, "amount": 21, "customerId": "G-9" },
+        "absentVariables": ["origin", "tier", "found"],
+        "path": {
+          "order": [["review", "lookup"], ["lookup", "tally"], ["tally", "confirm"], ["confirm", "end"]],
+          "sequenceFlows": ["f_start_review", "f_review_lookup", "f_lookup_tally", "f_tally_confirm", "f_confirm_end"]
+        }
+      }
+    }
+  ]
+}

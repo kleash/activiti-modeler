@@ -1,0 +1,103 @@
+.decision-tester {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  flex: none;
+  min-height: 0;
+  border-left: 1px solid var(--panel-border);
+  background: var(--panel);
+}
+
+.decision-tester > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.tester-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tester-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tester-field input,
+.tester-field select,
+.tester-field textarea {
+  font: inherit;
+  padding: 3px 6px;
+}
+
+.tester-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tester-inline {
+  display: flex;
+  gap: 4px;
+}
+
+.tester-inline select {
+  flex: 1;
+  min-width: 0;
+}
+
+.tester-note {
+  margin: 0;
+}
+
+.tester-error {
+  margin: 0;
+  padding: 6px 8px;
+  border: 1px solid #d9534f;
+  background: #fdecea;
+  color: #7a1c18;
+}
+
+.tester-result {
+  border-top: 1px solid var(--panel-border);
+  padding-top: 6px;
+}
+
+.tester-result p {
+  margin: 4px 0;
+}
+
+.tester-rows {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.tester-rows th,
+.tester-rows td {
+  border: 1px solid var(--panel-border);
+  padding: 2px 6px;
+  text-align: left;
+}
+
+.tester-steps {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+/* the rules a test evaluation matched, marked in the decision table */
+.dmn-decision-table-container tr.activiti-matched-rule td {
+  background: #e3f4e1 !important;
+}
+
+.dmn-decision-table-container tr.activiti-matched-rule td:first-child {
+  box-shadow: inset 3px 0 0 #2e7d32;
+}

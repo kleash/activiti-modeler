@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_mapExceptionDelegateExpression"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C08">
+  <error id="beanStateError" name="Illegal state" errorCode="BEAN_ILLEGAL_STATE"/>
+  <process id="mapExceptionDelegateExpression" name="Exception mapping on a delegate expression (not wired)" isExecutable="true">
+    <documentation>Negative case: the mapException entry sits on a delegateExpression service task, where the engine does not wire it (only activiti:class delegates and call activities map exceptions). A Java exception is not turned into a BPMN error and rolls the call back, whereas a BpmnError thrown by the same bean is caught by the boundary event.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_callBean" sourceRef="start" targetRef="callBean"/>
+    <serviceTask id="callBean" name="Call bean" activiti:delegateExpression="${failureDelegate}">
+      <extensionElements>
+        <activiti:field name="errorCode">
+          <activiti:expression>${execution.getVariable('errorCode')}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="exceptionClass">
+          <activiti:expression>${execution.getVariable('exceptionClass')}</activiti:expression>
+        </activiti:field>
+        <activiti:mapException errorCode="BEAN_ILLEGAL_STATE">java.lang.IllegalStateException</activiti:mapException>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_callBean_beanOk" sourceRef="callBean" targetRef="beanOk"/>
+    <endEvent id="beanOk" name="Bean ok"/>
+    <boundaryEvent id="onBeanState" name="Illegal state" attachedToRef="callBean">
+      <errorEventDefinition errorRef="beanStateError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onBeanState_beanHandled" sourceRef="onBeanState" targetRef="beanHandled"/>
+    <endEvent id="beanHandled" name="Handled"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="mapExceptionDelegateExpression">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="callBean_di" bpmnElement="callBean">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="beanOk_di" bpmnElement="beanOk">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="beanHandled_di" bpmnElement="beanHandled">
+        <dc:Bounds x="402" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onBeanState_di" bpmnElement="onBeanState">
+        <dc:Bounds x="240" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_callBean_di" bpmnElement="f_start_callBean">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_callBean_beanOk_di" bpmnElement="f_callBean_beanOk">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onBeanState_beanHandled_di" bpmnElement="f_onBeanState_beanHandled">
+        <di:waypoint x="258" y="148"/>
+        <di:waypoint x="258" y="310"/>
+        <di:waypoint x="402" y="310"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

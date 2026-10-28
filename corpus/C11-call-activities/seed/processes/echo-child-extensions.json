@@ -1,0 +1,10 @@
+{
+  "id": "echo-child-extensions",
+  "extensions": {
+    "echoChild": {
+      "properties": {
+        "p1": { "id": "p1", "name": "childRan", "type": "boolean" }
+      }
+    }
+  }
+}

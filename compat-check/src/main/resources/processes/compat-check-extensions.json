@@ -1,0 +1,10 @@
+{
+  "id": "compat-check",
+  "extensions": {
+    "compatCheck": {
+      "mappings": {
+        "greet": { "mappingType": "MAP_ALL" }
+      }
+    }
+  }
+}

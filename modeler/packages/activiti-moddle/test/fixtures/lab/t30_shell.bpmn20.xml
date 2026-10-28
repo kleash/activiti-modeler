@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t30_shell" name="t30_shell" isExecutable="true">
+    <startEvent id="s"/>
+    <serviceTask id="sh" activiti:type="shell"><extensionElements><activiti:field name="command"><activiti:string>echo</activiti:string></activiti:field><activiti:field name="arg1"><activiti:string>hello</activiti:string></activiti:field><activiti:field name="outputVariable"><activiti:string>shellOut</activiti:string></activiti:field></extensionElements></serviceTask>
+    <userTask id="u"/>
+    <endEvent id="e"/>
+    <sequenceFlow id="f_s_sh" sourceRef="s" targetRef="sh"/>
+    <sequenceFlow id="f_sh_u" sourceRef="sh" targetRef="u"/>
+    <sequenceFlow id="f_u_e" sourceRef="u" targetRef="e"/>
+
+  </process>
+</definitions>

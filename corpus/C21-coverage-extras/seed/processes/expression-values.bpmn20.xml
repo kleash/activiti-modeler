@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C21">
+  <process id="expressionValues" name="Expression text in mapped values" isExecutable="true">
+    <documentation>Text that looks like an expression travels untouched through MAP_ALL_INPUTS, but any output mapping refuses to copy a value that contains an expression, so the completion of a mapped task fails. ProcessRuntime refuses such text as a start variable, so a script task creates it.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_prepare" sourceRef="start" targetRef="prepare"/>
+    <scriptTask id="prepare" name="Prepare the template" scriptFormat="javascript">
+      <script>var open = '$' + '{';
+execution.setVariable('template', mode == 'expression' ? 'Hello ' + open + 'name}' : 'Hello');</script>
+    </scriptTask>
+    <sequenceFlow id="f_prepare_showTemplate" sourceRef="prepare" targetRef="showTemplate"/>
+    <userTask id="showTemplate" name="Show the template" activiti:assignee="ann"/>
+    <sequenceFlow id="f_showTemplate_ask" sourceRef="showTemplate" targetRef="ask"/>
+    <userTask id="ask" name="Ask for a reply" activiti:assignee="ann"/>
+    <sequenceFlow id="f_ask_end" sourceRef="ask" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="expressionValues">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepare_di" bpmnElement="prepare">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="showTemplate_di" bpmnElement="showTemplate">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ask_di" bpmnElement="ask">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="702" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_prepare_di" bpmnElement="f_start_prepare">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_prepare_showTemplate_di" bpmnElement="f_prepare_showTemplate">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_showTemplate_ask_di" bpmnElement="f_showTemplate_ask">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_ask_end_di" bpmnElement="f_ask_end">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="702" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

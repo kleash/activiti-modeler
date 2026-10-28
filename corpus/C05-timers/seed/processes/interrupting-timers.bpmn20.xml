@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C05">
+  <process id="interruptingTimers" name="Interrupting boundary timers" isExecutable="true">
+    <documentation>Three user tasks in a row, each with an interrupting boundary timer of another kind: duration, fixed date, and a cycle (an interrupting timer never repeats).</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_review" sourceRef="start" targetRef="review"/>
+    <userTask id="review" name="Review" activiti:assignee="ann"/>
+    <boundaryEvent id="reviewTimeout" name="2 hours" attachedToRef="review">
+      <timerEventDefinition>
+        <timeDuration>PT2H</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="f_reviewTimeout_reviewTimedOutEnd" sourceRef="reviewTimeout" targetRef="reviewTimedOutEnd"/>
+    <endEvent id="reviewTimedOutEnd" name="Review timed out"/>
+    <sequenceFlow id="f_review_approve" sourceRef="review" targetRef="approve"/>
+    <userTask id="approve" name="Approve" activiti:assignee="ann"/>
+    <boundaryEvent id="approveDeadline" name="Until 17:00" attachedToRef="approve">
+      <timerEventDefinition>
+        <timeDate>2030-01-01T17:00:00Z</timeDate>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="f_approveDeadline_approveTimedOutEnd" sourceRef="approveDeadline" targetRef="approveTimedOutEnd"/>
+    <endEvent id="approveTimedOutEnd" name="Approval timed out"/>
+    <sequenceFlow id="f_approve_publish" sourceRef="approve" targetRef="publish"/>
+    <userTask id="publish" name="Publish" activiti:assignee="ann"/>
+    <boundaryEvent id="publishCycle" name="Every hour" attachedToRef="publish">
+      <timerEventDefinition>
+        <timeCycle>R3/PT1H</timeCycle>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="f_publishCycle_publishTimedOutEnd" sourceRef="publishCycle" targetRef="publishTimedOutEnd"/>
+    <endEvent id="publishTimedOutEnd" name="Publishing timed out"/>
+    <sequenceFlow id="f_publish_doneEnd" sourceRef="publish" targetRef="doneEnd"/>
+    <endEvent id="doneEnd" name="Done"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="interruptingTimers">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewTimedOutEnd_di" bpmnElement="reviewTimedOutEnd">
+        <dc:Bounds x="252" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approve_di" bpmnElement="approve">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approveTimedOutEnd_di" bpmnElement="approveTimedOutEnd">
+        <dc:Bounds x="552" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="publish_di" bpmnElement="publish">
+        <dc:Bounds x="820" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="publishTimedOutEnd_di" bpmnElement="publishTimedOutEnd">
+        <dc:Bounds x="852" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="doneEnd_di" bpmnElement="doneEnd">
+        <dc:Bounds x="1152" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewTimeout_di" bpmnElement="reviewTimeout">
+        <dc:Bounds x="240" y="132" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approveDeadline_di" bpmnElement="approveDeadline">
+        <dc:Bounds x="540" y="132" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="publishCycle_di" bpmnElement="publishCycle">
+        <dc:Bounds x="840" y="132" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_review_di" bpmnElement="f_start_review">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reviewTimeout_reviewTimedOutEnd_di" bpmnElement="f_reviewTimeout_reviewTimedOutEnd">
+        <di:waypoint x="258" y="168"/>
+        <di:waypoint x="258" y="330"/>
+        <di:waypoint x="252" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_review_approve_di" bpmnElement="f_review_approve">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_approveDeadline_approveTimedOutEnd_di" bpmnElement="f_approveDeadline_approveTimedOutEnd">
+        <di:waypoint x="558" y="168"/>
+        <di:waypoint x="558" y="330"/>
+        <di:waypoint x="552" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_approve_publish_di" bpmnElement="f_approve_publish">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="820" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_publishCycle_publishTimedOutEnd_di" bpmnElement="f_publishCycle_publishTimedOutEnd">
+        <di:waypoint x="858" y="168"/>
+        <di:waypoint x="858" y="330"/>
+        <di:waypoint x="852" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_publish_doneEnd_di" bpmnElement="f_publish_doneEnd">
+        <di:waypoint x="920" y="110"/>
+        <di:waypoint x="1152" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

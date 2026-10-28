@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_typedStartInSub" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="typedStartInSub" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:subProcess id="sub" name="Typed start inside">
+      <bpmn:startEvent id="subStart" name="Every hour"><bpmn:timerEventDefinition id="s_def"><bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT1H</bpmn:timeDuration></bpmn:timerEventDefinition></bpmn:startEvent>
+      <bpmn:task id="subTask" name="Inside" />
+      <bpmn:endEvent id="subEnd" name="Done" />
+      <bpmn:sequenceFlow id="subStart_subTask" sourceRef="subStart" targetRef="subTask" />
+      <bpmn:sequenceFlow id="subTask_subEnd" sourceRef="subTask" targetRef="subEnd" />
+    </bpmn:subProcess>
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_sub" sourceRef="start" targetRef="sub" />
+    <bpmn:sequenceFlow id="f_sub_end" sourceRef="sub" targetRef="end" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_typedStartInSub">
+    <bpmndi:BPMNPlane id="BPMNPlane_typedStartInSub" bpmnElement="typedStartInSub">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="150" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sub_di" bpmnElement="sub" isExpanded="true"><dc:Bounds x="246" y="120" width="430" height="150" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subStart_di" bpmnElement="subStart"><dc:Bounds x="266" y="177" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subTask_di" bpmnElement="subTask"><dc:Bounds x="396" y="155" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="subEnd_di" bpmnElement="subEnd"><dc:Bounds x="526" y="177" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end"><dc:Bounds x="736" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_sub_di" bpmnElement="f_start_sub"><di:waypoint x="186" y="160" /><di:waypoint x="246" y="195" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sub_end_di" bpmnElement="f_sub_end"><di:waypoint x="676" y="195" /><di:waypoint x="736" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="subStart_subTask_di" bpmnElement="subStart_subTask"><di:waypoint x="302" y="195" /><di:waypoint x="396" y="195" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="subTask_subEnd_di" bpmnElement="subTask_subEnd"><di:waypoint x="496" y="195" /><di:waypoint x="526" y="195" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

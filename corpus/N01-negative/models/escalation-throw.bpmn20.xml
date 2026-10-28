@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_escalationThrow" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="escalationThrow" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:intermediateThrowEvent id="escalate" name="Escalate"><bpmn:escalationEventDefinition id="esc_def" /></bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_escalate" sourceRef="start" targetRef="escalate" />
+    <bpmn:sequenceFlow id="f_escalate_end" sourceRef="escalate" targetRef="end" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_escalationThrow">
+    <bpmndi:BPMNPlane id="BPMNPlane_escalationThrow" bpmnElement="escalationThrow">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="150" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="escalate_di" bpmnElement="escalate"><dc:Bounds x="246" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end"><dc:Bounds x="342" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_escalate_di" bpmnElement="f_start_escalate"><di:waypoint x="186" y="160" /><di:waypoint x="246" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_escalate_end_di" bpmnElement="f_escalate_end"><di:waypoint x="282" y="160" /><di:waypoint x="342" y="160" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

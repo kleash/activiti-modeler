@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Variant of models/signal-expression-catch.bpmn20.xml for the engine checks: a user task follows the catch event, so that the
+     execution is still around after the event was passed and the stale subscription (engine finding 29) can be seen. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_sigExprStale" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="sigExprStale" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:intermediateCatchEvent id="catch" name="Wait for the region">
+      <bpmn:signalEventDefinition id="x_def" activiti:signalExpression="${region}" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:userTask id="after" name="After the signal" activiti:candidateGroups="g" />
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_catch" sourceRef="start" targetRef="catch" />
+    <bpmn:sequenceFlow id="f_catch_after" sourceRef="catch" targetRef="after" />
+    <bpmn:sequenceFlow id="f_after_end" sourceRef="after" targetRef="end" />
+  </bpmn:process>
+</bpmn:definitions>

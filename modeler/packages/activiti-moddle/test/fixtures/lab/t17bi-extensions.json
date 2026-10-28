@@ -1,0 +1,20 @@
+{
+ "id": "ext-t17bi",
+ "extensions": {
+  "t17bi": {
+   "properties": {},
+   "mappings": {
+    "u": {
+     "mappingType": "MAP_ALL_INPUTS"
+    }
+   },
+   "constants": {
+    "u": {
+     "c": {
+      "value": "const"
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C07 signal names from expressions",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the throw and the catch evaluate the same signal name from the region variable",
+      "start": { "process": "signalExpressions", "user": "ann", "variables": { "region": "EU" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": { "sequenceFlows": ["f_fork_waitDynamic", "f_fork_raiseDynamic", "f_waitDynamic_join", "f_raiseDynamic_join", "f_join_end"] }
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "propertyTypes": {
+      "definition": { "name": "Process properties of every type", "category": "http://activiti.org/bpmn/corpus/C15" },
+      "process": { "dataObjects": [], "executable": true }
+    },
+    "dataObjects": {
+      "process": {
+        "dataObjects": [
+          { "name": "dStr", "type": "string", "value": "hello" },
+          { "name": "dInt", "type": "int", "value": 5 },
+          { "name": "dLong", "type": "long", "value": 9000000000 },
+          { "name": "dDouble", "type": "double", "value": 2.5 },
+          { "name": "dBool", "type": "boolean", "value": true },
+          { "name": "dDate", "type": "datetime" },
+          { "name": "dUntyped", "type": "string", "value": "plain" },
+          { "name": "dEmpty", "type": "string", "value": null },
+          { "name": "dOverridden", "type": "int", "value": 1 }
+        ]
+      },
+      "elements": {
+        "inner": { "type": "subProcess", "attributes": { "dataObjects": [ { "name": "dLocal", "type": "int", "value": 10 } ] } }
+      }
+    },
+    "startEventProperties": {
+      "definition": { "name": "Start event properties", "category": "http://activiti.org/bpmn/corpus/C15" },
+      "process": { "documentation": { "$contains": "activiti:initiator" } },
+      "elements": {
+        "begin": { "type": "startEvent", "attributes": {
+          "initiator": "starter",
+          "formKey": "orderStartForm",
+          "formProperties": [
+            { "id": "customer", "name": "Customer", "type": "string", "required": true },
+            { "id": "priority", "name": "Priority", "type": "enum", "defaultExpression": "low", "formValues": [ { "id": "low", "name": "Low" }, { "id": "high", "name": "High" } ] }
+          ] } }
+      }
+    }
+  }
+}

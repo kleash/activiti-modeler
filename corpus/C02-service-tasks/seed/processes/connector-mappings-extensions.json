@@ -1,0 +1,64 @@
+{
+  "id": "connector-mappings-extensions",
+  "extensions": {
+    "connectorMappings": {
+      "properties": {
+        "p1": { "id": "p1", "name": "customerId", "type": "string" },
+        "p2": { "id": "p2", "name": "customerName", "type": "string" },
+        "p3": { "id": "p3", "name": "tier", "type": "string" },
+        "p4": { "id": "p4", "name": "echoedGreeting", "type": "string" },
+        "p5": { "id": "p5", "name": "echoCount", "type": "integer" },
+        "p6": { "id": "p6", "name": "profile", "type": "json" },
+        "p7": { "id": "p7", "name": "ephemeralSeen", "type": "boolean" },
+        "p8": { "id": "p8", "name": "persistentSeen", "type": "boolean" }
+      },
+      "mappings": {
+        "lookup": {
+          "inputs": { "customerId": { "type": "VARIABLE", "value": "customerId" } },
+          "outputs": {
+            "customerName": { "type": "VARIABLE", "value": "customerName" },
+            "tier": { "type": "VARIABLE", "value": "tier" }
+          }
+        },
+        "echoMapped": {
+          "inputs": {
+            "greeting": { "type": "VALUE", "value": "hello" },
+            "tierLabel": { "type": "VALUE", "value": "${tier}" },
+            "note": { "type": "VALUE", "value": "${customerName} is ${tier}" }
+          },
+          "outputs": {
+            "echoedGreeting": { "type": "VARIABLE", "value": "greeting" },
+            "echoCount": { "type": "VARIABLE", "value": "echoCount" }
+          }
+        },
+        "echoAll": { "mappingType": "MAP_ALL" },
+        "patch": {
+          "outputs": {
+            "profile": {
+              "type": "JSONPATCH",
+              "value": [
+                { "op": "add", "path": "/name", "value": "Ann" },
+                { "op": "add", "path": "/address/city", "value": "Paris" },
+                { "op": "add", "path": "/tags", "value": ["gold"] },
+                { "op": "add", "path": "/${customerId}", "value": "known" }
+              ]
+            }
+          }
+        },
+        "flagsEphemeral": {
+          "ephemeral": true,
+          "outputs": { "ephemeralSeen": { "type": "VARIABLE", "value": "ephemeral" } }
+        },
+        "flagsPersistent": {
+          "outputs": { "persistentSeen": { "type": "VARIABLE", "value": "ephemeral" } }
+        }
+      },
+      "constants": {
+        "echoMapped": {
+          "region": { "value": "EU" },
+          "limit": { "value": 42 }
+        }
+      }
+    }
+  }
+}

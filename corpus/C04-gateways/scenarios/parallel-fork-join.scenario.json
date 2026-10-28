@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C04 parallel gateway fork and join",
+  "users": { "ann": [], "ben": [], "cy": [] },
+  "scenarios": [
+    {
+      "name": "the join waits for all three branches (completed in the order B, A, C)",
+      "start": { "process": "parallelForkJoin", "user": "ann" },
+      "steps": [
+        { "expectActive": { "exactly": ["taskA", "taskB", "taskC"] } },
+        { "expectTask": { "activity": "taskA", "candidateUsers": ["ann"] } },
+        { "expectTask": { "activity": "taskB", "candidateUsers": ["ben"] } },
+        { "expectTask": { "activity": "taskC", "candidateUsers": ["cy"] } },
+        { "completeTask": { "activity": "taskB", "user": "ben" } },
+        { "expectActive": { "exactly": ["taskA", "taskC"] } },
+        { "expectTask": { "activity": "afterJoin", "count": 0 } },
+        { "completeTask": { "activity": "taskA", "user": "ann" } },
+        { "expectActive": { "exactly": ["taskC"] } },
+        { "expectTask": { "activity": "afterJoin", "count": 0 } },
+        { "completeTask": { "activity": "taskC", "user": "cy" } },
+        { "expectActive": { "exactly": ["afterJoin"] } },
+        { "completeTask": { "activity": "afterJoin", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": {
+          "contains": ["fork", "taskA", "taskB", "taskC", "join", "afterJoin"],
+          "sequenceFlows": ["f_start_fork", "f_fork_taskA", "f_fork_taskB", "f_fork_taskC", "f_taskA_join", "f_taskB_join", "f_taskC_join", "f_join_afterJoin", "f_afterJoin_end"],
+          "order": [["fork", "taskA"], ["fork", "taskB"], ["fork", "taskC"], ["taskA", "afterJoin"], ["taskB", "afterJoin"], ["taskC", "afterJoin"], ["afterJoin", "end"]]
+        }
+      }
+    },
+    {
+      "name": "the order of completion does not matter (C, A, B)",
+      "start": { "process": "parallelForkJoin", "user": "ann" },
+      "steps": [
+        { "completeTask": { "activity": "taskC", "user": "cy" } },
+        { "completeTask": { "activity": "taskA", "user": "ann" } },
+        { "expectActive": { "exactly": ["taskB"] } },
+        { "completeTask": { "activity": "taskB", "user": "ben" } },
+        { "expectTask": { "activity": "afterJoin", "count": 1 } },
+        { "completeTask": { "activity": "afterJoin", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"] }
+    }
+  ]
+}

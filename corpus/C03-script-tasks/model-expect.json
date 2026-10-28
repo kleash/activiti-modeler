@@ -1,0 +1,32 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "juelScripts": {
+      "definition": { "name": "JUEL scripts", "category": "http://activiti.org/bpmn/corpus/C03" },
+      "elements": {
+        "calcTotal": { "type": "scriptTask", "attributes": { "scriptFormat": null, "resultVariable": "total", "autoStoreVariables": false, "script": "${price * quantity}" } },
+        "applyDiscount": { "type": "scriptTask", "attributes": { "scriptFormat": "juel", "resultVariable": "net" } },
+        "flagLarge": { "type": "scriptTask", "attributes": { "scriptFormat": "juel", "resultVariable": null } }
+      }
+    },
+    "javascriptScripts": {
+      "elements": {
+        "sumPrices": { "type": "scriptTask", "attributes": { "scriptFormat": "javascript", "resultVariable": "itemCount" } },
+        "scale": { "type": "scriptTask", "attributes": { "scriptFormat": "js", "script": "sum * factor" } },
+        "summarize": { "type": "scriptTask", "attributes": { "scriptFormat": "ECMAScript" } }
+      }
+    },
+    "autoStore": {
+      "elements": {
+        "assignPlain": { "type": "scriptTask", "attributes": { "autoStoreVariables": false } },
+        "assignStored": { "type": "scriptTask", "attributes": { "autoStoreVariables": true } }
+      }
+    },
+    "scriptErrors": {
+      "elements": {
+        "onJsError": { "type": "boundaryEvent", "attributes": { "attachedToRefId": "jsRisky", "cancelActivity": false } },
+        "onJuelError": { "type": "boundaryEvent", "attributes": { "attachedToRefId": "juelRisky" } }
+      }
+    }
+  }
+}

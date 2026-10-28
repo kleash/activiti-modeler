@@ -1,0 +1,76 @@
+{
+  "name": "corpus support beans",
+  "users": { "ann": ["reviewers"] },
+  "scenarios": [
+    {
+      "name": "connectors, class delegates, delegate bean, throw-message delegate and listeners",
+      "start": { "process": "support", "user": "ann", "variables": { "customerId": "G-5" } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "crm", "connector": "crm.LOOKUP", "inbound": { "customerId": "G-5" },
+            "outbound": { "customerName": "Customer G-5", "tier": "gold", "found": true } } },
+        { "expectConnectorCall": { "activity": "echo", "connector": "echo.EXECUTE", "inbound": { "a": "x", "b": "G-5", "c": 42 },
+            "outbound": { "a": "x", "b": "G-5", "c": 42, "echoCount": 3 } } },
+        { "expectTask": { "activity": "review", "candidateGroups": ["reviewers"] } },
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "customerName": "Customer G-5", "tier": "gold", "found": true,
+          "echoA": "x", "echoB": "G-5", "echoCount": 3,
+          "greeting": "Customer G-5", "counter": 2,
+          "delegateCalls": ["recDel"], "lastDelegate": "recDel",
+          "thrownMessages": ["supportDone"],
+          "taskListenerCalls": ["create:review", "assignment:review:ann", "complete:review"],
+          "executionListenerCalls": { "$contains": "start:inc1" },
+          "eventListenerCalls": ["TASK_CREATED:review", "TASK_COMPLETED:review"]
+        }
+      }
+    },
+    {
+      "name": "an unknown customer is not found",
+      "start": { "process": "support", "user": "ann", "variables": { "customerId": "X-1" } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "crm", "outbound": { "customerName": "Customer X-1", "tier": "standard", "found": true } } },
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "variables": { "tier": "standard" } }
+    },
+    {
+      "name": "the failing connector rejects the start with its message",
+      "start": { "process": "failingConnector", "user": "ann",
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "failing connector: disk full" } }
+    },
+    {
+      "name": "a BpmnError from a connector is caught by the boundary error event",
+      "start": { "process": "bpmnErrorConnector", "user": "ann" },
+      "expect": { "state": "COMPLETED", "endEvents": ["handledEnd"], "path": { "contains": ["err", "caught"], "notContains": ["okEnd"], "sequenceFlows": ["f_caught_handledEnd"] } }
+    },
+    {
+      "name": "a throwing delegate rejects the start",
+      "start": { "process": "throwingDelegates", "user": "ann", "expectFailure": { "exception": "IllegalStateException", "messageContains": "kaboom" } }
+    },
+    {
+      "name": "a BpmnError from a delegate is caught by the boundary error event",
+      "start": { "process": "bpmnErrorDelegate", "user": "ann" },
+      "expect": { "state": "COMPLETED", "endEvents": ["bdHandledEnd"], "path": { "contains": ["raise", "delegateCaught"] } }
+    },
+    {
+      "name": "flags connector, delegate bean with fields, bean expressions and a task listener with fields",
+      "start": { "process": "supportExtras", "user": "ann", "variables": { "customerName": "Ann" } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "flags", "connector": "flags.EXECUTE", "inbound": {},
+            "outbound": { "ephemeral": false, "connectorType": "flags.EXECUTE", "clientId": "flags" } } },
+        { "expectConnectorCall": { "activity": "flagsEph", "connector": "flags.EXECUTE", "inbound": {},
+            "outbound": { "ephemeral": true, "connectorType": "flags.EXECUTE", "clientId": "flagsEph" } } },
+        { "completeTask": { "activity": "fielded", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["xEnd"],
+        "variables": { "viaBean": "Ann!", "greeting": "Hello, Ann", "sum": 5, "fieldListenerCalls": ["tagged:create:fielded"] }
+      }
+    }
+  ]
+}

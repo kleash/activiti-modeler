@@ -1,0 +1,1825 @@
+{
+ "sources": [
+  "modeler/packages/bpmnlint-plugin-activiti/src/rules/validator-events.ts",
+  "modeler/packages/bpmnlint-plugin-activiti/src/rules/validator-model.ts",
+  "modeler/packages/bpmnlint-plugin-activiti/src/rules/validator-structure.ts",
+  "modeler/packages/bpmnlint-plugin-activiti/src/rules/validator-tasks.ts"
+ ],
+ "sourcesSha256": "cea65e30213287a849165f3cb08b84fd58eda447f83fadba8eb10d2225da50d7",
+ "rules": [
+  {
+   "id": "all-process-definitions-not-executable",
+   "key": "ALL_PROCESS_DEFINITIONS_NOT_EXECUTABLE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"false\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "p"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" name=\"No attribute\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "process-definition-not-executable",
+   "key": "PROCESS_DEFINITION_NOT_EXECUTABLE",
+   "severity": "warn",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"false\">\n\n  </process>\n<process id=\"q\" isExecutable=\"true\"/>\n</definitions>\n",
+     "ids": [
+      "p"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n<process id=\"q\" isExecutable=\"true\"/>\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "process-definition-id-not-unique",
+   "key": "PROCESS_DEFINITION_ID_NOT_UNIQUE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" name=\"A\" isExecutable=\"true\">\n\n  </process>\n<process id=\"p\" name=\"B\" isExecutable=\"true\"/>\n</definitions>\n",
+     "ids": [
+      "p"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n<process id=\"q\" name=\"B\" isExecutable=\"true\"/>\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "process-definition-id-too-long",
+   "key": "PROCESS_DEFINITION_ID_TOO_LONG",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" id=\"d\" targetNamespace=\"urn:t\"><process id=\"pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp\" isExecutable=\"true\"/></definitions>",
+     "ids": [
+      "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "process-definition-name-too-long",
+   "key": "PROCESS_DEFINITION_NAME_TOO_LONG",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\" name=\"nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "p"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\" name=\"nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "process-definition-documentation-too-long",
+   "key": "PROCESS_DEFINITION_DOCUMENTATION_TOO_LONG",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<documentation>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</documentation>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "p"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<documentation>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</documentation>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "bpmn-model-target-namespace-too-long",
+   "key": "BPMN_MODEL_TARGET_NAMESPACE_TOO_LONG",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn\">\n\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "d"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "flow-element-id-too-long",
+   "key": "FLOW_ELEMENT_ID_TOO_LONG",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "association-invalid-source-reference",
+   "key": "ASSOCIATION_INVALID_SOURCE_REFERENCE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><association id=\"a\" targetRef=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "a"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><association id=\"a\" sourceRef=\"t\" targetRef=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "association-invalid-target-reference",
+   "key": "ASSOCIATION_INVALID_TARGET_REFERENCE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><association id=\"a\" sourceRef=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "a"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><association id=\"a\" sourceRef=\"t\" targetRef=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "signal-missing-id",
+   "key": "SIGNAL_MISSING_ID",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal name=\"go\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "d"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal id=\"s\" name=\"go\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "signal-missing-name",
+   "key": "SIGNAL_MISSING_NAME",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal id=\"s\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal id=\"s\" name=\"go\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "signal-duplicate-name",
+   "key": "SIGNAL_DUPLICATE_NAME",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal id=\"s1\" name=\"go\"/><signal id=\"s2\" name=\"go\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s1",
+      "s2"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal id=\"s1\" name=\"go\"/><signal id=\"s2\" name=\"stop\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "signal-invalid-scope",
+   "key": "SIGNAL_INVALID_SCOPE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal id=\"s\" name=\"go\" activiti:scope=\"everywhere\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal id=\"s\" name=\"go\" activiti:scope=\"processInstance\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "operation-invalid-in-message-reference",
+   "key": "OPERATION_INVALID_IN_MESSAGE_REFERENCE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<interface id=\"i\" name=\"I\"><operation id=\"o\" name=\"op\" implementationRef=\"impl\"><inMessageRef>nomsg</inMessageRef></operation></interface>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "o"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<message id=\"m\" name=\"m\"/><interface id=\"i\" name=\"I\"><operation id=\"o\" name=\"op\" implementationRef=\"impl\"><inMessageRef>m</inMessageRef></operation></interface>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\" xmlns:tns=\"urn:fixture\">\n<message id=\"m\" name=\"m\"/><interface id=\"i\" name=\"I\"><operation id=\"o\" name=\"op\" implementationRef=\"impl\"><inMessageRef>tns:m</inMessageRef></operation></interface>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": "a prefix bound to the target namespace names the same message",
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<interface id=\"i\" name=\"I\"><operation id=\"o\" name=\"op\"><inMessageRef>nomsg</inMessageRef></operation></interface>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": "no implementationRef: the engine drops the operation and never validates it",
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "error-missing-error-code",
+   "key": "ERROR_MISSING_ERROR_CODE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<error id=\"e\" name=\"oops\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "e"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<error id=\"e\" name=\"oops\" errorCode=\"E1\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "data-object-missing-name",
+   "key": "DATA_OBJECT_MISSING_NAME",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<dataObject id=\"d1\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "d1"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<dataObject id=\"d1\" name=\"amount\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "message-invalid-item-ref",
+   "key": "MESSAGE_INVALID_ITEM_REF",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<message id=\"m\" name=\"m\" itemRef=\"missing\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "m"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<itemDefinition id=\"item\"/><message id=\"m\" name=\"m\" itemRef=\"item\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "m"
+     ],
+     "note": "an item definition without structureRef does not exist for the engine",
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\" xmlns:other=\"urn:other\">\n<itemDefinition id=\"item\" structureRef=\"xsd:string\"/><message id=\"m\" name=\"m\" itemRef=\"other:item\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "m"
+     ],
+     "note": "a prefix bound to another namespace names nothing of this file",
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<itemDefinition id=\"item\" structureRef=\"xsd:string\"/><message id=\"m\" name=\"m\" itemRef=\"item\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\" xmlns:tns=\"urn:fixture\">\n<itemDefinition id=\"item\" structureRef=\"xsd:string\"/><message id=\"m\" name=\"m\" itemRef=\"tns:item\"/>\n  <process id=\"p\" isExecutable=\"true\">\n\n  </process>\n\n</definitions>\n",
+     "note": "a prefix bound to the target namespace names the same item definition",
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "multi-instance-missing-collection",
+   "key": "MULTI_INSTANCE_MISSING_COLLECTION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<userTask id=\"u\"><multiInstanceLoopCharacteristics/></userTask>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "u"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<userTask id=\"u\"><multiInstanceLoopCharacteristics><loopCardinality>3</loopCardinality></multiInstanceLoopCharacteristics></userTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<userTask id=\"u\"><multiInstanceLoopCharacteristics activiti:collection=\"people\"/></userTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "data-association-missing-targetref",
+   "key": "DATA_ASSOCIATION_MISSING_TARGETREF",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"><dataInputAssociation id=\"da\"><sourceRef>x</sourceRef></dataInputAssociation></task>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "t"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"><ioSpecification id=\"io\"><dataInput id=\"di1\"/><inputSet><dataInputRefs>di1</dataInputRefs></inputSet><outputSet/></ioSpecification><dataInputAssociation id=\"da\"><targetRef>di1</targetRef></dataInputAssociation></task>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "di-invalid-reference",
+   "key": "DI_INVALID_REFERENCE",
+   "severity": "warn",
+   "bad": [
+    {
+     "xml": "<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" id=\"d\" targetNamespace=\"urn:t\">\n  <process id=\"p\" isExecutable=\"true\"><dataObjectReference id=\"dor\" dataObjectRef=\"d1\"/><dataObject id=\"d1\" name=\"d1\"/></process>\n  <bpmndi:BPMNDiagram id=\"dia\"><bpmndi:BPMNPlane id=\"plane\" bpmnElement=\"p\"><bpmndi:BPMNShape id=\"dor_di\" bpmnElement=\"dor\"><dc:Bounds x=\"100\" y=\"100\" width=\"36\" height=\"50\"/></bpmndi:BPMNShape></bpmndi:BPMNPlane></bpmndi:BPMNDiagram>\n</definitions>",
+     "ids": [
+      "dor"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" id=\"d\" targetNamespace=\"urn:t\">\n  <process id=\"p\" isExecutable=\"true\"><task id=\"t\"/></process>\n  <bpmndi:BPMNDiagram id=\"dia\"><bpmndi:BPMNPlane id=\"plane\" bpmnElement=\"p\"><bpmndi:BPMNShape id=\"t_di\" bpmnElement=\"t\"><dc:Bounds x=\"100\" y=\"100\" width=\"100\" height=\"80\"/></bpmndi:BPMNShape></bpmndi:BPMNPlane></bpmndi:BPMNDiagram>\n</definitions>",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "di-does-not-reference-flownode",
+   "key": "DI_DOES_NOT_REFERENCE_FLOWNODE",
+   "severity": "warn",
+   "bad": [
+    {
+     "xml": "<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" id=\"d\" targetNamespace=\"urn:t\">\n  <process id=\"p\" isExecutable=\"true\"><dataStoreReference id=\"ds\"/></process>\n  <bpmndi:BPMNDiagram id=\"dia\"><bpmndi:BPMNPlane id=\"plane\" bpmnElement=\"p\"><bpmndi:BPMNShape id=\"ds_di\" bpmnElement=\"ds\"><dc:Bounds x=\"100\" y=\"100\" width=\"36\" height=\"50\"/></bpmndi:BPMNShape></bpmndi:BPMNPlane></bpmndi:BPMNDiagram>\n</definitions>",
+     "ids": [
+      "ds"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" id=\"d\" targetNamespace=\"urn:t\">\n  <process id=\"p\" isExecutable=\"true\"><task id=\"t\"/></process>\n  <bpmndi:BPMNDiagram id=\"dia\"><bpmndi:BPMNPlane id=\"plane\" bpmnElement=\"p\"><bpmndi:BPMNShape id=\"t_di\" bpmnElement=\"t\"><dc:Bounds x=\"100\" y=\"100\" width=\"100\" height=\"80\"/></bpmndi:BPMNShape></bpmndi:BPMNPlane></bpmndi:BPMNDiagram>\n</definitions>",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "di-does-not-reference-seq-flow",
+   "key": "DI_DOES_NOT_REFERENCE_SEQ_FLOW",
+   "severity": "warn",
+   "bad": [
+    {
+     "xml": "<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" id=\"d\" targetNamespace=\"urn:t\">\n  <process id=\"p\" isExecutable=\"true\"><task id=\"t\"/></process>\n  <bpmndi:BPMNDiagram id=\"dia\"><bpmndi:BPMNPlane id=\"plane\" bpmnElement=\"p\"><bpmndi:BPMNEdge id=\"t_di\" bpmnElement=\"t\"><di:waypoint x=\"1\" y=\"1\"/><di:waypoint x=\"2\" y=\"2\"/></bpmndi:BPMNEdge></bpmndi:BPMNPlane></bpmndi:BPMNDiagram>\n</definitions>",
+     "ids": [
+      "t"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" id=\"d\" targetNamespace=\"urn:t\">\n  <process id=\"p\" isExecutable=\"true\"><task id=\"t\"/></process>\n  <bpmndi:BPMNDiagram id=\"dia\"><bpmndi:BPMNPlane id=\"plane\" bpmnElement=\"p\"><bpmndi:BPMNShape id=\"t_di\" bpmnElement=\"t\"><dc:Bounds x=\"100\" y=\"100\" width=\"100\" height=\"80\"/></bpmndi:BPMNShape></bpmndi:BPMNPlane></bpmndi:BPMNDiagram>\n</definitions>",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "flow-element-async-not-available",
+   "key": "FLOW_ELEMENT_ASYNC_NOT_AVAILABLE",
+   "severity": "warn",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\" activiti:async=\"true\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "t"
+     ],
+     "note": null,
+     "asyncExecutorActive": false
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\" activiti:async=\"true\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": true
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\" activiti:async=\"true\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "event-timer-async-not-available",
+   "key": "EVENT_TIMER_ASYNC_NOT_AVAILABLE",
+   "severity": "warn",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"t\"><timerEventDefinition><timeDuration>PT1M</timeDuration></timerEventDefinition></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "t"
+     ],
+     "note": null,
+     "asyncExecutorActive": false
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": true
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\" activiti:async=\"true\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "signal-async-not-available",
+   "key": "SIGNAL_ASYNC_NOT_AVAILABLE",
+   "severity": "warn",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal id=\"s\" name=\"go\"/>\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateThrowEvent id=\"t\"><signalEventDefinition signalRef=\"s\" activiti:async=\"true\"/></intermediateThrowEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "t"
+     ],
+     "note": null,
+     "asyncExecutorActive": false
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": true
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\" activiti:async=\"true\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "start-event-multiple-found",
+   "key": "START_EVENT_MULTIPLE_FOUND",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<startEvent id=\"s1\"/><startEvent id=\"s2\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s1",
+      "s2"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<message id=\"m\" name=\"m\"/>\n  <process id=\"p\" isExecutable=\"true\">\n<startEvent id=\"s1\"/><startEvent id=\"s2\"><messageEventDefinition messageRef=\"m\"/></startEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "start-event-invalid-event-definition",
+   "key": "START_EVENT_INVALID_EVENT_DEFINITION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<startEvent id=\"s\"><errorEventDefinition/></startEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<startEvent id=\"s\"><timerEventDefinition><timeDuration>PT1M</timeDuration></timerEventDefinition></startEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "subprocess-multiple-start-events",
+   "key": "SUBPROCESS_MULTIPLE_START_EVENTS",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<subProcess id=\"sp\"><startEvent id=\"a\"/><startEvent id=\"b\"/></subProcess>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "sp"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<subProcess id=\"sp\"><startEvent id=\"a\"/></subProcess>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "subprocess-start-event-event-definition-not-allowed",
+   "key": "SUBPROCESS_START_EVENT_EVENT_DEFINITION_NOT_ALLOWED",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<subProcess id=\"sp\"><startEvent id=\"a\"><timerEventDefinition><timeDuration>PT1M</timeDuration></timerEventDefinition></startEvent></subProcess>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "a"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<subProcess id=\"sp\"><startEvent id=\"a\"/></subProcess>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "event-subprocess-invalid-start-event-definition",
+   "key": "EVENT_SUBPROCESS_INVALID_START_EVENT_DEFINITION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<subProcess id=\"esp\" triggeredByEvent=\"true\"><startEvent id=\"a\"><timerEventDefinition><timeDuration>PT1M</timeDuration></timerEventDefinition></startEvent></subProcess>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "esp"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<subProcess id=\"esp\" triggeredByEvent=\"true\"><startEvent id=\"a\"><errorEventDefinition/></startEvent></subProcess>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "seq-flow-invalid-src",
+   "key": "SEQ_FLOW_INVALID_SRC",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><sequenceFlow id=\"f\" targetRef=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "f"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><task id=\"u\"/><sequenceFlow id=\"f\" sourceRef=\"t\" targetRef=\"u\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "seq-flow-invalid-target",
+   "key": "SEQ_FLOW_INVALID_TARGET",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><sequenceFlow id=\"f\" sourceRef=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "f"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><task id=\"u\"/><sequenceFlow id=\"f\" sourceRef=\"t\" targetRef=\"u\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "seq-flow-invalid-target-different-scope",
+   "key": "SEQ_FLOW_INVALID_TARGET_DIFFERENT_SCOPE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><subProcess id=\"sp\"><task id=\"in\"/></subProcess><sequenceFlow id=\"f\" sourceRef=\"t\" targetRef=\"in\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "f"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><subProcess id=\"sp\"><task id=\"in\"/></subProcess><sequenceFlow id=\"f\" sourceRef=\"t\" targetRef=\"sp\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "seq-flow-invalid-conditional-expression",
+   "key": "SEQ_FLOW_INVALID_CONDITIONAL_EXPRESSION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><task id=\"u\"/><sequenceFlow id=\"f\" sourceRef=\"t\" targetRef=\"u\"><conditionExpression>${amount &gt; }</conditionExpression></sequenceFlow>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "f"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><task id=\"u\"/><sequenceFlow id=\"f\" sourceRef=\"t\" targetRef=\"u\"><conditionExpression xsi:type=\"tFormalExpression\">${amount &gt; 100 &amp;&amp; !empty(name)}</conditionExpression></sequenceFlow>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "exclusive-gateway-no-outgoing-seq-flow",
+   "key": "EXCLUSIVE_GATEWAY_NO_OUTGOING_SEQ_FLOW",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<exclusiveGateway id=\"g\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "g"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<exclusiveGateway id=\"g\"/><task id=\"t\"/><sequenceFlow id=\"f\" sourceRef=\"g\" targetRef=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "exclusive-gateway-condition-not-allowed-on-single-seq-flow",
+   "key": "EXCLUSIVE_GATEWAY_CONDITION_NOT_ALLOWED_ON_SINGLE_SEQ_FLOW",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<exclusiveGateway id=\"g\"/><task id=\"t\"/><sequenceFlow id=\"f\" sourceRef=\"g\" targetRef=\"t\"><conditionExpression>${x}</conditionExpression></sequenceFlow>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "g"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<exclusiveGateway id=\"g\"/><task id=\"t\"/><sequenceFlow id=\"f\" sourceRef=\"g\" targetRef=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "exclusive-gateway-condition-on-default-seq-flow",
+   "key": "EXCLUSIVE_GATEWAY_CONDITION_ON_DEFAULT_SEQ_FLOW",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<exclusiveGateway id=\"g\" default=\"f1\"/><task id=\"t\"/><task id=\"u\"/><sequenceFlow id=\"f1\" sourceRef=\"g\" targetRef=\"t\"><conditionExpression>${x}</conditionExpression></sequenceFlow><sequenceFlow id=\"f2\" sourceRef=\"g\" targetRef=\"u\"><conditionExpression>${y}</conditionExpression></sequenceFlow>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "g"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<exclusiveGateway id=\"g\" default=\"f1\"/><task id=\"t\"/><task id=\"u\"/><sequenceFlow id=\"f1\" sourceRef=\"g\" targetRef=\"t\"/><sequenceFlow id=\"f2\" sourceRef=\"g\" targetRef=\"u\"><conditionExpression>${y}</conditionExpression></sequenceFlow>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "exclusive-gateway-seq-flow-without-conditions",
+   "key": "EXCLUSIVE_GATEWAY_SEQ_FLOW_WITHOUT_CONDITIONS",
+   "severity": "warn",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<exclusiveGateway id=\"g\"/><task id=\"t\"/><task id=\"u\"/><sequenceFlow id=\"f1\" sourceRef=\"g\" targetRef=\"t\"/><sequenceFlow id=\"f2\" sourceRef=\"g\" targetRef=\"u\"><conditionExpression>${y}</conditionExpression></sequenceFlow>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "g"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<exclusiveGateway id=\"g\" default=\"f1\"/><task id=\"t\"/><task id=\"u\"/><sequenceFlow id=\"f1\" sourceRef=\"g\" targetRef=\"t\"/><sequenceFlow id=\"f2\" sourceRef=\"g\" targetRef=\"u\"><conditionExpression>${y}</conditionExpression></sequenceFlow>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "event-gateway-only-connected-to-intermediate-events",
+   "key": "EVENT_GATEWAY_ONLY_CONNECTED_TO_INTERMEDIATE_EVENTS",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<eventBasedGateway id=\"g\"/><receiveTask id=\"r\"/><sequenceFlow id=\"f\" sourceRef=\"g\" targetRef=\"r\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "g"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<eventBasedGateway id=\"g\"/><intermediateCatchEvent id=\"c\"><timerEventDefinition><timeDuration>PT1M</timeDuration></timerEventDefinition></intermediateCatchEvent><sequenceFlow id=\"f\" sourceRef=\"g\" targetRef=\"c\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "boundary-event-no-event-definition",
+   "key": "BOUNDARY_EVENT_NO_EVENT_DEFINITION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b\" attachedToRef=\"t\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "b"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b\" attachedToRef=\"t\"><escalationEventDefinition/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "b"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b\" attachedToRef=\"t\"><terminateEventDefinition/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "b"
+     ],
+     "note": "terminate is read in an end event only",
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b\" attachedToRef=\"t\"><timerEventDefinition><timeDuration>PT1M</timeDuration></timerEventDefinition></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "boundary-event-invalid-event-definition",
+   "key": "BOUNDARY_EVENT_INVALID_EVENT_DEFINITION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b\" attachedToRef=\"t\"><linkEventDefinition name=\"x\"/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "b"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b\" attachedToRef=\"t\"><errorEventDefinition/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "boundary-event-cancel-only-on-transaction",
+   "key": "BOUNDARY_EVENT_CANCEL_ONLY_ON_TRANSACTION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b\" attachedToRef=\"t\"><cancelEventDefinition/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "b"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<transaction id=\"tx\"/><boundaryEvent id=\"b\" attachedToRef=\"tx\"><cancelEventDefinition/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "boundary-event-multiple-cancel-on-transaction",
+   "key": "BOUNDARY_EVENT_MULTIPLE_CANCEL_ON_TRANSACTION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<transaction id=\"tx\"/><boundaryEvent id=\"b1\" attachedToRef=\"tx\"><cancelEventDefinition/></boundaryEvent><boundaryEvent id=\"b2\" attachedToRef=\"tx\"><cancelEventDefinition/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "b1",
+      "b2"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<transaction id=\"tx\"/><boundaryEvent id=\"b1\" attachedToRef=\"tx\"><cancelEventDefinition/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "compensate-event-multiple-on-boundary",
+   "key": "COMPENSATE_EVENT_MULTIPLE_ON_BOUNDARY",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b1\" attachedToRef=\"t\"><compensateEventDefinition/></boundaryEvent><boundaryEvent id=\"b2\" attachedToRef=\"t\"><compensateEventDefinition/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "b1",
+      "b2"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b1\" attachedToRef=\"t\"><compensateEventDefinition/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "compensate-event-invalid-activity-ref",
+   "key": "COMPENSATE_EVENT_INVALID_ACTIVITY_REF",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateThrowEvent id=\"c\"><compensateEventDefinition id=\"cd\" activityRef=\"ghost\"/></intermediateThrowEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "c"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><intermediateThrowEvent id=\"c\"><compensateEventDefinition activityRef=\"t\"/></intermediateThrowEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "message-event-missing-message-ref",
+   "key": "MESSAGE_EVENT_MISSING_MESSAGE_REF",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"m\"><messageEventDefinition/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "m"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<message id=\"msg\" name=\"m\"/>\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"m\"><messageEventDefinition messageRef=\"msg\"/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"m\"><messageEventDefinition activiti:messageExpression=\"${name}\"/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "message-event-invalid-message-ref",
+   "key": "MESSAGE_EVENT_INVALID_MESSAGE_REF",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"m\"><messageEventDefinition messageRef=\"ghost\"/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "m"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<message id=\"msg\" name=\"m\"/>\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"m\"><messageEventDefinition messageRef=\"msg\"/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "message-event-multiple-on-boundary-same-message-id",
+   "key": "MESSAGE_EVENT_MULTIPLE_ON_BOUNDARY_SAME_MESSAGE_ID",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<message id=\"msg\" name=\"m\"/>\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b1\" attachedToRef=\"t\"><messageEventDefinition messageRef=\"msg\"/></boundaryEvent><boundaryEvent id=\"b2\" attachedToRef=\"t\"><messageEventDefinition messageRef=\"msg\"/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "b1",
+      "b2"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<message id=\"msg\" name=\"m\"/><message id=\"msg2\" name=\"n\"/>\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"/><boundaryEvent id=\"b1\" attachedToRef=\"t\"><messageEventDefinition messageRef=\"msg\"/></boundaryEvent><boundaryEvent id=\"b2\" attachedToRef=\"t\"><messageEventDefinition messageRef=\"msg2\"/></boundaryEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "signal-event-missing-signal-ref",
+   "key": "SIGNAL_EVENT_MISSING_SIGNAL_REF",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"s\"><signalEventDefinition/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal id=\"sig\" name=\"go\"/>\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"s\"><signalEventDefinition signalRef=\"sig\"/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "signal-event-invalid-signal-ref",
+   "key": "SIGNAL_EVENT_INVALID_SIGNAL_REF",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"s\"><signalEventDefinition signalRef=\"ghost\"/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n<signal id=\"sig\" name=\"go\"/>\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"s\"><signalEventDefinition signalRef=\"sig\"/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "event-timer-missing-configuration",
+   "key": "EVENT_TIMER_MISSING_CONFIGURATION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"t\"><timerEventDefinition/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "t"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"t\"><timerEventDefinition><timeDuration>PT1M</timeDuration></timerEventDefinition></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "intermediate-catch-event-no-eventdefinition",
+   "key": "INTERMEDIATE_CATCH_EVENT_NO_EVENTDEFINITION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"c\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "c"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"c\"><timerEventDefinition><timeDuration>PT1M</timeDuration></timerEventDefinition></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "intermediate-catch-event-invalid-eventdefinition",
+   "key": "INTERMEDIATE_CATCH_EVENT_INVALID_EVENTDEFINITION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"c\"><errorEventDefinition/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "c"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"c\"><timerEventDefinition><timeDuration>PT1M</timeDuration></timerEventDefinition></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "throw-event-invalid-eventdefinition",
+   "key": "THROW_EVENT_INVALID_EVENTDEFINITION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateThrowEvent id=\"t\"><errorEventDefinition/></intermediateThrowEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "t"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateThrowEvent id=\"t\"><compensateEventDefinition/></intermediateThrowEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "end-event-cancel-only-inside-transaction",
+   "key": "END_EVENT_CANCEL_ONLY_INSIDE_TRANSACTION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<endEvent id=\"e\"><cancelEventDefinition/></endEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "e"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<transaction id=\"tx\"><endEvent id=\"e\"><cancelEventDefinition/></endEvent></transaction>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "link-event-definition-missing-target",
+   "key": "LINK_EVENT_DEFINITION_MISSING_TARGET",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateThrowEvent id=\"l\" name=\"Jump\"><linkEventDefinition id=\"ld\" name=\"x\"/></intermediateThrowEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "l"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateThrowEvent id=\"a\" name=\"Jump\"><linkEventDefinition id=\"ta\" name=\"x\"><target>tb</target></linkEventDefinition></intermediateThrowEvent><intermediateCatchEvent id=\"b\" name=\"Land\"><linkEventDefinition id=\"tb\" name=\"x\"><source>ta</source></linkEventDefinition></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "link-event-definition-missing-target-empty-name",
+   "key": "LINK_EVENT_DEFINITION_MISSING_TARGET_EMPTY_NAME",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateThrowEvent id=\"l\"><linkEventDefinition id=\"ld\" name=\"x\"/></intermediateThrowEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "l"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateThrowEvent id=\"a\" name=\"Jump\"><linkEventDefinition id=\"ta\" name=\"x\"><target>tb</target></linkEventDefinition></intermediateThrowEvent><intermediateCatchEvent id=\"b\" name=\"Land\"><linkEventDefinition id=\"tb\" name=\"x\"><source>ta</source></linkEventDefinition></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "link-event-definition-missing-source",
+   "key": "LINK_EVENT_DEFINITION_MISSING_SOURCE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"l\" name=\"Land\"><linkEventDefinition id=\"ld\" name=\"x\"/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "l"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateThrowEvent id=\"a\" name=\"Jump\"><linkEventDefinition id=\"ta\" name=\"x\"><target>tb</target></linkEventDefinition></intermediateThrowEvent><intermediateCatchEvent id=\"b\" name=\"Land\"><linkEventDefinition id=\"tb\" name=\"x\"><source>ta</source></linkEventDefinition></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "link-event-definition-missing-source-empty-name",
+   "key": "LINK_EVENT_DEFINITION_MISSING_SOURCE_EMPTY_NAME",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateCatchEvent id=\"l\"><linkEventDefinition id=\"ld\" name=\"x\"/></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "l"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<intermediateThrowEvent id=\"a\" name=\"Jump\"><linkEventDefinition id=\"ta\" name=\"x\"><target>tb</target></linkEventDefinition></intermediateThrowEvent><intermediateCatchEvent id=\"b\" name=\"Land\"><linkEventDefinition id=\"tb\" name=\"x\"><source>ta</source></linkEventDefinition></intermediateCatchEvent>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "execution-listener-implementation-missing",
+   "key": "EXECUTION_LISTENER_IMPLEMENTATION_MISSING",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"><extensionElements><activiti:executionListener event=\"start\"/></extensionElements></task>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "t"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"><extensionElements><activiti:executionListener event=\"start\" class=\"a.B\"/></extensionElements></task>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "execution-listener-invalid-implementation-type",
+   "key": "EXECUTION_LISTENER_INVALID_IMPLEMENTATION_TYPE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"><extensionElements><activiti:executionListener event=\"end\" expression=\"${x.y()}\" onTransaction=\"committed\"/></extensionElements></task>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "t"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<task id=\"t\"><extensionElements><activiti:executionListener event=\"end\" delegateExpression=\"${bean}\" onTransaction=\"committed\"/></extensionElements></task>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "user-task-listener-implementation-missing",
+   "key": "USER_TASK_LISTENER_IMPLEMENTATION_MISSING",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<userTask id=\"u\"><extensionElements><activiti:taskListener event=\"create\"/></extensionElements></userTask>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "u"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<userTask id=\"u\"><extensionElements><activiti:taskListener event=\"create\" delegateExpression=\"${l}\"/></extensionElements></userTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "event-listener-implementation-missing",
+   "key": "EVENT_LISTENER_IMPLEMENTATION_MISSING",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<extensionElements><activiti:eventListener events=\"TASK_CREATED\"/></extensionElements>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "p"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<extensionElements><activiti:eventListener events=\"TASK_CREATED\" expression=\"${x}\"/></extensionElements>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "p"
+     ],
+     "note": "expression is not an implementation of an event listener (the engine says IMPLEMENTATION_MISSING)",
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<extensionElements><activiti:eventListener events=\"TASK_CREATED\" class=\"a.B\"/></extensionElements>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "event-listener-invalid-throw-event-type",
+   "key": "EVENT_LISTENER_INVALID_THROW_EVENT_TYPE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<extensionElements><activiti:eventListener events=\"TASK_CREATED\" throwEvent=\"escalation\"/></extensionElements>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "p"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<extensionElements><activiti:eventListener events=\"TASK_CREATED\" throwEvent=\"signal\" signalName=\"s\"/></extensionElements>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "service-task-missing-implementation",
+   "key": "SERVICE_TASK_MISSING_IMPLEMENTATION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    },
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" camunda:class=\"a.B\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" activiti:class=\"a.B\"/><serviceTask id=\"e\" activiti:expression=\"${x}\"/><serviceTask id=\"c\" implementation=\"crm.LOOKUP\"/><serviceTask id=\"m\" activiti:type=\"mail\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "service-task-invalid-type",
+   "key": "SERVICE_TASK_INVALID_TYPE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" activiti:type=\"external\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" activiti:type=\"shell\"><extensionElements><activiti:field name=\"command\"><activiti:string>ls</activiti:string></activiti:field></extensionElements></serviceTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "service-task-result-var-name-with-delegate",
+   "key": "SERVICE_TASK_RESULT_VAR_NAME_WITH_DELEGATE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" activiti:class=\"a.B\" activiti:resultVariableName=\"r\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" activiti:expression=\"${x}\" activiti:resultVariableName=\"r\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "service-task-webservice-invalid-operation-ref",
+   "key": "SERVICE_TASK_WEBSERVICE_INVALID_OPERATION_REF",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"w\" implementation=\"##WebService\" operationRef=\"ghost\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "w"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" implementation=\"crm.LOOKUP\"/>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "send-task-invalid-implementation",
+   "key": "SEND_TASK_INVALID_IMPLEMENTATION",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<sendTask id=\"s\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<sendTask id=\"s\" activiti:type=\"mail\"><extensionElements><activiti:field name=\"to\"><activiti:string>x</activiti:string></activiti:field><activiti:field name=\"text\"><activiti:string>x</activiti:string></activiti:field></extensionElements></sendTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "send-task-invalid-type",
+   "key": "SEND_TASK_INVALID_TYPE",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<sendTask id=\"s\" activiti:type=\"sms\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<sendTask id=\"s\" activiti:type=\"mail\"><extensionElements><activiti:field name=\"to\"><activiti:string>x</activiti:string></activiti:field><activiti:field name=\"text\"><activiti:string>x</activiti:string></activiti:field></extensionElements></sendTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "send-task-webservice-invalid-operation-ref",
+   "key": "SEND_TASK_WEBSERVICE_INVALID_OPERATION_REF",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<sendTask id=\"w\" implementation=\"##WebService\" operationRef=\"ghost\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "w"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<sendTask id=\"s\" activiti:type=\"mail\"><extensionElements><activiti:field name=\"to\"><activiti:string>x</activiti:string></activiti:field><activiti:field name=\"text\"><activiti:string>x</activiti:string></activiti:field></extensionElements></sendTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "script-task-missing-script",
+   "key": "SCRIPT_TASK_MISSING_SCRIPT",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<scriptTask id=\"s\" scriptFormat=\"javascript\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<scriptTask id=\"s\" scriptFormat=\"javascript\"><script>execution.setVariable(\"a\", 1)</script></scriptTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "mail-task-no-recipient",
+   "key": "MAIL_TASK_NO_RECIPIENT",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"m\" activiti:type=\"mail\"><extensionElements><activiti:field name=\"text\"><activiti:string>x</activiti:string></activiti:field></extensionElements></serviceTask>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "m"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"m\" activiti:type=\"mail\"><extensionElements><activiti:field name=\"to\"><activiti:string>x</activiti:string></activiti:field><activiti:field name=\"text\"><activiti:string>x</activiti:string></activiti:field></extensionElements></serviceTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "mail-task-no-content",
+   "key": "MAIL_TASK_NO_CONTENT",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"m\" activiti:type=\"mail\"><extensionElements><activiti:field name=\"to\"><activiti:string>x</activiti:string></activiti:field></extensionElements></serviceTask>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "m"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"m\" activiti:type=\"mail\"><extensionElements><activiti:field name=\"to\"><activiti:string>x</activiti:string></activiti:field><activiti:field name=\"html\"><activiti:string><b>x</b></activiti:string></activiti:field></extensionElements></serviceTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "shell-task-no-command",
+   "key": "SHELL_TASK_NO_COMMAND",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" activiti:type=\"shell\"><extensionElements><activiti:field name=\"arg1\"><activiti:string>x</activiti:string></activiti:field></extensionElements></serviceTask>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" activiti:type=\"shell\"><extensionElements><activiti:field name=\"command\"><activiti:string>ls</activiti:string></activiti:field></extensionElements></serviceTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "shell-task-invalid-param",
+   "key": "SHELL_TASK_INVALID_PARAM",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" activiti:type=\"shell\"><extensionElements><activiti:field name=\"command\"><activiti:string>ls</activiti:string></activiti:field><activiti:field name=\"wait\"><activiti:string>yes</activiti:string></activiti:field></extensionElements></serviceTask>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "s"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"s\" activiti:type=\"shell\"><extensionElements><activiti:field name=\"command\"><activiti:string>ls</activiti:string></activiti:field><activiti:field name=\"wait\"><activiti:string>false</activiti:string></activiti:field></extensionElements></serviceTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  },
+  {
+   "id": "dmn-task-no-key",
+   "key": "DMN_TASK_NO_KEY",
+   "severity": "error",
+   "bad": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"dm\" activiti:type=\"dmn\"/>\n  </process>\n\n</definitions>\n",
+     "ids": [
+      "dm"
+     ],
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ],
+   "good": [
+    {
+     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" xmlns:activiti=\"http://activiti.org/bpmn\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" id=\"d\" targetNamespace=\"urn:fixture\">\n\n  <process id=\"p\" isExecutable=\"true\">\n<serviceTask id=\"dm\" activiti:type=\"dmn\"><extensionElements><activiti:field name=\"decisionTableReferenceKey\"><activiti:string>rules</activiti:string></activiti:field></extensionElements></serviceTask>\n  </process>\n\n</definitions>\n",
+     "note": null,
+     "asyncExecutorActive": null
+    }
+   ]
+  }
+ ]
+}

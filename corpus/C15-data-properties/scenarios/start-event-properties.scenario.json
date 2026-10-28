@@ -1,0 +1,27 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C15 start event: initiator, form key, legacy form properties and the start mapping",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the start mapping lets only the mapped variables through and adds the VALUE output; the initiator is the starting user",
+      "start": { "process": "startEventProperties", "user": "ann", "variables": { "name": "Ann", "junk": 1 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "starter": "ann", "customerName": "Ann", "channel": "web", "greeting": "Hello, Ann" },
+        "absentVariables": ["name", "junk"],
+        "path": { "sequenceFlows": ["f_begin_greet", "f_greet_end"] }
+      }
+    },
+    {
+      "name": "legacy form properties are not enforced: a required one may be missing, and without a payload only the VALUE output remains",
+      "start": { "process": "startEventProperties", "user": "ann" },
+      "expect": {
+        "state": "COMPLETED",
+        "variables": { "starter": "ann", "channel": "web", "greeting": "Hello, " },
+        "absentVariables": ["customerName", "customer", "priority"]
+      }
+    }
+  ]
+}

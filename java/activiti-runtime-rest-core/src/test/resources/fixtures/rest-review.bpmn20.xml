@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/rest-core-test">
+  <process id="restReview" name="Review" isExecutable="true">
+    <startEvent id="start" activiti:initiator="startedBy"/>
+    <sequenceFlow id="f_start_review" sourceRef="start" targetRef="review"/>
+    <userTask id="review" name="Review the request" activiti:candidateGroups="clerks" activiti:formKey="reviewForm" activiti:priority="7"/>
+    <sequenceFlow id="f_review_decide" sourceRef="review" targetRef="decide"/>
+    <exclusiveGateway id="decide" default="f_decide_rejected"/>
+    <sequenceFlow id="f_decide_approved" sourceRef="decide" targetRef="approvedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${approved == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_decide_rejected" sourceRef="decide" targetRef="rejectedEnd"/>
+    <endEvent id="approvedEnd"/>
+    <endEvent id="rejectedEnd"/>
+  </process>
+</definitions>

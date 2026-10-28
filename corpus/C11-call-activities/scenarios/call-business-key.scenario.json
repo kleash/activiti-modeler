@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C11 business keys of called processes",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "explicit businessKey expression, inheritBusinessKey and no key at all",
+      "start": { "process": "callBusinessKey", "user": "ann", "businessKey": "ORD-7", "variables": { "orderId": 7 } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "callExplicitKey", "process": "leafChild", "businessKey": "BK-7", "state": "COMPLETED", "variables": { "leafRan": true } } },
+        { "expectChildInstance": { "callActivity": "callInheritedKey", "process": "leafChild", "businessKey": "ORD-7", "state": "COMPLETED" } },
+        { "expectChildInstance": { "callActivity": "callNoKey", "process": "leafChild", "businessKey": null, "state": "COMPLETED" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "absentVariables": ["leafRan"],
+        "path": {
+          "order": [["callExplicitKey", "callInheritedKey"], ["callInheritedKey", "callNoKey"], ["callNoKey", "end"]],
+          "sequenceFlows": ["f_start_callExplicitKey", "f_callExplicitKey_callInheritedKey", "f_callInheritedKey_callNoKey", "f_callNoKey_end"]
+        }
+      }
+    }
+  ]
+}

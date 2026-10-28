@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/rest-core-test">
+  <process id="restFlaky" name="Flaky" isExecutable="true">
+    <startEvent id="fkStart"/>
+    <sequenceFlow id="f_fkStart_fkCall" sourceRef="fkStart" targetRef="fkCall"/>
+    <serviceTask id="fkCall" name="Flaky call" activiti:async="true" activiti:class="io.github.kleash.activiti.rest.core.testapp.FlakyDelegate"/>
+    <sequenceFlow id="f_fkCall_fkEnd" sourceRef="fkCall" targetRef="fkEnd"/>
+    <endEvent id="fkEnd"/>
+  </process>
+</definitions>

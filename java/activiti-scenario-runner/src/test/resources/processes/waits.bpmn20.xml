@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/runner-test">
+  <message id="docsMessage" name="docsReceived"/>
+  <signal id="auditSignal" name="audit"/>
+
+  <!-- a timer catch event followed by a task -->
+  <process id="delayed" name="Delayed" isExecutable="true">
+    <startEvent id="dStart"/>
+    <sequenceFlow id="f_dStart_wait" sourceRef="dStart" targetRef="wait"/>
+    <intermediateCatchEvent id="wait">
+      <timerEventDefinition>
+        <timeDuration>PT1H</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_wait_afterWait" sourceRef="wait" targetRef="afterWait"/>
+    <userTask id="afterWait" name="After the wait" activiti:candidateUsers="alice,carol"/>
+    <sequenceFlow id="f_afterWait_dEnd" sourceRef="afterWait" targetRef="dEnd"/>
+    <endEvent id="dEnd"/>
+  </process>
+
+  <!-- a task with an interrupting boundary timer -->
+  <process id="escalating" name="Escalating" isExecutable="true">
+    <startEvent id="eStart"/>
+    <sequenceFlow id="f_eStart_work" sourceRef="eStart" targetRef="work"/>
+    <userTask id="work" name="Work" activiti:candidateUsers="bob"/>
+    <sequenceFlow id="f_work_eEnd" sourceRef="work" targetRef="doneEnd"/>
+    <boundaryEvent id="timeout" attachedToRef="work" cancelActivity="true">
+      <timerEventDefinition>
+        <timeDuration>PT2H</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="f_timeout_manager" sourceRef="timeout" targetRef="manager"/>
+    <userTask id="manager" name="Manager takes over" activiti:assignee="carol"/>
+    <sequenceFlow id="f_manager_escalatedEnd" sourceRef="manager" targetRef="escalatedEnd"/>
+    <endEvent id="doneEnd"/>
+    <endEvent id="escalatedEnd"/>
+  </process>
+
+  <!-- receive task, message catch with correlation key, signal catch -->
+  <process id="payment" name="Payment" isExecutable="true">
+    <startEvent id="pStart"/>
+    <sequenceFlow id="f_pStart_waitPayment" sourceRef="pStart" targetRef="waitPayment"/>
+    <receiveTask id="waitPayment" name="Wait for payment"/>
+    <sequenceFlow id="f_waitPayment_docs" sourceRef="waitPayment" targetRef="docs"/>
+    <intermediateCatchEvent id="docs">
+      <messageEventDefinition messageRef="docsMessage" activiti:correlationKey="${orderNo}"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_docs_audit" sourceRef="docs" targetRef="audit"/>
+    <intermediateCatchEvent id="audit">
+      <signalEventDefinition signalRef="auditSignal"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_audit_pEnd" sourceRef="audit" targetRef="pEnd"/>
+    <endEvent id="pEnd"/>
+  </process>
+
+  <!-- a multi-instance sub process: both instances wait at the same timer activity -->
+  <process id="batch" name="Batch" isExecutable="true">
+    <startEvent id="bStart"/>
+    <sequenceFlow id="f_bStart_each" sourceRef="bStart" targetRef="each"/>
+    <subProcess id="each" name="Each">
+      <multiInstanceLoopCharacteristics isSequential="false">
+        <loopCardinality>2</loopCardinality>
+      </multiInstanceLoopCharacteristics>
+      <startEvent id="eachStart"/>
+      <sequenceFlow id="f_eachStart_batchWait" sourceRef="eachStart" targetRef="batchWait"/>
+      <intermediateCatchEvent id="batchWait">
+        <timerEventDefinition>
+          <timeDuration>PT1H</timeDuration>
+        </timerEventDefinition>
+      </intermediateCatchEvent>
+      <sequenceFlow id="f_batchWait_eachEnd" sourceRef="batchWait" targetRef="eachEnd"/>
+      <endEvent id="eachEnd"/>
+    </subProcess>
+    <sequenceFlow id="f_each_bEnd" sourceRef="each" targetRef="bEnd"/>
+    <endEvent id="bEnd"/>
+  </process>
+
+  <!-- start events: message, signal, timer -->
+  <message id="newOrderMessage" name="newOrder"/>
+  <signal id="goSignal" name="go"/>
+  <process id="msgStarted" name="Started by message" isExecutable="true">
+    <startEvent id="mStart">
+      <messageEventDefinition messageRef="newOrderMessage"/>
+    </startEvent>
+    <sequenceFlow id="f_mStart_pack" sourceRef="mStart" targetRef="pack"/>
+    <userTask id="pack" name="Pack" activiti:candidateUsers="alice"/>
+    <sequenceFlow id="f_pack_mEnd" sourceRef="pack" targetRef="mEnd"/>
+    <endEvent id="mEnd"/>
+  </process>
+  <process id="sigStarted" name="Started by signal" isExecutable="true">
+    <startEvent id="sStart">
+      <signalEventDefinition signalRef="goSignal"/>
+    </startEvent>
+    <sequenceFlow id="f_sStart_ship" sourceRef="sStart" targetRef="ship"/>
+    <userTask id="ship" name="Ship" activiti:candidateUsers="alice"/>
+    <sequenceFlow id="f_ship_sEnd" sourceRef="ship" targetRef="sEnd"/>
+    <endEvent id="sEnd"/>
+  </process>
+  <process id="timerStarted" name="Started by timer" isExecutable="true">
+    <startEvent id="tStart">
+      <timerEventDefinition>
+        <timeCycle>R/PT1H</timeCycle>
+      </timerEventDefinition>
+    </startEvent>
+    <sequenceFlow id="f_tStart_report" sourceRef="tStart" targetRef="report"/>
+    <userTask id="report" name="Report" activiti:candidateUsers="alice"/>
+    <sequenceFlow id="f_report_tEnd" sourceRef="report" targetRef="tEnd"/>
+    <endEvent id="tEnd"/>
+  </process>
+</definitions>

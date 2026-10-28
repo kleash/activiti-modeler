@@ -1,0 +1,14 @@
+{
+  "id": "callUnknown-extensions",
+  "extensions": {
+    "callUnknown": {
+      "properties": {},
+      "mappings": {
+        "call": {
+          "mappingType": "MAP_ALL"
+        }
+      },
+      "constants": {}
+    }
+  }
+}

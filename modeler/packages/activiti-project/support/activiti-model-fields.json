@@ -1,0 +1,91 @@
+{
+  "source": "org.activiti:activiti-spring-process-extensions:9.0.0 and org.activiti:activiti-connector-model:9.0.0 (JavaBean setters)",
+  "classes": {
+    "org.activiti.core.common.model.connector.VariableDefinition": {
+      "properties": [
+        "analytics",
+        "description",
+        "display",
+        "displayName",
+        "ephemeral",
+        "id",
+        "name",
+        "required",
+        "type"
+      ]
+    },
+    "org.activiti.spring.process.model.AssignmentDefinition": {
+      "properties": [
+        "assignment",
+        "id",
+        "mode",
+        "type"
+      ]
+    },
+    "org.activiti.spring.process.model.ConstantDefinition": {
+      "properties": [
+        "value"
+      ]
+    },
+    "org.activiti.spring.process.model.Extension": {
+      "properties": [
+        "assignments",
+        "constants",
+        "mappings",
+        "properties",
+        "templates"
+      ]
+    },
+    "org.activiti.spring.process.model.Mapping": {
+      "properties": [
+        "type",
+        "value"
+      ]
+    },
+    "org.activiti.spring.process.model.ProcessConstantsMapping": {
+      "properties": [],
+      "extends": "HashMap"
+    },
+    "org.activiti.spring.process.model.ProcessExtensionModel": {
+      "properties": [
+        "extensions",
+        "id"
+      ]
+    },
+    "org.activiti.spring.process.model.ProcessVariablesMapping": {
+      "properties": [
+        "ephemeral",
+        "inputs",
+        "mappingType",
+        "outputs"
+      ]
+    },
+    "org.activiti.spring.process.model.TaskTemplateDefinition": {
+      "properties": [
+        "assignee",
+        "candidate",
+        "emailNotificationEnabled"
+      ]
+    },
+    "org.activiti.spring.process.model.TemplateDefinition": {
+      "properties": [
+        "from",
+        "subject",
+        "type",
+        "value"
+      ]
+    },
+    "org.activiti.spring.process.model.TemplatesDefinition": {
+      "properties": [
+        "default",
+        "tasks"
+      ]
+    },
+    "org.activiti.spring.process.model.VariableDefinition": {
+      "properties": [
+        "value"
+      ],
+      "extends": "org.activiti.core.common.model.connector.VariableDefinition"
+    }
+  }
+}

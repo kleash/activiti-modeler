@@ -1,0 +1,67 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C04 exclusive gateway routing",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the first matching flow in document order wins, even when a later one matches too",
+      "start": { "process": "exclusiveRouting", "user": "ann", "variables": { "vip": true, "amount": 50, "forceSkip": false } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["endVip"],
+        "path": { "contains": ["start", "route", "endVip"], "notContains": ["endSmall", "endMedium", "endForced", "endDefault"],
+                  "sequenceFlows": ["f_start_route", "f_route_vip"], "notSequenceFlows": ["f_route_small"] }
+      }
+    },
+    {
+      "name": "a small amount takes the small flow and fires its take listener",
+      "start": { "process": "exclusiveRouting", "user": "ann", "variables": { "vip": false, "amount": 99, "forceSkip": false } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["endSmall"],
+        "path": { "sequenceFlows": ["f_route_small"], "notSequenceFlows": ["f_route_vip", "f_route_medium", "f_route_default"] },
+        "variables": { "executionListenerCalls": ["take:f_route_small"] }
+      }
+    },
+    {
+      "name": "100 is the lower bound of the medium flow",
+      "start": { "process": "exclusiveRouting", "user": "ann", "variables": { "vip": false, "amount": 100, "forceSkip": false } },
+      "expect": { "state": "COMPLETED", "endEvents": ["endMedium"], "path": { "sequenceFlows": ["f_route_medium"], "notSequenceFlows": ["f_route_small"] },
+                  "absentVariables": ["executionListenerCalls"] }
+    },
+    {
+      "name": "999 is the upper bound of the medium flow",
+      "start": { "process": "exclusiveRouting", "user": "ann", "variables": { "vip": false, "amount": 999, "forceSkip": false } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["endMedium"],
+        "variables": { "amount": 999 },
+        "path": {
+          "contains": ["route", "endMedium"],
+          "notContains": ["endSmall", "endVip", "endExact", "endDefault"],
+          "sequenceFlows": ["f_start_route", "f_route_medium"],
+          "notSequenceFlows": ["f_route_small", "f_route_default"]
+        }
+      }
+    },
+    {
+      "name": "1000 matches no condition, so the default flow is taken",
+      "start": { "process": "exclusiveRouting", "user": "ann", "variables": { "vip": false, "amount": 1000, "forceSkip": false } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["endDefault"],
+        "path": { "sequenceFlows": ["f_route_default"], "notSequenceFlows": ["f_route_forced", "f_route_medium"] }
+      }
+    },
+    {
+      "name": "the skipExpression is ignored without the enabling variable: a false skipExpression does not exclude the flow",
+      "start": { "process": "exclusiveRouting", "user": "ann", "variables": { "vip": false, "amount": 5000, "forceSkip": false } },
+      "expect": { "state": "COMPLETED", "endEvents": ["endExact"], "path": { "sequenceFlows": ["f_route_exact"], "notSequenceFlows": ["f_route_default"] } }
+    },
+    {
+      "name": "the skipExpression is ignored without the enabling variable: a true skipExpression does not take the flow",
+      "start": { "process": "exclusiveRouting", "user": "ann", "variables": { "vip": false, "amount": 4000, "forceSkip": true } },
+      "expect": { "state": "COMPLETED", "endEvents": ["endDefault"], "path": { "notSequenceFlows": ["f_route_exact"] } }
+    }
+  ]
+}

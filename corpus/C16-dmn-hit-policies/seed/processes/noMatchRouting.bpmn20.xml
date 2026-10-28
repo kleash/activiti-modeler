@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_noMatchRouting"
+             targetNamespace="http://kleash.github.io/corpus/C16">
+  <process id="noMatchRouting" name="Route by amount (reacts to no match)" isExecutable="true">
+    <startEvent id="start" name="Start" />
+    <serviceTask id="decideRoute" name="Decide route" implementation="dmn-connector.EXECUTE_TABLE" />
+    <exclusiveGateway id="isRouted" name="Routed?" default="flow_isRouted_unroutedEnd" />
+    <endEvent id="routedEnd" name="Routed" />
+    <endEvent id="unroutedEnd" name="No route" />
+    <sequenceFlow id="flow_start_decideRoute" sourceRef="start" targetRef="decideRoute" />
+    <sequenceFlow id="flow_decideRoute_isRouted" sourceRef="decideRoute" targetRef="isRouted" />
+    <sequenceFlow id="flow_isRouted_routedEnd" sourceRef="isRouted" targetRef="routedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${matched}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_isRouted_unroutedEnd" sourceRef="isRouted" targetRef="unroutedEnd" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_noMatchRouting">
+    <bpmndi:BPMNPlane id="BPMNPlane_noMatchRouting" bpmnElement="noMatchRouting">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="40" y="120" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="13" y="160" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideRoute_di" bpmnElement="decideRoute">
+        <dc:Bounds x="130" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="isRouted_di" bpmnElement="isRouted">
+        <dc:Bounds x="340" y="113" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="320" y="93" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="routedEnd_di" bpmnElement="routedEnd">
+        <dc:Bounds x="450" y="60" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="423" y="100" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="unroutedEnd_di" bpmnElement="unroutedEnd">
+        <dc:Bounds x="450" y="180" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="423" y="220" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_start_decideRoute_di" bpmnElement="flow_start_decideRoute">
+        <di:waypoint x="76" y="138" />
+        <di:waypoint x="130" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideRoute_isRouted_di" bpmnElement="flow_decideRoute_isRouted">
+        <di:waypoint x="260" y="138" />
+        <di:waypoint x="340" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_isRouted_routedEnd_di" bpmnElement="flow_isRouted_routedEnd">
+        <di:waypoint x="390" y="138" />
+        <di:waypoint x="420" y="138" />
+        <di:waypoint x="420" y="78" />
+        <di:waypoint x="450" y="78" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_isRouted_unroutedEnd_di" bpmnElement="flow_isRouted_unroutedEnd">
+        <di:waypoint x="390" y="138" />
+        <di:waypoint x="420" y="138" />
+        <di:waypoint x="420" y="198" />
+        <di:waypoint x="450" y="198" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

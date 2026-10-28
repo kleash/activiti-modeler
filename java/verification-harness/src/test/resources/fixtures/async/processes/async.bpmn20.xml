@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/harness-fixture">
+  <process id="asyncDemo" name="Async demo" isExecutable="true">
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_work" sourceRef="start" targetRef="work"/>
+    <serviceTask id="work" name="Work" activiti:async="true" activiti:class="io.github.kleash.activiti.harness.support.IncrementDelegate">
+      <extensionElements>
+        <activiti:field name="variable"><activiti:string>runs</activiti:string></activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_work_nap" sourceRef="work" targetRef="nap"/>
+    <intermediateCatchEvent id="nap">
+      <timerEventDefinition>
+        <timeDuration>PT1H</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_nap_end" sourceRef="nap" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+</definitions>

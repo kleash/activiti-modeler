@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C02 connector variable mappings",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "every mapping kind produces the documented inbound variables and process variables",
+      "start": { "process": "connectorMappings", "user": "ann", "variables": { "customerId": "G-5" } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "lookup", "connector": "crm.LOOKUP", "count": 1,
+            "inbound": { "customerId": "G-5" },
+            "outbound": { "customerName": "Customer G-5", "tier": "gold", "found": true } } },
+        { "expectConnectorCall": { "activity": "echoMapped", "connector": "echo.EXECUTE",
+            "inbound": { "greeting": "hello", "tierLabel": "gold", "note": "Customer G-5 is gold", "region": "EU", "limit": 42 },
+            "outbound": { "greeting": "hello", "tierLabel": "gold", "note": "Customer G-5 is gold", "region": "EU", "limit": 42, "echoCount": 5 } } },
+        { "expectConnectorCall": { "activity": "echoAll", "connector": "echo.EXECUTE",
+            "inbound": { "customerId": "G-5", "customerName": "Customer G-5", "tier": "gold", "echoedGreeting": "hello", "echoCount": 5, "profile": null },
+            "outbound": { "customerId": "G-5", "customerName": "Customer G-5", "tier": "gold", "echoedGreeting": "hello", "echoCount": 6, "profile": null } } },
+        { "expectConnectorCall": { "activity": "patch", "connector": "echo.EXECUTE", "inbound": {}, "outbound": { "echoCount": 0 } } },
+        { "expectConnectorCall": { "activity": "flagsEphemeral", "connector": "flags.EXECUTE", "inbound": {},
+            "outbound": { "ephemeral": true, "connectorType": "flags.EXECUTE", "clientId": "flagsEphemeral" } } },
+        { "expectConnectorCall": { "activity": "flagsPersistent", "connector": "flags.EXECUTE", "inbound": {},
+            "outbound": { "ephemeral": false, "connectorType": "flags.EXECUTE", "clientId": "flagsPersistent" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "customerName": "Customer G-5", "tier": "gold", "echoedGreeting": "hello", "echoCount": 6,
+          "profile": { "name": "Ann", "address": { "city": "Paris" }, "tags": ["gold"], "G-5": "known" },
+          "ephemeralSeen": true, "persistentSeen": false
+        },
+        "absentVariables": ["found", "greeting", "who", "region", "limit"],
+        "path": {
+          "order": [["lookup", "echoMapped"], ["echoMapped", "echoAll"], ["echoAll", "patch"], ["patch", "flagsEphemeral"], ["flagsEphemeral", "flagsPersistent"]]
+        }
+      }
+    }
+  ]
+}

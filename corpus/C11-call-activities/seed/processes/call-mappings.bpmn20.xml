@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_callMappings"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C11">
+  <process id="callMappings" name="Call activities with extensions mappings" isExecutable="true">
+    <documentation>The Activiti 7+ extensions mapping of a call activity. riskLookup passes selected inputs (VARIABLE, VALUE) and a constant to a child that declares properties (they are validated and defaulted) and takes back only the mapped outputs. passAll uses MAP_ALL in both directions. passBare uses MAP_ALL too, but its child has no extensions file: the inputs are then dropped (only a child with an extensions file receives mapped inputs), while the outputs still come back.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_riskLookup" sourceRef="start" targetRef="riskLookup"/>
+    <callActivity id="riskLookup" name="Look up risk" calledElement="riskCheck"/>
+    <sequenceFlow id="f_riskLookup_passAll" sourceRef="riskLookup" targetRef="passAll"/>
+    <callActivity id="passAll" name="Pass everything" calledElement="echoChild"/>
+    <sequenceFlow id="f_passAll_passBare" sourceRef="passAll" targetRef="passBare"/>
+    <callActivity id="passBare" name="Pass to a bare child" calledElement="leafChild"/>
+    <sequenceFlow id="f_passBare_end" sourceRef="passBare" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="callMappings">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="riskLookup_di" bpmnElement="riskLookup">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="passAll_di" bpmnElement="passAll">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="passBare_di" bpmnElement="passBare">
+        <dc:Bounds x="520" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="702" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_riskLookup_di" bpmnElement="f_start_riskLookup">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_riskLookup_passAll_di" bpmnElement="f_riskLookup_passAll">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_passAll_passBare_di" bpmnElement="f_passAll_passBare">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="520" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_passBare_end_di" bpmnElement="f_passBare_end">
+        <di:waypoint x="620" y="90"/>
+        <di:waypoint x="702" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

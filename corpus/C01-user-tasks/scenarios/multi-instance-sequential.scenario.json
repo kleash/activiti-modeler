@@ -1,0 +1,35 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C01 sequential multi-instance user tasks",
+  "users": { "ann": [], "bob": [], "carl": [] },
+  "scenarios": [
+    {
+      "name": "the completion condition stops the loop before the last approver gets a task",
+      "start": { "process": "reviewSequential", "user": "ann", "variables": { "approvers": ["ann", "bob", "carl"], "limit": 2 } },
+      "steps": [
+        { "expectTask": { "activity": "approveInTurn", "count": 1, "name": "Approval 1 by ann", "assignee": "ann", "localVariables": { "turn": 0 } } },
+        { "completeTask": { "activity": "approveInTurn", "user": "ann" } },
+        { "expectTask": { "activity": "approveInTurn", "count": 1, "name": "Approval 2 by bob", "assignee": "bob", "localVariables": { "turn": 1 } } },
+        { "completeTask": { "activity": "approveInTurn", "user": "bob" } },
+        { "expectTask": { "activity": "approveInTurn", "count": 0 } },
+        { "expectTask": { "activity": "signOff", "count": 1, "name": "Sign-off 1", "candidateUsers": ["ann"] } },
+        { "completeTask": { "activity": "signOff", "user": "ann" } },
+        { "expectTask": { "activity": "signOff", "count": 1, "name": "Sign-off 2" } },
+        { "completeTask": { "activity": "signOff", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "absentVariables": ["approver"] }
+    },
+    {
+      "name": "without an early completion every approver gets a turn",
+      "start": { "process": "reviewSequential", "user": "ann", "variables": { "approvers": ["ann", "bob", "carl"], "limit": 9 } },
+      "steps": [
+        { "completeTask": { "activity": "approveInTurn", "user": "ann" } },
+        { "completeTask": { "activity": "approveInTurn", "user": "bob" } },
+        { "expectTask": { "activity": "approveInTurn", "count": 1, "name": "Approval 3 by carl", "assignee": "carl", "localVariables": { "turn": 2 } } },
+        { "completeTask": { "activity": "approveInTurn", "user": "carl" } },
+        { "expectTask": { "activity": "signOff", "count": 1, "name": "Sign-off 1" } }
+      ],
+      "expect": { "state": "ACTIVE", "path": { "contains": ["signOff"] } }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "calls-extensions",
+  "extensions": {
+    "kyc": {
+      "properties": {
+        "p1": { "id": "p1", "name": "cid", "type": "string" },
+        "p2": { "id": "p2", "name": "result", "type": "string" }
+      },
+      "mappings": {
+        "kycCheck": { "outputs": { "result": { "type": "VARIABLE", "value": "result" } } }
+      }
+    }
+  }
+}

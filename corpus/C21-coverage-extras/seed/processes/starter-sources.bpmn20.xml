@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C21">
+  <process id="starterSources" name="Starter sources combined" isExecutable="true" activiti:candidateStarterUsers="ann" activiti:candidateStarterGroups="clerks">
+    <documentation>The attributes candidateStarterUsers / candidateStarterGroups and an activiti:potentialStarter element on the same process: the engine adds up both sources.</documentation>
+    <extensionElements>
+      <activiti:potentialStarter>
+        <resourceAssignmentExpression>
+          <formalExpression>user(carl), group(auditors)</formalExpression>
+        </resourceAssignmentExpression>
+      </activiti:potentialStarter>
+    </extensionElements>
+    <startEvent id="start" activiti:initiator="starter"/>
+    <sequenceFlow id="f_start_work" sourceRef="start" targetRef="work"/>
+    <userTask id="work" name="Work for ${starter}" activiti:assignee="${starter}"/>
+    <sequenceFlow id="f_work_end" sourceRef="work" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="starterSources">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="work_di" bpmnElement="work">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_work_di" bpmnElement="f_start_work">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_work_end_di" bpmnElement="f_work_end">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="402" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

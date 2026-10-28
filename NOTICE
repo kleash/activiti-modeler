@@ -1,0 +1,20 @@
+Activiti Modeler
+Copyright 2026 The Activiti Modeler contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+It is a native web modeler for BPMN and DMN that runs on Activiti 9. It contains, depending on how you got it, the following third-party
+software, each under its own licence. The complete list with every licence text is in THIRD-PARTY-NOTICES.md, which is part of every
+download (in the jar under META-INF/, next to the desktop app, and in the Docker image).
+
+  * bpmn.io (bpmn-js, dmn-js, diagram-js, the properties panel and related libraries), Copyright Camunda Services GmbH, MIT licence with the
+    condition that the bpmn.io watermark in every diagram must stay visible. This product keeps the watermark.
+  * Activiti 9.0.0 (Apache License 2.0), the process engine that runs the models, with its dependencies.
+  * Spring Framework and Spring Boot (Apache License 2.0), Apache Tomcat (Apache License 2.0).
+  * H2 Database Engine (MPL 2.0 or EPL 1.0), the in-memory database of the embedded engine.
+  * Operaton DMN (Apache License 2.0) and its FEEL engine, which evaluate decision tables.
+  * GreenMail (Apache License 2.0), the embedded SMTP server for mail tasks.
+  * Eclipse Temurin, an OpenJDK build (GPL 2.0 with the Classpath Exception), inside the desktop bundles and the Docker image (not the jar).
+  * musl libc (MIT licence), inside the Docker image only.
+  * The npm packages bundled into the web app (React and others, mostly MIT).
+

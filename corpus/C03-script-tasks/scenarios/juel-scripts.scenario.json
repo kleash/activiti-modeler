@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C03 JUEL script tasks",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a large order: the discount applies and the large flag is set",
+      "start": { "process": "juelScripts", "user": "ann", "variables": { "price": 30, "quantity": 5, "customer": "Ann" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["largeEnd"],
+        "variables": { "price": 30, "quantity": 5, "total": 150, "net": 135, "greeting": "Hello, ANN", "large": true },
+        "path": {
+          "order": [["calcTotal", "applyDiscount"], ["applyDiscount", "greet"], ["greet", "flagLarge"], ["flagLarge", "sizeGate"]],
+          "notContains": ["smallEnd"],
+          "sequenceFlows": ["f_start_calcTotal", "f_calcTotal_applyDiscount", "f_applyDiscount_greet", "f_greet_flagLarge", "f_flagLarge_sizeGate", "f_sizeGate_largeEnd"],
+          "notSequenceFlows": ["f_sizeGate_smallEnd"]
+        }
+      }
+    },
+    {
+      "name": "a small order: no discount, the default flow is taken",
+      "start": { "process": "juelScripts", "user": "ann", "variables": { "price": 10, "quantity": 3, "customer": "Ben" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["smallEnd"],
+        "variables": { "total": 30, "net": 30, "greeting": "Hello, BEN", "large": false },
+        "path": { "notContains": ["largeEnd"], "sequenceFlows": ["f_sizeGate_smallEnd"], "notSequenceFlows": ["f_sizeGate_largeEnd"] }
+      }
+    },
+    {
+      "name": "exactly at the threshold: 100 is not above 100, so no discount and not large",
+      "start": { "process": "juelScripts", "user": "ann", "variables": { "price": 20, "quantity": 5, "customer": "Cy" } },
+      "expect": { "state": "COMPLETED", "endEvents": ["smallEnd"], "variables": { "total": 100, "net": 100, "large": false } }
+    }
+  ]
+}

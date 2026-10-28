@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C10 terminate end event in a multi-instance sub process (default)",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "only the aborting instance is terminated, the others carry on",
+      "start": { "process": "terminateMiDefault", "user": "ann", "variables": { "items": ["a", "b", "c"] } },
+      "steps": [
+        { "expectTask": { "activity": "choose", "count": 3 } },
+        { "completeTask": { "activity": "choose", "match": { "name": "Choose b" }, "user": "ann", "variables": { "abort": true } } },
+        { "expectTask": { "activity": "choose", "count": 2 } },
+        { "expectTask": { "activity": "choose", "match": { "name": "Choose a" } } },
+        { "expectTask": { "activity": "choose", "match": { "name": "Choose c" } } },
+        { "expectTask": { "activity": "afterBatch", "count": 0 } },
+        { "completeTask": { "activity": "choose", "match": { "name": "Choose a" }, "user": "ann", "variables": { "abort": false } } },
+        { "completeTask": { "activity": "choose", "match": { "name": "Choose c" }, "user": "ann", "variables": { "abort": false } } },
+        { "expectTask": { "activity": "afterBatch", "count": 1 } },
+        { "completeTask": { "activity": "afterBatch", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end", "itemDone", "terminateItem"],
+        "path": { "contains": ["terminateItem", "itemDone", "afterBatch"], "sequenceFlows": ["f_batchGate_terminate", "f_batchGate_itemDone", "f_batch_afterBatch"] }
+      }
+    },
+    {
+      "name": "when every instance aborts the process continues after the last one",
+      "start": { "process": "terminateMiDefault", "user": "ann", "variables": { "items": ["a", "b"] } },
+      "steps": [
+        { "completeTask": { "activity": "choose", "match": { "name": "Choose a" }, "user": "ann", "variables": { "abort": true } } },
+        { "expectTask": { "activity": "afterBatch", "count": 0 } },
+        { "completeTask": { "activity": "choose", "match": { "name": "Choose b" }, "user": "ann", "variables": { "abort": true } } },
+        { "expectTask": { "activity": "afterBatch", "count": 1 } },
+        { "completeTask": { "activity": "afterBatch", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "path": { "notContains": ["itemDone"] } }
+    }
+  ]
+}

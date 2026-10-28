@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="Definitions_collectFlags" name="collect-flags" namespace="http://activiti.org/schema/1.0/dmn/Definitions_collectFlags">
+  <inputData id="InputData_amount" name="amount">
+    <variable id="InputData_amount_variable" name="amount" typeRef="number" />
+  </inputData>
+  <decision id="collectFlags" name="collectFlags">
+    <variable id="collectFlags_variable" name="collectFlags" />
+    <informationRequirement id="collectFlags_req_InputData_amount">
+      <requiredInput href="#InputData_amount" />
+    </informationRequirement>
+    <decisionTable id="collectFlags_table" hitPolicy="COLLECT">
+      <input id="collectFlags_input1" label="Amount">
+        <inputExpression id="collectFlags_inputExpression1" typeRef="number">
+          <text>amount</text>
+        </inputExpression>
+      </input>
+      <output id="collectFlags_output1" name="flag" typeRef="string" />
+      <rule id="collectFlags_base">
+        <inputEntry id="collectFlags_base_in1"><text>&gt; 0</text></inputEntry>
+        <outputEntry id="collectFlags_base_out1"><text>"base-check"</text></outputEntry>
+      </rule>
+      <rule id="collectFlags_review">
+        <inputEntry id="collectFlags_review_in1"><text>&gt; 1000</text></inputEntry>
+        <outputEntry id="collectFlags_review_out1"><text>"manual-review"</text></outputEntry>
+      </rule>
+      <rule id="collectFlags_approval">
+        <inputEntry id="collectFlags_approval_in1"><text>&gt; 5000</text></inputEntry>
+        <outputEntry id="collectFlags_approval_out1"><text>"approval-needed"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_collectFlags" dmnElementRef="collectFlags">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_amount" dmnElementRef="InputData_amount">
+        <dc:Bounds height="45" width="150" x="160" y="300" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_collectFlags_req_InputData_amount" dmnElementRef="collectFlags_req_InputData_amount">
+        <di:waypoint x="235" y="300" />
+        <di:waypoint x="250" y="180" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

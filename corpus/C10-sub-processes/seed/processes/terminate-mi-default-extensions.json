@@ -1,0 +1,24 @@
+{
+  "id": "terminate-mi-default-extensions",
+  "extensions": {
+    "terminateMiDefault": {
+      "properties": {
+        "p1": {
+          "id": "p1",
+          "name": "abort",
+          "type": "boolean"
+        }
+      },
+      "mappings": {
+        "choose": {
+          "outputs": {
+            "abort": {
+              "type": "VARIABLE",
+              "value": "abort"
+            }
+          }
+        }
+      }
+    }
+  }
+}

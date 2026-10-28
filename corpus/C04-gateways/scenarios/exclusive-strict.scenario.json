@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C04 exclusive gateway without a default flow",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "yes",
+      "start": { "process": "exclusiveStrict", "user": "ann" },
+      "steps": [ { "completeTask": { "activity": "decide", "user": "ann", "variables": { "decision": "yes" } } } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["endYes"], "path": { "sequenceFlows": ["f_gate_yes"] }, "variables": { "decision": "yes" } }
+    },
+    {
+      "name": "no",
+      "start": { "process": "exclusiveStrict", "user": "ann" },
+      "steps": [ { "completeTask": { "activity": "decide", "user": "ann", "variables": { "decision": "no" } } } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["endNo"], "path": { "sequenceFlows": ["f_gate_no"] } }
+    },
+    {
+      "name": "no condition matches: the completion fails, rolls back and can be repeated",
+      "start": { "process": "exclusiveStrict", "user": "ann" },
+      "steps": [
+        { "completeTask": { "activity": "decide", "user": "ann", "variables": { "decision": "maybe" },
+            "expectFailure": { "exception": "ActivitiException",
+                               "messageContains": "No outgoing sequence flow of the exclusive gateway 'gate' could be selected for continuing the process" } } },
+        { "expectActive": ["decide"] },
+        { "expectTask": { "activity": "decide", "assignee": "ann" } },
+        { "completeTask": { "activity": "decide", "user": "ann", "variables": { "decision": "yes" } } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["endYes"], "variables": { "decision": "yes" } }
+    }
+  ]
+}

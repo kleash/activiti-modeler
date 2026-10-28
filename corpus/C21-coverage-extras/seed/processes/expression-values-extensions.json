@@ -1,0 +1,18 @@
+{
+  "id": "expression-values-extensions",
+  "extensions": {
+    "expressionValues": {
+      "properties": {
+        "p1": { "id": "p1", "name": "mode", "type": "string" },
+        "p2": { "id": "p2", "name": "template", "type": "string" },
+        "p3": { "id": "p3", "name": "reply", "type": "string" }
+      },
+      "mappings": {
+        "showTemplate": { "mappingType": "MAP_ALL_INPUTS" },
+        "ask": {
+          "outputs": { "reply": { "type": "VARIABLE", "value": "comment" } }
+        }
+      }
+    }
+  }
+}

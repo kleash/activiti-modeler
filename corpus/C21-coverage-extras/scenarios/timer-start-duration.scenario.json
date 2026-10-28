@@ -1,0 +1,31 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 timer start with a duration",
+  "description": "The start timer job of a timeDuration start event is created at deployment; the scenario fires it (start.timer) and follows the new instance. Starting by key does not need the timer.",
+  "scenarios": [
+    {
+      "name": "the duration start fires and creates an instance",
+      "start": { "process": "timerStartDuration", "timer": "startDuration" },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "ran": true },
+        "path": {
+          "contains": ["startDuration", "work", "end"],
+          "order": [["startDuration", "work"], ["work", "end"]],
+          "sequenceFlows": ["f_startDuration_work", "f_work_end"]
+        }
+      }
+    },
+    {
+      "name": "starting the process by key enters the timer start event without waiting for the timer",
+      "start": { "process": "timerStartDuration" },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "ran": true },
+        "path": { "contains": ["startDuration", "work", "end"], "sequenceFlows": ["f_startDuration_work", "f_work_end"] }
+      }
+    }
+  ]
+}

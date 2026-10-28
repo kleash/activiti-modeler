@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- What the quick fix of models/business-rule-task.bpmn20.xml leads to: the business rule task is a decision task, a service task that
+     calls dmn-connector.EXECUTE_TABLE; the decision is the constant _activiti_dmn_table_ of the extensions file, and a MAP_ALL mapping
+     hands every variable over and takes the results back. Written by hand for the engine check (no diagram). -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_businessRuleTask" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="businessRuleTask" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:serviceTask id="decide" name="Decide the grade" implementation="dmn-connector.EXECUTE_TABLE" />
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_decide" sourceRef="start" targetRef="decide" />
+    <bpmn:sequenceFlow id="f_decide_end" sourceRef="decide" targetRef="end" />
+  </bpmn:process>
+</bpmn:definitions>

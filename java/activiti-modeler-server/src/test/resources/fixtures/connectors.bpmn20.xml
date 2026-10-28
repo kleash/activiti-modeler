@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" targetNamespace="http://example.org/server-test">
+  <process id="sampleConnectors" name="Sample connectors" isExecutable="true">
+    <startEvent id="s"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="echo"/>
+    <serviceTask id="echo" name="Echo" implementation="echo.EXECUTE"/>
+    <sequenceFlow id="f2" sourceRef="echo" targetRef="fetch"/>
+    <serviceTask id="fetch" name="Fetch" implementation="http.GET"/>
+    <sequenceFlow id="f3" sourceRef="fetch" targetRef="lookup"/>
+    <serviceTask id="lookup" name="Look up the customer" implementation="crm.LOOKUP"/>
+    <sequenceFlow id="f4" sourceRef="lookup" targetRef="e"/>
+    <endEvent id="e"/>
+  </process>
+</definitions>

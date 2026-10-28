@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C13 transaction-dependent listeners and custom properties resolvers",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the transaction commits: before-commit then committed listeners run, each with the properties its resolver built",
+      "start": { "process": "transactionListeners", "user": "ann", "variables": { "failureClass": "" } },
+      "steps": [
+        { "expectActive": { "exactly": ["hold", "trigger"] } },
+        { "completeTask": { "activity": "trigger", "user": "ann" } },
+        { "completeTask": { "activity": "hold", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["explodeDone", "heldDone"],
+        "variables": {
+          "transactionCalls": [
+            "before-commit:trigger:class",
+            "before-commit:explode:expression",
+            "committed:trigger:expression",
+            "committed:explode:delegateExpression"
+          ],
+          "failureDelegateCalls": ["explode:passed"]
+        },
+        "path": { "order": [["trigger", "explode"], ["hold", "capture"]], "sequenceFlows": ["f_trigger_explode", "f_explode_explodeDone", "f_hold_capture", "f_capture_heldDone"] }
+      }
+    },
+    {
+      "name": "the transaction rolls back: only the rolled-back listeners run, and nothing was committed",
+      "start": { "process": "transactionListeners", "user": "ann", "variables": { "failureClass": "java.lang.IllegalStateException" } },
+      "steps": [
+        { "completeTask": { "activity": "trigger", "user": "ann",
+                            "expectFailure": { "exception": "IllegalStateException", "messageContains": "failure requested" } } },
+        { "expectTask": { "activity": "trigger", "count": 1 } },
+        { "completeTask": { "activity": "hold", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "ACTIVE",
+        "variables": { "transactionCalls": ["rolled-back:trigger:delegateExpression", "rolled-back:explode:class"] },
+        "absentVariables": ["failureDelegateCalls"],
+        "path": { "contains": ["capture", "heldDone"], "notContains": ["explode", "explodeDone"] }
+      }
+    }
+  ]
+}

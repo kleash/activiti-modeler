@@ -1,0 +1,53 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C20 a mapping on a signal catch event is never applied (engine behaviour pinned)",
+  "description": "A signal catch event with an output mapping that would rename carrier to renamed. Activiti applies no mapping to signal catch events: the payload variable arrives under its own name and the renamed one is never set. The modeler therefore gives signal catch events no default mapping, and the lint rule signal-catch-has-mapping warns about an entry.",
+  "scenarios": [
+    {
+      "name": "the payload arrives as it was thrown and the renaming mapping is not applied",
+      "start": {
+        "process": "signalMappingIgnored",
+        "businessKey": "S-1"
+      },
+      "steps": [
+        {
+          "expectActive": [
+            "awaitPing"
+          ]
+        },
+        {
+          "signal": {
+            "name": "ping",
+            "variables": {
+              "carrier": "POSTAL",
+              "count": 3
+            }
+          }
+        }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "pinged"
+        ],
+        "path": {
+          "contains": [
+            "awaitPing",
+            "pinged"
+          ],
+          "sequenceFlows": [
+            "f_start_awaitPing",
+            "f_awaitPing_pinged"
+          ]
+        },
+        "variables": {
+          "carrier": "POSTAL",
+          "count": 3
+        },
+        "absentVariables": [
+          "renamed"
+        ]
+      }
+    }
+  ]
+}

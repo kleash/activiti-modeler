@@ -1,0 +1,19 @@
+{
+  "id": "orphan",
+  "extensions": {
+    "orphanKeys": {
+      "properties": {},
+      "mappings": {
+        "gone": {
+          "mappingType": "MAP_ALL"
+        }
+      },
+      "constants": {}
+    },
+    "otherProcess": {
+      "properties": {},
+      "mappings": {},
+      "constants": {}
+    }
+  }
+}

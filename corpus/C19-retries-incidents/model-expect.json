@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "serviceRetries": {
+      "definition": { "name": "Retry cycles of asynchronous service tasks", "category": "http://activiti.org/bpmn/corpus/C19" },
+      "elements": {
+        "retryTwice": { "type": "serviceTask", "attributes": { "async": true, "exclusive": true, "failedJobRetryTimeCycleValue": "R2/PT10S" } },
+        "retryFive": { "type": "serviceTask", "attributes": { "async": true, "failedJobRetryTimeCycleValue": "R5/PT1S" } },
+        "retryOnce": { "type": "serviceTask", "attributes": { "async": true, "failedJobRetryTimeCycleValue": "R1/PT5S" } },
+        "retryDefault": { "type": "serviceTask", "attributes": { "async": true, "failedJobRetryTimeCycleValue": null } }
+      }
+    },
+    "asyncUserTask": {
+      "elements": {
+        "asyncReview": { "type": "userTask", "attributes": { "async": true, "failedJobRetryTimeCycleValue": "R1/PT5S" } }
+      }
+    },
+    "syncFailure": {
+      "elements": {
+        "prepare": { "type": "serviceTask", "attributes": { "async": false, "failedJobRetryTimeCycleValue": null } }
+      }
+    }
+  }
+}

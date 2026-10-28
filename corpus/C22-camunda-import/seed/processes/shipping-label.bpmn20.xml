@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_label" targetNamespace="http://kleash.github.io/corpus/C22">
+  <bpmn:process id="shippingLabel" name="Shipping label" isExecutable="true">
+    <bpmn:startEvent id="labelRequested" name="Label requested">
+      <bpmn:outgoing>Flow_toLabel</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="makeLabel" name="Make label" activiti:expression="${greeter.greet(parcelOwner)}" activiti:resultVariableName="labelText">
+      <bpmn:incoming>Flow_toLabel</bpmn:incoming>
+      <bpmn:outgoing>Flow_toEnd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="labelDone" name="Label made">
+      <bpmn:incoming>Flow_toEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_toLabel" sourceRef="labelRequested" targetRef="makeLabel" />
+    <bpmn:sequenceFlow id="Flow_toEnd" sourceRef="makeLabel" targetRef="labelDone" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="shippingLabel">
+      <bpmndi:BPMNShape id="labelRequested_di" bpmnElement="labelRequested">
+        <dc:Bounds x="0" y="22" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="makeLabel_di" bpmnElement="makeLabel">
+        <dc:Bounds x="88" y="0" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="labelDone_di" bpmnElement="labelDone">
+        <dc:Bounds x="240" y="22" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_toLabel_di" bpmnElement="Flow_toLabel">
+        <di:waypoint x="36" y="40" />
+        <di:waypoint x="88" y="40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toEnd_di" bpmnElement="Flow_toEnd">
+        <di:waypoint x="188" y="40" />
+        <di:waypoint x="240" y="40" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

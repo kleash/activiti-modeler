@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 BPMN error thrown by a connector",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "without a requested failure the connector is never called",
+      "start": { "process": "connectorError", "user": "ann", "variables": { "failWith": "" } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "callBroken", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["notRequested"],
+        "path": {
+          "notContains": ["callBroken", "onCardDeclined", "onAnyConnectorError"],
+          "sequenceFlows": ["f_start_failureRequested", "f_failureRequested_notRequested"],
+          "notSequenceFlows": ["f_failureRequested_callBroken"]
+        }
+      }
+    },
+    {
+      "name": "CARD_DECLINED is caught by the boundary event with the matching error, not by the catch-all",
+      "start": { "process": "connectorError", "user": "ann", "variables": { "failWith": "CARD_DECLINED" } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "callBroken", "connector": "bpmnerror.EXECUTE", "count": 1, "inbound": { "errorCode": "CARD_DECLINED" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["declined"],
+        "path": {
+          "contains": ["onCardDeclined", "declined"],
+          "notContains": ["onAnyConnectorError", "otherFailure"],
+          "sequenceFlows": ["f_failureRequested_callBroken", "f_onCardDeclined_declined"],
+          "notSequenceFlows": ["f_onAnyConnectorError_otherFailure"]
+        }
+      }
+    },
+    {
+      "name": "any other error code falls through to the boundary event without errorRef",
+      "start": { "process": "connectorError", "user": "ann", "variables": { "failWith": "NETWORK_DOWN" } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "callBroken", "inbound": { "errorCode": "NETWORK_DOWN" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["otherFailure"],
+        "path": {
+          "contains": ["onAnyConnectorError", "otherFailure"],
+          "notContains": ["onCardDeclined", "declined"],
+          "sequenceFlows": ["f_onAnyConnectorError_otherFailure"],
+          "notSequenceFlows": ["f_onCardDeclined_declined"]
+        }
+      }
+    }
+  ]
+}

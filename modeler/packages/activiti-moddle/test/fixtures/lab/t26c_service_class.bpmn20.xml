@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t26c_service_class" name="t26c_service_class" isExecutable="true">
+    <startEvent id="s"/>
+    <serviceTask id="svc" activiti:class="lab.LabDelegate"><extensionElements><activiti:field name="greeting"><activiti:string>hi</activiti:string></activiti:field></extensionElements></serviceTask>
+    <userTask id="u"/>
+    <endEvent id="e"/>
+    <sequenceFlow id="f_s_svc" sourceRef="s" targetRef="svc"/>
+    <sequenceFlow id="f_svc_u" sourceRef="svc" targetRef="u"/>
+    <sequenceFlow id="f_u_e" sourceRef="u" targetRef="e"/>
+
+  </process>
+</definitions>

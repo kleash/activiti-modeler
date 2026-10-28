@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+<signal id="sig" name="theSignal"/>
+  <process id="t37_signal_catch" name="t37_signal_catch" isExecutable="true">
+    <startEvent id="s"/>
+    <intermediateCatchEvent id="c"><signalEventDefinition signalRef="sig"/></intermediateCatchEvent>
+    <userTask id="u"/>
+    <endEvent id="e"/>
+    <sequenceFlow id="f_s_c" sourceRef="s" targetRef="c"/>
+    <sequenceFlow id="f_c_u" sourceRef="c" targetRef="u"/>
+    <sequenceFlow id="f_u_e" sourceRef="u" targetRef="e"/>
+
+  </process>
+</definitions>

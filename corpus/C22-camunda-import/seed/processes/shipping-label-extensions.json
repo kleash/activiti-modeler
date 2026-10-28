@@ -1,0 +1,10 @@
+{
+  "id": "process-shipping-label",
+  "extensions": {
+    "shippingLabel": {
+      "properties": {},
+      "mappings": {},
+      "constants": {}
+    }
+  }
+}

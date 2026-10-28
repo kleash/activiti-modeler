@@ -1,0 +1,26 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C06 message throw and message end events",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "only throw events with a delegate send; the payload comes from the input mapping of the throw event",
+      "start": { "process": "messageThrow", "businessKey": "B-1", "user": "ann", "variables": { "orderId": "O-1", "amount": 120 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["archiveEnd"],
+        "variables": {
+          "thrownMessages": ["shipped", "notified", "archived"],
+          "thrownMessagePayload": { "total": 120, "currency": "EUR" },
+          "thrownMessageCorrelationKey": "O-1",
+          "thrownMessageBusinessKey": "B-1",
+          "fieldThrows": ["[unset]:tagged"]
+        },
+        "path": {
+          "order": [["throwExpr", "throwClass"], ["throwClass", "throwField"], ["throwField", "throwSilent"], ["throwSilent", "archiveEnd"]],
+          "sequenceFlows": ["f_start_throwExpr", "f_throwExpr_throwClass", "f_throwClass_throwField", "f_throwField_throwSilent", "f_throwSilent_archiveEnd"]
+        }
+      }
+    }
+  ]
+}

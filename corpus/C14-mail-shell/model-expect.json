@@ -1,0 +1,71 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "mailTasks": {
+      "definition": { "name": "Mail tasks and send tasks", "category": "http://activiti.org/bpmn/corpus/C14" },
+      "elements": {
+        "sendPlain": { "type": "serviceTask", "attributes": { "type": "mail", "fieldExtensions": [
+          { "fieldName": "to", "expression": "${customerEmail}" },
+          { "fieldName": "from", "stringValue": "shop@corpus.test" },
+          { "fieldName": "cc", "expression": "${auditEmail}" },
+          { "fieldName": "bcc", "expression": "${archiveEmail}" },
+          { "fieldName": "subject", "expression": "Order ${orderId} confirmed" },
+          { "fieldName": "text", "expression": "Dear ${customerName}, thank you." }
+        ] } },
+        "sendHtml": { "type": "serviceTask", "attributes": { "type": "mail", "fieldExtensions": [
+          { "fieldName": "to" }, { "fieldName": "subject" },
+          { "fieldName": "html", "expression": "<p>Hi <b>${customerName}</b></p>" },
+          { "fieldName": "text" },
+          { "fieldName": "charset", "stringValue": "UTF-8" }
+        ] } },
+        "sendFromVariables": { "type": "serviceTask", "attributes": { "type": "mail", "fieldExtensions": [
+          { "fieldName": "to" }, { "fieldName": "subject" },
+          { "fieldName": "textVar", "stringValue": "mailText" },
+          { "fieldName": "htmlVar", "stringValue": "mailHtml" }
+        ] } },
+        "sendWithAttachment": { "type": "serviceTask", "attributes": { "type": "mail", "fieldExtensions": [
+          { "fieldName": "to" }, { "fieldName": "subject" }, { "fieldName": "text", "stringValue": "Report attached." },
+          { "fieldName": "attachments", "expression": "${mailAttachments.report()}" }
+        ] } },
+        "notifyBySendTask": { "type": "sendTask", "attributes": { "type": "mail", "fieldExtensions": [
+          { "fieldName": "to" }, { "fieldName": "subject" }, { "fieldName": "text" }
+        ] } }
+      }
+    },
+    "mailErrors": {
+      "elements": {
+        "sendStrict": { "type": "serviceTask", "attributes": { "type": "mail", "fieldExtensions": [
+          { "fieldName": "to", "expression": "${recipient}" },
+          { "fieldName": "from" }, { "fieldName": "subject" }, { "fieldName": "text" },
+          { "fieldName": "ignoreException", "expression": "${ignore}" },
+          { "fieldName": "exceptionVariableName", "stringValue": "mailError" }
+        ] } }
+      }
+    },
+    "shellTasks": {
+      "elements": {
+        "echoArgs": { "type": "serviceTask", "attributes": { "type": "shell", "fieldExtensions": [
+          { "fieldName": "command", "stringValue": "echo" },
+          { "fieldName": "arg1", "stringValue": "a" }, { "fieldName": "arg2", "stringValue": "b" }, { "fieldName": "arg3", "stringValue": "c" },
+          { "fieldName": "arg4", "stringValue": "d" }, { "fieldName": "arg5", "expression": "${who}" },
+          { "fieldName": "outputVariable", "stringValue": "echoOut" },
+          { "fieldName": "errorCodeVariable", "stringValue": "echoCode" }
+        ] } },
+        "streamsRedirected": { "type": "serviceTask", "attributes": { "type": "shell", "fieldExtensions": [
+          { "fieldName": "command" }, { "fieldName": "arg1" }, { "fieldName": "arg2" },
+          { "fieldName": "redirectError", "stringValue": "true" }, { "fieldName": "outputVariable" }
+        ] } },
+        "inDirectory": { "type": "serviceTask", "attributes": { "type": "shell", "fieldExtensions": [
+          { "fieldName": "command" }, { "fieldName": "directory", "stringValue": "/" }, { "fieldName": "outputVariable" }
+        ] } },
+        "cleanEnvironment": { "type": "serviceTask", "attributes": { "type": "shell", "fieldExtensions": [
+          { "fieldName": "command" }, { "fieldName": "cleanEnv", "stringValue": "true" }, { "fieldName": "outputVariable" }
+        ] } },
+        "noWait": { "type": "serviceTask", "attributes": { "type": "shell", "fieldExtensions": [
+          { "fieldName": "command" }, { "fieldName": "arg1" }, { "fieldName": "wait", "stringValue": "false" },
+          { "fieldName": "outputVariable" }, { "fieldName": "errorCodeVariable" }
+        ] } }
+      }
+    }
+  }
+}

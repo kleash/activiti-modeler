@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_riskCheck"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C11">
+  <process id="riskCheck" name="Risk check (called)" isExecutable="true">
+    <documentation>Called by callMappings. Declares customerId (required), channel (default unknown) and retries (default 3) as properties; score 10 per character of the customer id, band high above 50.</documentation>
+    <startEvent id="cStart"/>
+    <sequenceFlow id="f_cStart_score" sourceRef="cStart" targetRef="score"/>
+    <serviceTask id="score" name="Score" activiti:expression="${execution.setVariable('riskScore', customerId.length() * 10)}"/>
+    <sequenceFlow id="f_score_band" sourceRef="score" targetRef="band"/>
+    <serviceTask id="band" name="Band" activiti:expression="${execution.setVariable('riskBand', riskScore &gt; 50 ? 'high' : 'low')}"/>
+    <sequenceFlow id="f_band_cEnd" sourceRef="band" targetRef="cEnd"/>
+    <endEvent id="cEnd"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="riskCheck">
+      <bpmndi:BPMNShape id="cStart_di" bpmnElement="cStart">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="score_di" bpmnElement="score">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="band_di" bpmnElement="band">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cEnd_di" bpmnElement="cEnd">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_cStart_score_di" bpmnElement="f_cStart_score">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_score_band_di" bpmnElement="f_score_band">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_band_cEnd_di" bpmnElement="f_band_cEnd">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

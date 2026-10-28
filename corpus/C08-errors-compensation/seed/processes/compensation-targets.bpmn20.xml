@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_compensationTargets"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C08">
+  <process id="compensationTargets" name="Targeted compensation" isExecutable="true">
+    <documentation>Two compensable service tasks and four ways to leave: broadcast (no activityRef, waitForCompletion false), activityRef naming the compensation handler, activityRef naming the compensated task, or no compensation. In Activiti 9.0.0 the compensation subscription is keyed by the id of the handler, so only the handler id compensates; the id of the compensated task finds nothing and the throw event passes silently. waitForCompletion is parsed but not honoured: the handlers always finish before the process moves on.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_bookFlight" sourceRef="start" targetRef="bookFlight"/>
+    <serviceTask id="bookFlight" name="Book flight" activiti:expression="${execution.setVariable('flightBooked', true)}"/>
+    <boundaryEvent id="onFlightCompensate" name="Compensate flight" attachedToRef="bookFlight">
+      <compensateEventDefinition/>
+    </boundaryEvent>
+    <sequenceFlow id="f_bookFlight_bookHotel" sourceRef="bookFlight" targetRef="bookHotel"/>
+    <serviceTask id="bookHotel" name="Book hotel" activiti:expression="${execution.setVariable('hotelBooked', true)}"/>
+    <boundaryEvent id="onHotelCompensate" name="Compensate hotel" attachedToRef="bookHotel">
+      <compensateEventDefinition/>
+    </boundaryEvent>
+    <sequenceFlow id="f_bookHotel_target" sourceRef="bookHotel" targetRef="target"/>
+    <exclusiveGateway id="target" name="What to compensate?" default="f_target_nothing"/>
+    <sequenceFlow id="f_target_throwAll" name="all" sourceRef="target" targetRef="throwAll">
+      <conditionExpression xsi:type="tFormalExpression">${compensateWhat == 'all'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_target_throwHandler" name="flight handler" sourceRef="target" targetRef="throwHandler">
+      <conditionExpression xsi:type="tFormalExpression">${compensateWhat == 'handler'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_target_throwTask" name="flight task" sourceRef="target" targetRef="throwTask">
+      <conditionExpression xsi:type="tFormalExpression">${compensateWhat == 'task'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_target_nothing" name="nothing" sourceRef="target" targetRef="nothing"/>
+    <intermediateThrowEvent id="throwAll" name="Compensate everything">
+      <compensateEventDefinition waitForCompletion="false"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="f_throwAll_allDone" sourceRef="throwAll" targetRef="allDone"/>
+    <endEvent id="allDone" name="All compensated"/>
+    <intermediateThrowEvent id="throwHandler" name="Compensate by handler id">
+      <compensateEventDefinition activityRef="cancelFlight"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="f_throwHandler_handlerDone" sourceRef="throwHandler" targetRef="handlerDone"/>
+    <endEvent id="handlerDone" name="Handler compensated"/>
+    <intermediateThrowEvent id="throwTask" name="Compensate by task id">
+      <compensateEventDefinition activityRef="bookFlight"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="f_throwTask_taskDone" sourceRef="throwTask" targetRef="taskDone"/>
+    <endEvent id="taskDone" name="Task id passed"/>
+    <endEvent id="nothing" name="Nothing compensated"/>
+    <serviceTask id="cancelFlight" name="Cancel flight" isForCompensation="true" activiti:delegateExpression="${recordingDelegate}"/>
+    <serviceTask id="cancelHotel" name="Cancel hotel" isForCompensation="true" activiti:delegateExpression="${recordingDelegate}"/>
+    <association id="a_onFlightCompensate_cancelFlight" associationDirection="One" sourceRef="onFlightCompensate" targetRef="cancelFlight"/>
+    <association id="a_onHotelCompensate_cancelHotel" associationDirection="One" sourceRef="onHotelCompensate" targetRef="cancelHotel"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="compensationTargets">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="bookFlight_di" bpmnElement="bookFlight">
+        <dc:Bounds x="220" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="bookHotel_di" bpmnElement="bookHotel">
+        <dc:Bounds x="370" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="target_di" bpmnElement="target" isMarkerVisible="true">
+        <dc:Bounds x="545" y="175" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="throwAll_di" bpmnElement="throwAll">
+        <dc:Bounds x="702" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="allDone_di" bpmnElement="allDone">
+        <dc:Bounds x="852" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="throwHandler_di" bpmnElement="throwHandler">
+        <dc:Bounds x="702" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="handlerDone_di" bpmnElement="handlerDone">
+        <dc:Bounds x="852" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="throwTask_di" bpmnElement="throwTask">
+        <dc:Bounds x="702" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskDone_di" bpmnElement="taskDone">
+        <dc:Bounds x="852" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="nothing_di" bpmnElement="nothing">
+        <dc:Bounds x="702" y="402" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelFlight_di" bpmnElement="cancelFlight">
+        <dc:Bounds x="220" y="490" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelHotel_di" bpmnElement="cancelHotel">
+        <dc:Bounds x="370" y="490" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onFlightCompensate_di" bpmnElement="onFlightCompensate">
+        <dc:Bounds x="240" y="222" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onHotelCompensate_di" bpmnElement="onHotelCompensate">
+        <dc:Bounds x="390" y="222" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_bookFlight_di" bpmnElement="f_start_bookFlight">
+        <di:waypoint x="138" y="200"/>
+        <di:waypoint x="220" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_bookFlight_bookHotel_di" bpmnElement="f_bookFlight_bookHotel">
+        <di:waypoint x="320" y="200"/>
+        <di:waypoint x="370" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_bookHotel_target_di" bpmnElement="f_bookHotel_target">
+        <di:waypoint x="470" y="200"/>
+        <di:waypoint x="545" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_target_throwAll_di" bpmnElement="f_target_throwAll">
+        <di:waypoint x="595" y="200"/>
+        <di:waypoint x="648" y="200"/>
+        <di:waypoint x="648" y="90"/>
+        <di:waypoint x="702" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_target_throwHandler_di" bpmnElement="f_target_throwHandler">
+        <di:waypoint x="595" y="200"/>
+        <di:waypoint x="702" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_target_throwTask_di" bpmnElement="f_target_throwTask">
+        <di:waypoint x="595" y="200"/>
+        <di:waypoint x="648" y="200"/>
+        <di:waypoint x="648" y="310"/>
+        <di:waypoint x="702" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_target_nothing_di" bpmnElement="f_target_nothing">
+        <di:waypoint x="595" y="200"/>
+        <di:waypoint x="648" y="200"/>
+        <di:waypoint x="648" y="420"/>
+        <di:waypoint x="702" y="420"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_throwAll_allDone_di" bpmnElement="f_throwAll_allDone">
+        <di:waypoint x="738" y="90"/>
+        <di:waypoint x="852" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_throwHandler_handlerDone_di" bpmnElement="f_throwHandler_handlerDone">
+        <di:waypoint x="738" y="200"/>
+        <di:waypoint x="852" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_throwTask_taskDone_di" bpmnElement="f_throwTask_taskDone">
+        <di:waypoint x="738" y="310"/>
+        <di:waypoint x="852" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="a_onFlightCompensate_cancelFlight_di" bpmnElement="a_onFlightCompensate_cancelFlight">
+        <di:waypoint x="258" y="258"/>
+        <di:waypoint x="258" y="530"/>
+        <di:waypoint x="220" y="530"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="a_onHotelCompensate_cancelHotel_di" bpmnElement="a_onHotelCompensate_cancelHotel">
+        <di:waypoint x="408" y="258"/>
+        <di:waypoint x="408" y="530"/>
+        <di:waypoint x="370" y="530"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

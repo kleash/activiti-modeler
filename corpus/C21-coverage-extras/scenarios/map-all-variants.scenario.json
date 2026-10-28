@@ -1,0 +1,60 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 MAP_ALL_INPUTS and MAP_ALL_OUTPUTS",
+  "description": "From the engine's ExtensionsVariablesMappingProvider: MAP_ALL_INPUTS gives the connector (or the task) the constants plus every variable visible from the execution, process variables winning over constants, and ignores the explicit inputs; its outputs are the explicit ones. MAP_ALL_OUTPUTS uses the explicit inputs, ignores the explicit outputs and copies every outbound (or completion) variable into the process.",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "all inputs in with explicit outputs back, explicit inputs in with all outputs back",
+      "start": { "process": "mapAllVariants", "user": "ann", "variables": { "customerId": "G-7", "amount": 250, "region": "EU" } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "echoAllInputs", "connector": "echo.EXECUTE", "count": 1,
+            "inbound": { "customerId": "G-7", "amount": 250, "region": "EU", "limit": 1000 },
+            "outbound": { "customerId": "G-7", "amount": 250, "region": "EU", "limit": 1000, "echoCount": 4 } } },
+        { "expectTask": { "activity": "reviewAllInputs", "assignee": "ann",
+            "localVariables": { "customerId": "G-7", "amount": 250, "region": "EU", "echoSeen": 4, "stage": "review" } } },
+        { "completeTask": { "activity": "reviewAllInputs", "user": "ann", "variables": { "scratch": "x", "amount": 999 } } },
+        { "expectConnectorCall": { "activity": "lookupAllOutputs", "connector": "crm.LOOKUP", "count": 1,
+            "inbound": { "customerId": "G-7" },
+            "outbound": { "customerName": "Customer G-7", "tier": "gold", "found": true } } },
+        { "expectTask": { "activity": "reviewAllOutputs", "assignee": "ann",
+            "localVariables": { "amount": 250, "tierLabel": "gold" } } },
+        { "completeTask": { "activity": "reviewAllOutputs", "user": "ann", "variables": { "decision": "approved", "amount": 275 } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "customerId": "G-7", "amount": 275, "region": "EU", "echoSeen": 4,
+          "customerName": "Customer G-7", "tier": "gold", "found": true,
+          "decision": "approved", "tierLabel": "gold", "sys_task_assignee": "ann"
+        },
+        "absentVariables": ["limit", "stage", "decoy", "ignoredOutput", "echoCount", "scratch"],
+        "path": {
+          "order": [["echoAllInputs", "reviewAllInputs"], ["reviewAllInputs", "lookupAllOutputs"], ["lookupAllOutputs", "reviewAllOutputs"], ["reviewAllOutputs", "end"]],
+          "sequenceFlows": ["f_start_echoAllInputs", "f_echoAllInputs_reviewAllInputs", "f_reviewAllInputs_lookupAllOutputs", "f_lookupAllOutputs_reviewAllOutputs", "f_reviewAllOutputs_end"]
+        }
+      }
+    },
+    {
+      "name": "a constant is used when no process variable has its name; completing without variables still copies the mapped inputs and the assignee",
+      "start": { "process": "mapAllVariants", "user": "ann", "variables": { "customerId": "A-1", "amount": 5 } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "echoAllInputs", "connector": "echo.EXECUTE",
+            "inbound": { "customerId": "A-1", "amount": 5, "region": "from-constant", "limit": 1000 },
+            "outbound": { "customerId": "A-1", "amount": 5, "region": "from-constant", "limit": 1000, "echoCount": 4 } } },
+        { "expectTask": { "activity": "reviewAllInputs", "localVariables": { "customerId": "A-1", "amount": 5, "echoSeen": 4, "stage": "review" } } },
+        { "completeTask": { "activity": "reviewAllInputs", "user": "ann" } },
+        { "expectConnectorCall": { "activity": "lookupAllOutputs", "inbound": { "customerId": "A-1" },
+            "outbound": { "customerName": "Customer A-1", "tier": "standard", "found": true } } },
+        { "expectTask": { "activity": "reviewAllOutputs", "localVariables": { "amount": 5, "tierLabel": "standard" } } },
+        { "completeTask": { "activity": "reviewAllOutputs", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "variables": { "customerId": "A-1", "amount": 5, "echoSeen": 4, "customerName": "Customer A-1", "tier": "standard", "found": true, "tierLabel": "standard", "sys_task_assignee": "ann" },
+        "absentVariables": ["region", "limit", "stage", "decision", "ignoredOutput"]
+      }
+    }
+  ]
+}

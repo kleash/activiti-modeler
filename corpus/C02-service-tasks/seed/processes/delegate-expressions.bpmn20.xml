@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C02">
+  <process id="delegateExpressions" name="Delegate expressions" isExecutable="true">
+    <documentation>Service tasks with activiti:delegateExpression: a Spring bean that implements JavaDelegate. Fields are injected into the bean before every call, so one bean can be configured differently by two tasks.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_record" sourceRef="start" targetRef="record"/>
+    <serviceTask id="record" name="Record" activiti:delegateExpression="${recordingDelegate}"/>
+    <sequenceFlow id="f_record_copyName" sourceRef="record" targetRef="copyName"/>
+    <serviceTask id="copyName" name="Copy the name" activiti:delegateExpression="${setVariableDelegate}">
+      <extensionElements>
+        <activiti:field name="variable">
+          <activiti:string>origin</activiti:string>
+        </activiti:field>
+        <activiti:field name="value">
+          <activiti:expression>${customerName}</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_copyName_labelName" sourceRef="copyName" targetRef="labelName"/>
+    <serviceTask id="labelName" name="Label the name" activiti:delegateExpression="${setVariableDelegate}">
+      <extensionElements>
+        <activiti:field name="variable">
+          <activiti:string>label</activiti:string>
+        </activiti:field>
+        <activiti:field name="value">
+          <activiti:expression>${customerName}-label</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_labelName_recordAgain" sourceRef="labelName" targetRef="recordAgain"/>
+    <serviceTask id="recordAgain" name="Record again" activiti:delegateExpression="${recordingDelegate}"/>
+    <sequenceFlow id="f_recordAgain_end" sourceRef="recordAgain" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="delegateExpressions">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="record_di" bpmnElement="record">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="copyName_di" bpmnElement="copyName">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="labelName_di" bpmnElement="labelName">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="recordAgain_di" bpmnElement="recordAgain">
+        <dc:Bounds x="670" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="852" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_record_di" bpmnElement="f_start_record">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_record_copyName_di" bpmnElement="f_record_copyName">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_copyName_labelName_di" bpmnElement="f_copyName_labelName">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_labelName_recordAgain_di" bpmnElement="f_labelName_recordAgain">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="670" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_recordAgain_end_di" bpmnElement="f_recordAgain_end">
+        <di:waypoint x="770" y="110"/>
+        <di:waypoint x="852" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

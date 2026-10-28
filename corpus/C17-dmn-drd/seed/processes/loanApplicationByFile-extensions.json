@@ -1,0 +1,94 @@
+{
+  "id": "loanApplicationByFile-extensions",
+  "extensions": {
+    "loanApplicationByFile": {
+      "properties": {
+        "Property_age": {
+          "id": "Property_age",
+          "name": "age",
+          "type": "integer",
+          "required": false
+        },
+        "Property_country": {
+          "id": "Property_country",
+          "name": "country",
+          "type": "string",
+          "required": false
+        },
+        "Property_income": {
+          "id": "Property_income",
+          "name": "income",
+          "type": "integer",
+          "required": false
+        },
+        "Property_amount": {
+          "id": "Property_amount",
+          "name": "amount",
+          "type": "integer",
+          "required": false
+        },
+        "Property_offer": {
+          "id": "Property_offer",
+          "name": "offer",
+          "type": "string",
+          "required": false
+        },
+        "Property_matched": {
+          "id": "Property_matched",
+          "name": "matched",
+          "type": "boolean",
+          "required": false
+        },
+        "Property_matchedRules": {
+          "id": "Property_matchedRules",
+          "name": "matchedRules",
+          "type": "array",
+          "required": false
+        }
+      },
+      "mappings": {
+        "decideOffer": {
+          "inputs": {
+            "age": {
+              "type": "variable",
+              "value": "age"
+            },
+            "country": {
+              "type": "variable",
+              "value": "country"
+            },
+            "income": {
+              "type": "variable",
+              "value": "income"
+            },
+            "amount": {
+              "type": "variable",
+              "value": "amount"
+            }
+          },
+          "outputs": {
+            "offer": {
+              "type": "variable",
+              "value": "offer"
+            },
+            "matched": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_"
+            },
+            "matchedRules": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        }
+      },
+      "constants": {
+        "decideOffer": {
+          "_activiti_dmn_table_": {
+            "value": "loan-decision"
+          }
+        }
+      }
+    }
+  }
+}

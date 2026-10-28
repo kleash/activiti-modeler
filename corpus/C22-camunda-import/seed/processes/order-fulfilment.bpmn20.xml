@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_fulfilment" targetNamespace="http://kleash.github.io/corpus/C22">
+  <bpmn:process id="fulfilOrder" name="Fulfil order" isExecutable="true" activiti:candidateStarterGroups="sales">
+    <bpmn:extensionElements>
+      <activiti:executionListener event="start" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener" />
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="received" name="Order received" activiti:initiator="requester" activiti:formKey="forms/order">
+      <bpmn:outgoing>Flow_toGreet</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="greetCustomer" name="Greet customer" activiti:expression="${greeter.greet(customerName)}" activiti:resultVariableName="greeting">
+      <bpmn:incoming>Flow_toGreet</bpmn:incoming>
+      <bpmn:outgoing>Flow_toDiscount</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="applyDiscount" name="Apply discount" activiti:async="true" activiti:class="io.github.kleash.activiti.harness.support.SetVariableDelegate">
+      <bpmn:extensionElements>
+        <activiti:failedJobRetryTimeCycle>R2/PT1S</activiti:failedJobRetryTimeCycle>
+        <activiti:field name="variable">
+          <activiti:string>discount</activiti:string>
+        </activiti:field>
+        <activiti:field name="value">
+          <activiti:expression>${quantity &gt;= 10 ? 15 : 0}</activiti:expression>
+        </activiti:field>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_toDiscount</bpmn:incoming>
+      <bpmn:outgoing>Flow_toRisk</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="classifyRisk" name="Classify risk" implementation="dmn-connector.EXECUTE_TABLE">
+      <bpmn:incoming>Flow_toRisk</bpmn:incoming>
+      <bpmn:outgoing>Flow_toReviewGateway</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="needsReview" name="Discounted?" default="Flow_noReview">
+      <bpmn:incoming>Flow_toReviewGateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_review</bpmn:outgoing>
+      <bpmn:outgoing>Flow_noReview</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="reviewOrder" name="Review discount" activiti:candidateGroups="managers" activiti:dueDate="P2D" activiti:priority="80" activiti:formKey="forms/review">
+      <bpmn:extensionElements>
+        <activiti:taskListener event="create" class="io.github.kleash.activiti.harness.support.RecordingTaskListener" />
+        <activiti:taskListener event="assignment" expression="${listenerRecorder.recordTask(task)}" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_review</bpmn:incoming>
+      <bpmn:outgoing>Flow_toApprovedGateway</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="isApproved" name="Approved?" default="Flow_refused">
+      <bpmn:incoming>Flow_toApprovedGateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_granted</bpmn:outgoing>
+      <bpmn:outgoing>Flow_refused</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="packOrder" name="Pack order" activiti:delegateExpression="${recordingDelegate}">
+      <bpmn:incoming>Flow_noReview</bpmn:incoming>
+      <bpmn:incoming>Flow_granted</bpmn:incoming>
+      <bpmn:outgoing>Flow_toShip</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:callActivity id="shipOrder" name="Ship order" calledElement="shippingLabel" activiti:inheritBusinessKey="true">
+      <bpmn:extensionElements>
+        <activiti:in source="customerName" target="parcelOwner" />
+        <activiti:out source="labelText" target="label" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_toShip</bpmn:incoming>
+      <bpmn:outgoing>Flow_toConfirm</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:userTask id="confirmDispatch" name="Confirm dispatch" activiti:assignee="${requester}">
+      <bpmn:extensionElements>
+        <activiti:formProperty id="dispatchNote" name="Note" type="string" required="true" />
+        <activiti:formProperty id="carrier" name="Carrier" type="enum" default="post">
+          <activiti:value id="post" name="Post" />
+          <activiti:value id="courier" name="Courier" />
+        </activiti:formProperty>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_toConfirm</bpmn:incoming>
+      <bpmn:outgoing>Flow_toDone</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="fulfilled" name="Order fulfilled">
+      <bpmn:incoming>Flow_toDone</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="refusedEnd" name="Discount refused">
+      <bpmn:incoming>Flow_refused</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_toGreet" sourceRef="received" targetRef="greetCustomer" />
+    <bpmn:sequenceFlow id="Flow_toDiscount" sourceRef="greetCustomer" targetRef="applyDiscount" />
+    <bpmn:sequenceFlow id="Flow_toRisk" sourceRef="applyDiscount" targetRef="classifyRisk" />
+    <bpmn:sequenceFlow id="Flow_toReviewGateway" sourceRef="classifyRisk" targetRef="needsReview" />
+    <bpmn:sequenceFlow id="Flow_review" name="yes" sourceRef="needsReview" targetRef="reviewOrder">
+      <bpmn:conditionExpression xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bpmn:tFormalExpression">${discount &gt; 0}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_noReview" name="no" sourceRef="needsReview" targetRef="packOrder" />
+    <bpmn:sequenceFlow id="Flow_toApprovedGateway" sourceRef="reviewOrder" targetRef="isApproved" />
+    <bpmn:sequenceFlow id="Flow_granted" name="granted" sourceRef="isApproved" targetRef="packOrder">
+      <bpmn:conditionExpression xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bpmn:tFormalExpression">${approved == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_refused" name="refused" sourceRef="isApproved" targetRef="refusedEnd" />
+    <bpmn:sequenceFlow id="Flow_toShip" sourceRef="packOrder" targetRef="shipOrder" />
+    <bpmn:sequenceFlow id="Flow_toConfirm" sourceRef="shipOrder" targetRef="confirmDispatch" />
+    <bpmn:sequenceFlow id="Flow_toDone" sourceRef="confirmDispatch" targetRef="fulfilled" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="fulfilOrder">
+      <bpmndi:BPMNShape id="received_di" bpmnElement="received">
+        <dc:Bounds x="0" y="190" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="greetCustomer_di" bpmnElement="greetCustomer">
+        <dc:Bounds x="88" y="168" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="applyDiscount_di" bpmnElement="applyDiscount">
+        <dc:Bounds x="238" y="168" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="classifyRisk_di" bpmnElement="classifyRisk">
+        <dc:Bounds x="388" y="168" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="needsReview_di" bpmnElement="needsReview" isMarkerVisible="true">
+        <dc:Bounds x="543" y="183" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewOrder_di" bpmnElement="reviewOrder">
+        <dc:Bounds x="648" y="58" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="isApproved_di" bpmnElement="isApproved" isMarkerVisible="true">
+        <dc:Bounds x="803" y="73" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="packOrder_di" bpmnElement="packOrder">
+        <dc:Bounds x="918" y="168" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shipOrder_di" bpmnElement="shipOrder">
+        <dc:Bounds x="1068" y="168" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="confirmDispatch_di" bpmnElement="confirmDispatch">
+        <dc:Bounds x="1218" y="168" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fulfilled_di" bpmnElement="fulfilled">
+        <dc:Bounds x="1370" y="190" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="refusedEnd_di" bpmnElement="refusedEnd">
+        <dc:Bounds x="810" y="0" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_toGreet_di" bpmnElement="Flow_toGreet">
+        <di:waypoint x="36" y="208" />
+        <di:waypoint x="88" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toDiscount_di" bpmnElement="Flow_toDiscount">
+        <di:waypoint x="188" y="208" />
+        <di:waypoint x="238" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toRisk_di" bpmnElement="Flow_toRisk">
+        <di:waypoint x="338" y="208" />
+        <di:waypoint x="388" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toReviewGateway_di" bpmnElement="Flow_toReviewGateway">
+        <di:waypoint x="488" y="208" />
+        <di:waypoint x="543" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_review_di" bpmnElement="Flow_review">
+        <di:waypoint x="568" y="183" />
+        <di:waypoint x="568" y="98" />
+        <di:waypoint x="648" y="98" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_noReview_di" bpmnElement="Flow_noReview">
+        <di:waypoint x="593" y="208" />
+        <di:waypoint x="918" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toApprovedGateway_di" bpmnElement="Flow_toApprovedGateway">
+        <di:waypoint x="748" y="98" />
+        <di:waypoint x="803" y="98" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_granted_di" bpmnElement="Flow_granted">
+        <di:waypoint x="853" y="98" />
+        <di:waypoint x="968" y="98" />
+        <di:waypoint x="968" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_refused_di" bpmnElement="Flow_refused">
+        <di:waypoint x="828" y="73" />
+        <di:waypoint x="828" y="36" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toShip_di" bpmnElement="Flow_toShip">
+        <di:waypoint x="1018" y="208" />
+        <di:waypoint x="1068" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toConfirm_di" bpmnElement="Flow_toConfirm">
+        <di:waypoint x="1168" y="208" />
+        <di:waypoint x="1218" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_toDone_di" bpmnElement="Flow_toDone">
+        <di:waypoint x="1318" y="208" />
+        <di:waypoint x="1370" y="208" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,31 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C06 several subscriptions with one message name",
+  "description": "ProcessRuntime.receive looks the subscription up with name and correlation key as filters and singleResult(); a missing key does not filter. Engine finding 31.",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the correlation key selects the subscription; without a key two subscriptions are ambiguous and one is not found",
+      "start": { "process": "messageSameName", "user": "ann", "variables": { "keyA": "A", "keyB": "B" } },
+      "steps": [
+        { "expectActive": { "exactly": ["catchA", "catchB"] } },
+        { "message": { "name": "ticket", "expectFailure": { "exception": "ActivitiException", "messageContains": "Query return 2 results instead of max 1" } } },
+        { "expectActive": { "exactly": ["catchA", "catchB"] } },
+        { "message": { "name": "ticket", "correlationKey": "A" } },
+        { "expectActive": ["catchB"] },
+        { "message": { "name": "ticket", "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "with correlation key 'null' not found" } } },
+        { "message": { "name": "ticket", "correlationKey": "B" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": { "sequenceFlows": ["f_fork_catchA", "f_fork_catchB", "f_catchA_join", "f_catchB_join", "f_join_end"] }
+      }
+    },
+    {
+      "name": "the same name with the same correlation key is refused when the second subscription is created",
+      "start": { "process": "messageSameName", "user": "ann", "variables": { "keyA": "K", "keyB": "K" },
+                 "expectFailure": { "exception": "ActivitiIllegalArgumentException", "messageContains": "Duplicate message subscription 'ticket' with correlation key 'K'" } }
+    }
+  ]
+}

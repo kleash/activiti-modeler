@@ -1,0 +1,24 @@
+{
+  "id": "connector-error-extensions",
+  "extensions": {
+    "connectorError": {
+      "properties": {
+        "p1": {
+          "id": "p1",
+          "name": "failWith",
+          "type": "string"
+        }
+      },
+      "mappings": {
+        "callBroken": {
+          "inputs": {
+            "errorCode": {
+              "type": "VARIABLE",
+              "value": "failWith"
+            }
+          }
+        }
+      }
+    }
+  }
+}

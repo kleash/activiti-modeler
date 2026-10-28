@@ -1,0 +1,66 @@
+name: Pages
+
+# The browser-only modeler on GitHub Pages (ADR 0008, feature K6): the same web app as in the jar, built for the path /<repository>/.
+# Projects stay in the visitor's browser; the run features say "connect to a server".
+# One-time repository setting by a maintainer: Settings > Pages > Build and deployment > Source = "GitHub Actions".
+# A custom domain served from the root: set the repository variable PAGES_BASE to "/".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build and smoke-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BASE: ${{ vars.PAGES_BASE || format('/{0}/', github.event.repository.name) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: modeler/package-lock.json
+
+      - name: Install dependencies and Chromium
+        working-directory: modeler
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Build for ${{ env.BASE }}
+        run: scripts/build-pages.sh --base="$BASE" --out=dist-pages
+
+      # What is deployed is what was tested: vite preview serves the same folder under the same base path.
+      - name: Smoke-test the build under ${{ env.BASE }}
+        run: scripts/smoke-pages.sh --base="$BASE" --dir=dist-pages
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist-pages
+
+  deploy:
+    name: deploy
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write       # deploy to Pages
+      id-token: write    # prove the deployment comes from this workflow
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

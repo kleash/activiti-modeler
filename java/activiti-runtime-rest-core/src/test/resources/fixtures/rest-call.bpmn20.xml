@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/rest-core-test">
+  <process id="restParent" name="Parent" isExecutable="true">
+    <startEvent id="pStart"/>
+    <sequenceFlow id="f_pStart_pCall" sourceRef="pStart" targetRef="pCall"/>
+    <callActivity id="pCall" name="Call the child" calledElement="restChild"/>
+    <sequenceFlow id="f_pCall_pEnd" sourceRef="pCall" targetRef="pEnd"/>
+    <endEvent id="pEnd"/>
+  </process>
+  <process id="restChild" name="Child" isExecutable="true">
+    <startEvent id="cStart"/>
+    <sequenceFlow id="f_cStart_cTask" sourceRef="cStart" targetRef="cTask"/>
+    <userTask id="cTask" name="Child task" activiti:candidateUsers="alice"/>
+    <sequenceFlow id="f_cTask_cEnd" sourceRef="cTask" targetRef="cEnd"/>
+    <endEvent id="cEnd"/>
+  </process>
+</definitions>

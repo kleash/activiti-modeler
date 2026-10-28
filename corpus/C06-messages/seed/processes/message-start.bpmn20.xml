@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C06">
+  <message id="orderPlacedMsg" name="orderPlaced"/>
+  <message id="orderImportedMsg" name="orderImported"/>
+  <process id="messageStart" name="Message start event" isExecutable="true">
+    <documentation>A message named orderPlaced starts an instance. A mapping on the start event is an output mapping of the message variables (only the mapped ones survive); a start event without a mapping passes them on as they are (engine finding 30).</documentation>
+    <startEvent id="startOnMessage" name="Order placed">
+      <messageEventDefinition messageRef="orderPlacedMsg"/>
+    </startEvent>
+    <startEvent id="startPlain" name="Order imported">
+      <messageEventDefinition messageRef="orderImportedMsg"/>
+    </startEvent>
+    <sequenceFlow id="f_startOnMessage_register" sourceRef="startOnMessage" targetRef="register"/>
+    <sequenceFlow id="f_startPlain_register" sourceRef="startPlain" targetRef="register"/>
+    <serviceTask id="register" name="Register the order" activiti:expression="${execution.setVariable('registered', true)}"/>
+    <sequenceFlow id="f_register_end" sourceRef="register" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="messageStart">
+      <bpmndi:BPMNShape id="startOnMessage_di" bpmnElement="startOnMessage">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="startPlain_di" bpmnElement="startPlain">
+        <dc:Bounds x="102" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="register_di" bpmnElement="register">
+        <dc:Bounds x="220" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="402" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_startOnMessage_register_di" bpmnElement="f_startOnMessage_register">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="179" y="110"/>
+        <di:waypoint x="179" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_startPlain_register_di" bpmnElement="f_startPlain_register">
+        <di:waypoint x="138" y="330"/>
+        <di:waypoint x="179" y="330"/>
+        <di:waypoint x="179" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_register_end_di" bpmnElement="f_register_end">
+        <di:waypoint x="320" y="220"/>
+        <di:waypoint x="402" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

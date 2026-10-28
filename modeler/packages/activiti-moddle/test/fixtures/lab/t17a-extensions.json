@@ -1,0 +1,13 @@
+{
+ "id": "ext-t17a",
+ "extensions": {
+  "t17a": {
+   "properties": {},
+   "mappings": {
+    "svc": {
+     "mappingType": "MAP_ALL"
+    }
+   }
+  }
+ }
+}

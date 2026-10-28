@@ -1,0 +1,38 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C05 timer start events",
+  "description": "A timer start job is created at deployment; the scenario fires the job of one start event (start.timer) and follows the new instance.",
+  "scenarios": [
+    {
+      "name": "the date start fires and creates an instance",
+      "start": { "process": "timerStarts", "timer": "startDate" },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "ran": true },
+        "path": {
+          "contains": ["startDate", "work", "end"],
+          "notContains": ["startCycle", "startCron", "startExpired"],
+          "sequenceFlows": ["f_startDate_work", "f_work_end"],
+          "notSequenceFlows": ["f_startCycle_work", "f_startCron_work"]
+        }
+      }
+    },
+    {
+      "name": "the cycle start (R3/PT1H with a future end date) fires and creates an instance",
+      "start": { "process": "timerStarts", "timer": "startCycle" },
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "variables": { "ran": true }, "path": { "contains": ["startCycle"], "sequenceFlows": ["f_startCycle_work", "f_work_end"] } }
+    },
+    {
+      "name": "the cron start (daily at noon, calendar cycle) fires and creates an instance",
+      "start": { "process": "timerStarts", "timer": "startCron" },
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "variables": { "ran": true }, "path": { "contains": ["startCron"], "sequenceFlows": ["f_startCron_work", "f_work_end"] } }
+    },
+    {
+      "name": "a repeat whose end date has passed is dropped when its job fires: no instance",
+      "description": "DefaultJobManager.executeTimerJob deletes a timer job whose due date is after activiti:endDate without running it (engine finding 26).",
+      "start": { "process": "timerStarts", "timer": "startExpired",
+                 "expectFailure": { "messageContains": "created no process instance of process 'timerStarts'" } }
+    }
+  ]
+}

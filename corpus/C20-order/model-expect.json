@@ -1,0 +1,248 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "description": "What the engine's own reader makes of the project: the connector mappings the templates created, no mapping on either signal catch event (the modeler gives none), and the compensation and error wiring.",
+  "processes": {
+    "orderFulfilment": {
+      "definition": {
+        "name": "Order fulfilment",
+        "category": "http://activiti.org/bpmn/corpus/C20"
+      },
+      "extensions": {
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "tier": {
+            "type": "string"
+          },
+          "found": {
+            "type": "boolean"
+          },
+          "reservedQuantity": {
+            "type": "integer"
+          },
+          "chargedAmount": {
+            "type": "integer"
+          },
+          "labelCreated": {
+            "type": "boolean"
+          }
+        },
+        "mappings": {
+          "lookupCustomer": {
+            "mappingType": null,
+            "inputs": {
+              "customerId": {
+                "type": "VARIABLE",
+                "value": "customerId"
+              }
+            },
+            "outputs": {
+              "customerName": {
+                "type": "VARIABLE",
+                "value": "customerName"
+              },
+              "tier": {
+                "type": "VARIABLE",
+                "value": "tier"
+              },
+              "found": {
+                "type": "VARIABLE",
+                "value": "found"
+              }
+            }
+          },
+          "reserveStock": {
+            "inputs": {
+              "sku": {
+                "type": "VARIABLE",
+                "value": "sku"
+              },
+              "quantity": {
+                "type": "VARIABLE",
+                "value": "quantity"
+              }
+            },
+            "outputs": {
+              "$size": 3
+            }
+          },
+          "chargePayment": {
+            "inputs": {
+              "orderId": {
+                "type": "VARIABLE",
+                "value": "orderId"
+              },
+              "amount": {
+                "type": "VARIABLE",
+                "value": "amount"
+              },
+              "cardToken": {
+                "type": "VARIABLE",
+                "value": "cardToken"
+              }
+            },
+            "outputs": {
+              "paymentId": {
+                "type": "VARIABLE",
+                "value": "paymentId"
+              },
+              "chargedAmount": {
+                "type": "VARIABLE",
+                "value": "chargedAmount"
+              }
+            }
+          },
+          "createShipment": {
+            "inputs": {
+              "orderId": {
+                "type": "VARIABLE",
+                "value": "orderId"
+              },
+              "address": {
+                "type": "VARIABLE",
+                "value": "address"
+              }
+            },
+            "outputs": {
+              "trackingNumber": {
+                "type": "VARIABLE",
+                "value": "trackingNumber"
+              },
+              "labelCreated": {
+                "type": "VARIABLE",
+                "value": "labelCreated"
+              }
+            }
+          },
+          "awaitPickup": {
+            "$exists": false
+          },
+          "awaitDelivery": {
+            "$exists": false
+          },
+          "packOrder": {
+            "$exists": false
+          },
+          "releaseStock": {
+            "$exists": false
+          }
+        },
+        "constants": {
+          "chargePayment": {
+            "$exists": false
+          }
+        }
+      },
+      "elements": {
+        "chargePayment": {
+          "type": "serviceTask",
+          "attributes": {
+            "implementation": "payment.CHARGE"
+          }
+        },
+        "releaseStock": {
+          "type": "serviceTask",
+          "attributes": {
+            "forCompensation": true
+          }
+        },
+        "onReserveCompensate": {
+          "type": "boundaryEvent",
+          "attributes": {
+            "attachedToRefId": "reserveStock",
+            "eventDefinitions": [
+              {
+                "@class": "CompensateEventDefinition"
+              }
+            ]
+          }
+        },
+        "paymentDeclined": {
+          "type": "boundaryEvent",
+          "attributes": {
+            "attachedToRefId": "chargePayment",
+            "eventDefinitions": [
+              {
+                "@class": "ErrorEventDefinition",
+                "errorRef": "paymentDeclinedError"
+              }
+            ]
+          }
+        },
+        "awaitPickup": {
+          "type": "intermediateCatchEvent",
+          "attributes": {
+            "eventDefinitions": [
+              {
+                "@class": "SignalEventDefinition",
+                "signalRef": "carrierPickedUpSignal"
+              }
+            ]
+          }
+        },
+        "awaitDelivery": {
+          "type": "intermediateCatchEvent",
+          "attributes": {
+            "eventDefinitions": [
+              {
+                "@class": "SignalEventDefinition",
+                "signalRef": "orderDeliveredSignal"
+              }
+            ]
+          }
+        },
+        "fork": {
+          "type": "parallelGateway"
+        },
+        "join": {
+          "type": "parallelGateway"
+        },
+        "carrierGateway": {
+          "type": "exclusiveGateway",
+          "attributes": {
+            "defaultFlow": "f_carrierGateway_standardNotice"
+          }
+        }
+      }
+    },
+    "signalMappingIgnored": {
+      "definition": {
+        "name": "A mapping on a signal catch event",
+        "category": "http://activiti.org/bpmn/corpus/C20"
+      },
+      "extensions": {
+        "mappings": {
+          "awaitPing": {
+            "mappingType": null,
+            "inputs": {
+              "$size": 0
+            },
+            "outputs": {
+              "renamed": {
+                "type": "VARIABLE",
+                "value": "carrier"
+              }
+            }
+          }
+        }
+      },
+      "elements": {
+        "awaitPing": {
+          "type": "intermediateCatchEvent",
+          "attributes": {
+            "eventDefinitions": [
+              {
+                "@class": "SignalEventDefinition",
+                "signalRef": "pingSignal"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t28_tasklistener" name="t28_tasklistener" isExecutable="true">
+    <startEvent id="s"/><userTask id="u" activiti:assignee="kermit"><extensionElements><activiti:taskListener event="create" expression="${task.setVariable('onCreate','y')}"/><activiti:taskListener event="assignment" expression="${execution.setVariable('onAssign','y')}"/><activiti:taskListener event="complete" expression="${execution.setVariable('onComplete','y')}"/></extensionElements></userTask><endEvent id="e"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="u"/>
+    <sequenceFlow id="f2" sourceRef="u" targetRef="e"/>
+
+  </process>
+</definitions>

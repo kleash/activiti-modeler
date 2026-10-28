@@ -1,0 +1,64 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 BPMN error thrown by a Java class delegate, caught and uncaught",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "delegateError: without a requested error the delegate passes and the task completes",
+      "start": { "process": "delegateError", "user": "ann", "variables": { "errorCode": "" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["charged"],
+        "variables": { "failureDelegateCalls": ["charge:passed"] },
+        "path": { "notContains": ["onPaymentDeclined", "onAnyFailure"], "sequenceFlows": ["f_start_charge", "f_charge_charged"] }
+      }
+    },
+    {
+      "name": "delegateError: PAYMENT_DECLINED goes to the boundary event with that errorRef",
+      "start": { "process": "delegateError", "user": "ann", "variables": { "errorCode": "PAYMENT_DECLINED" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["declined"],
+        "path": {
+          "contains": ["onPaymentDeclined", "declined"],
+          "notContains": ["onAnyFailure", "failed", "charged"],
+          "sequenceFlows": ["f_onPaymentDeclined_declined"],
+          "notSequenceFlows": ["f_onAnyFailure_failed", "f_charge_charged"]
+        }
+      }
+    },
+    {
+      "name": "delegateError: any other code goes to the catch-all boundary event",
+      "start": { "process": "delegateError", "user": "ann", "variables": { "errorCode": "OUT_OF_CREDIT" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["failed"],
+        "path": {
+          "contains": ["onAnyFailure", "failed"],
+          "notContains": ["onPaymentDeclined", "declined", "charged"],
+          "sequenceFlows": ["f_onAnyFailure_failed"],
+          "notSequenceFlows": ["f_onPaymentDeclined_declined"]
+        }
+      }
+    },
+    {
+      "name": "uncaughtError: no error requested completes normally",
+      "start": { "process": "uncaughtError", "user": "ann", "variables": { "errorCode": "" } },
+      "expect": { "state": "COMPLETED", "endEvents": ["uCharged"], "path": { "sequenceFlows": ["f_uStart_uCharge", "f_uCharge_uCharged"] } }
+    },
+    {
+      "name": "uncaughtError: the declared error is caught",
+      "start": { "process": "uncaughtError", "user": "ann", "variables": { "errorCode": "PAYMENT_DECLINED" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["uDeclined"],
+        "path": { "contains": ["uOnDeclined"], "sequenceFlows": ["f_uOnDeclined_uDeclined"] }
+      }
+    },
+    {
+      "name": "uncaughtError: an undeclared code finds no catching event and the start is rolled back",
+      "start": { "process": "uncaughtError", "user": "ann", "variables": { "errorCode": "OUT_OF_CREDIT" },
+                 "expectFailure": { "exception": "BpmnError", "messageContains": "No catching boundary event found for error with errorCode 'OUT_OF_CREDIT'" } }
+    }
+  ]
+}

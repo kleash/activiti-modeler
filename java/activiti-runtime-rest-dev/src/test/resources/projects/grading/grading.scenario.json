@@ -1,0 +1,32 @@
+{
+  "name": "grading",
+  "users": { "rita": ["reviewers"] },
+  "scenarios": [
+    {
+      "name": "a high score is reviewed",
+      "start": { "process": "devGrading", "user": "rita", "variables": { "score": 90 } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "decide", "inbound": { "score": 90 }, "partial": true } },
+        { "expectTask": { "activity": "review", "candidateGroups": ["reviewers"] } },
+        { "completeTask": { "activity": "review", "user": "rita" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "variables": { "grade": "high", "matchedRules": ["uniqueGrade_high"] },
+        "path": { "contains": ["decide", "review", "done"], "sequenceFlows": ["f_check_review", "f_review_done"] }
+      }
+    },
+    {
+      "name": "a low score needs no review",
+      "start": { "process": "devGrading", "user": "rita", "variables": { "score": 10 } },
+      "expect": {
+        "state": "COMPLETED",
+        "variables": { "grade": "low" },
+        "path": { "notContains": ["review"], "sequenceFlows": ["f_check_done"] }
+      }
+    }
+  ],
+  "decisions": [
+    { "decision": "uniqueGrade", "inputs": { "score": 60 }, "expect": { "result": [ { "grade": "mid" } ], "matchedRules": ["uniqueGrade_mid"] } }
+  ]
+}

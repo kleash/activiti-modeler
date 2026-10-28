@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C04">
+  <process id="exclusiveSkip" name="Exclusive gateway with skipping enabled" isExecutable="true">
+    <documentation>The process variable _ACTIVITI_SKIP_EXPRESSION_ENABLED is declared as a property with the default true (it cannot be a start variable: ProcessRuntime rejects names that start with an underscore). A flow whose skipExpression is true is then taken without its condition; a flow whose skipExpression is false is left out.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_route" sourceRef="start" targetRef="route"/>
+    <exclusiveGateway id="route" name="Route" default="f_route_default"/>
+    <sequenceFlow id="f_route_forced" name="forced" sourceRef="route" targetRef="endForced" activiti:skipExpression="${forceSkip == true}">
+      <conditionExpression xsi:type="tFormalExpression">${false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_route_conditional" name="conditional" sourceRef="route" targetRef="endConditional">
+      <conditionExpression xsi:type="tFormalExpression">${amount &gt; 100}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_route_default" name="otherwise" sourceRef="route" targetRef="endDefault"/>
+    <endEvent id="endForced" name="Forced"/>
+    <endEvent id="endConditional" name="Conditional"/>
+    <endEvent id="endDefault" name="Default"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="exclusiveSkip">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="route_di" bpmnElement="route" isMarkerVisible="true">
+        <dc:Bounds x="245" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endForced_di" bpmnElement="endForced">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endConditional_di" bpmnElement="endConditional">
+        <dc:Bounds x="552" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endDefault_di" bpmnElement="endDefault">
+        <dc:Bounds x="552" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_route_di" bpmnElement="f_start_route">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="245" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_route_forced_di" bpmnElement="f_route_forced">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="424" y="220"/>
+        <di:waypoint x="424" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_route_conditional_di" bpmnElement="f_route_conditional">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="552" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_route_default_di" bpmnElement="f_route_default">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="424" y="220"/>
+        <di:waypoint x="424" y="330"/>
+        <di:waypoint x="552" y="330"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

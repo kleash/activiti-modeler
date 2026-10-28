@@ -1,0 +1,7 @@
+{
+  "dmn": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<definitions xmlns=\"https://www.omg.org/spec/DMN/20191111/MODEL/\" id=\"Definitions_routeByAmount\" name=\"routing\" namespace=\"http://activiti.org/schema/1.0/dmn/Definitions_routeByAmount\">\n  <inputData id=\"InputData_amount\" name=\"amount\"><variable id=\"InputData_amount_variable\" name=\"amount\" typeRef=\"number\" /></inputData>\n  <decision id=\"routeByAmount\" name=\"routeByAmount\">\n    <variable id=\"routeByAmount_variable\" name=\"routeByAmount\" typeRef=\"string\" />\n    <informationRequirement id=\"req1\"><requiredInput href=\"#InputData_amount\" /></informationRequirement>\n    <decisionTable id=\"routeByAmount_table\" hitPolicy=\"UNIQUE\">\n      <input id=\"in1\" label=\"Amount\"><inputExpression id=\"ie1\" typeRef=\"number\"><text>amount</text></inputExpression></input>\n      <output id=\"out1\" name=\"route\" typeRef=\"string\" />\n      <rule id=\"standard\"><inputEntry id=\"s_in\"><text>[1..1000)</text></inputEntry><outputEntry id=\"s_out\"><text>\"standard\"</text></outputEntry></rule>\n      <rule id=\"review\"><inputEntry id=\"r_in\"><text>[1000..10000)</text></inputEntry><outputEntry id=\"r_out\"><text>\"review\"</text></outputEntry></rule>\n    </decisionTable>\n  </decision>\n</definitions>\n",
+  "decisionRef": "routeByAmount",
+  "inputs": {
+    "amount": 2500
+  }
+}

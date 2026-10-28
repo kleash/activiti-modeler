@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_dataObjects"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C15">
+  <process id="dataObjects" name="Data objects of every type" isExecutable="true">
+    <documentation>Data objects of every xsd type the engine reads (string, int, long, double, boolean, datetime), one without a type (a string), one without a value, and one that a start variable overrides. At process start they become process variables with the matching Java type; the data object of the embedded sub process exists only while the sub process runs.</documentation>
+    <dataObject id="dStr" name="dStr" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>hello</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="dInt" name="dInt" itemSubjectRef="xsd:int">
+      <extensionElements>
+        <activiti:value>5</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="dLong" name="dLong" itemSubjectRef="xsd:long">
+      <extensionElements>
+        <activiti:value>9000000000</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="dDouble" name="dDouble" itemSubjectRef="xsd:double">
+      <extensionElements>
+        <activiti:value>2.5</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="dBool" name="dBool" itemSubjectRef="xsd:boolean">
+      <extensionElements>
+        <activiti:value>true</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="dDate" name="dDate" itemSubjectRef="xsd:datetime">
+      <extensionElements>
+        <activiti:value>2030-05-17T10:15:30</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="dUntyped" name="dUntyped">
+      <extensionElements>
+        <activiti:value>plain</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObject id="dEmpty" name="dEmpty" itemSubjectRef="xsd:string"/>
+    <dataObject id="dOverridden" name="dOverridden" itemSubjectRef="xsd:int">
+      <extensionElements>
+        <activiti:value>1</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_sumUp" sourceRef="start" targetRef="sumUp"/>
+    <serviceTask id="sumUp" name="Sum up" activiti:expression="${execution.setVariable('total', dInt + dLong)}"/>
+    <sequenceFlow id="f_sumUp_inner" sourceRef="sumUp" targetRef="inner"/>
+    <subProcess id="inner" name="Inner">
+      <dataObject id="dLocal" name="dLocal" itemSubjectRef="xsd:int">
+        <extensionElements>
+          <activiti:value>10</activiti:value>
+        </extensionElements>
+      </dataObject>
+      <startEvent id="iStart"/>
+      <sequenceFlow id="f_iStart_readLocal" sourceRef="iStart" targetRef="readLocal"/>
+      <serviceTask id="readLocal" name="Read the local data object" activiti:expression="${execution.setVariable('localPlusOne', dLocal + 1)}"/>
+      <sequenceFlow id="f_readLocal_iEnd" sourceRef="readLocal" targetRef="iEnd"/>
+      <endEvent id="iEnd"/>
+    </subProcess>
+    <sequenceFlow id="f_inner_end" sourceRef="inner" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="dataObjects">
+      <bpmndi:BPMNShape id="inner_di" bpmnElement="inner" isExpanded="true">
+        <dc:Bounds x="512" y="10" width="416" height="160"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sumUp_di" bpmnElement="sumUp">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="iStart_di" bpmnElement="iStart">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="readLocal_di" bpmnElement="readLocal">
+        <dc:Bounds x="670" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="iEnd_di" bpmnElement="iEnd">
+        <dc:Bounds x="852" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1152" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_sumUp_di" bpmnElement="f_start_sumUp">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sumUp_inner_di" bpmnElement="f_sumUp_inner">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="512" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_iStart_readLocal_di" bpmnElement="f_iStart_readLocal">
+        <di:waypoint x="588" y="90"/>
+        <di:waypoint x="670" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_readLocal_iEnd_di" bpmnElement="f_readLocal_iEnd">
+        <di:waypoint x="770" y="90"/>
+        <di:waypoint x="852" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_inner_end_di" bpmnElement="f_inner_end">
+        <di:waypoint x="928" y="90"/>
+        <di:waypoint x="1152" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

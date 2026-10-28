@@ -1,0 +1,125 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C15 process properties of every type: defaults, overrides and metadata",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "only the required property is given: every other property gets its typed default, expression defaults are resolved, no default means no variable",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": { "orderId": "SO-1" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "orderId": "SO-1",
+          "title": "untitled",
+          "count": 7,
+          "flag": true,
+          "amount": 12.5,
+          "rate": 0.25,
+          "config": { "retries": 3, "tags": ["a", "b"] },
+          "attachment": { "id": "f-1", "name": "doc.pdf" },
+          "folderRef": { "id": "d-1" },
+          "content": { "id": "c-1", "mimeType": "text/plain" },
+          "items": ["x", "y"],
+          "due": { "$type": "date" },
+          "stamp": "2030-05-17T10:15:30Z",
+          "label": "SO-1-7",
+          "scratch": "temp",
+          "nextCount": 8,
+          "amountDoubled": 25
+        },
+        "absentVariables": ["noDefault"],
+        "path": { "order": [["derive", "scale"], ["scale", "describe"], ["describe", "end"]], "sequenceFlows": ["f_start_derive", "f_derive_scale", "f_scale_describe", "f_describe_end"] }
+      }
+    },
+    {
+      "name": "the runtime's reader keeps the metadata of a property (description, display name, display, analytics, ephemeral, required)",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": { "orderId": "SO-1" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "meta": {
+            "$contains": {
+              "orderId": { "type": "string", "required": true, "hasDefault": false, "description": "Order number", "displayName": "Order ID", "display": null, "analytics": false, "ephemeral": false },
+              "title": { "type": "string", "required": false, "hasDefault": true, "description": "Title shown in lists", "displayName": "Title", "display": true, "analytics": true, "ephemeral": false },
+              "scratch": { "type": "string", "required": false, "hasDefault": true, "description": null, "displayName": null, "display": false, "analytics": false, "ephemeral": true },
+              "noDefault": { "type": "integer", "required": false, "hasDefault": false, "description": null, "displayName": null, "display": null, "analytics": false, "ephemeral": false }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "start variables replace the defaults, and an expression default sees the overridden values",
+      "start": { "process": "propertyTypes", "user": "ann",
+                 "variables": { "orderId": "SO-2", "title": "Custom", "count": 9, "flag": false, "amount": 99.99, "config": { "retries": 5 }, "due": "2031-01-01", "note": "2031-02-03", "remark": "hello" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "title": "Custom",
+          "count": 9,
+          "flag": false,
+          "amount": 99.99,
+          "config": { "retries": 5 },
+          "due": { "$type": "date" },
+          "label": "SO-2-9",
+          "nextCount": 10,
+          "amountDoubled": 199.98,
+          "note": { "$type": "date" },
+          "remark": "hello"
+        }
+      }
+    },
+    {
+      "name": "json, file, folder, content and array accept any JSON-serializable value, even one of another shape",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": { "orderId": "SO-3", "config": "just text", "items": { "k": "v" }, "attachment": [1, 2] } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "config": "just text", "items": { "k": "v" }, "attachment": [1, 2] }
+      }
+    },
+    {
+      "name": "a missing required property rejects the start",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": {},
+                 "expectFailure": { "exception": "ActivitiException", "messageContains": "Can't start process 'propertyTypes' without required variables - orderId" } }
+    },
+    {
+      "name": "an integer property rejects text",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": { "orderId": "SO-4", "count": "many" },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "Variables fail type validation: count" } }
+    },
+    {
+      "name": "an integer property rejects a value that does not fit an Integer",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": { "orderId": "SO-4", "count": 3000000000 },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "Variables fail type validation: count" } }
+    },
+    {
+      "name": "a boolean property rejects text",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": { "orderId": "SO-4", "flag": "yes" },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "Variables fail type validation: flag" } }
+    },
+    {
+      "name": "a string property rejects a number",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": { "orderId": "SO-4", "title": 5 },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "Variables fail type validation: title" } }
+    },
+    {
+      "name": "a bigdecimal property rejects text",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": { "orderId": "SO-4", "amount": "abc" },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "Variables fail type validation: amount" } }
+    },
+    {
+      "name": "a date property rejects text that is not a date",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": { "orderId": "SO-4", "due": "not a date" },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "Variables fail type validation: due" } }
+    },
+    {
+      "name": "an expression in a start variable is rejected: expressions are allowed only as defaults in the model",
+      "start": { "process": "propertyTypes", "user": "ann", "variables": { "orderId": "SO-4", "title": "${orderId}" },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "Expressions in variable values are only allowed as default value when modeling the process: title" } }
+    }
+  ]
+}

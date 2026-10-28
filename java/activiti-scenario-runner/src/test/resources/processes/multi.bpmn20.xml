@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/runner-test">
+  <process id="approvals" name="Approvals" isExecutable="true">
+    <startEvent id="xStart"/>
+    <sequenceFlow id="f_xStart_approveEach" sourceRef="xStart" targetRef="approveEach"/>
+    <userTask id="approveEach" name="Approve for ${person}" activiti:assignee="${person}">
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="people" activiti:elementVariable="person"/>
+    </userTask>
+    <sequenceFlow id="f_approveEach_xEnd" sourceRef="approveEach" targetRef="xEnd"/>
+    <endEvent id="xEnd"/>
+  </process>
+  <process id="pickups" name="Pickups" isExecutable="true">
+    <startEvent id="pStart"/>
+    <sequenceFlow id="f_pStart_pickEach" sourceRef="pStart" targetRef="pickEach"/>
+    <receiveTask id="pickEach" name="Picked up">
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="parcels" activiti:elementVariable="parcel"/>
+    </receiveTask>
+    <sequenceFlow id="f_pickEach_pEnd" sourceRef="pickEach" targetRef="pEnd"/>
+    <endEvent id="pEnd"/>
+  </process>
+</definitions>

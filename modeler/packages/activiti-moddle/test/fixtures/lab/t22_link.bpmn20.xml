@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t22_link" name="t22_link" isExecutable="true">
+    <startEvent id="s"/>
+    <intermediateThrowEvent id="lt"><linkEventDefinition id="ld1" name="L1"><target>ld2</target></linkEventDefinition></intermediateThrowEvent>
+    <userTask id="skipped"/>
+    <intermediateCatchEvent id="lc"><linkEventDefinition id="ld2" name="L1"><source>ld1</source></linkEventDefinition></intermediateCatchEvent>
+    <userTask id="u"/><endEvent id="e"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="lt"/>
+    <sequenceFlow id="f2" sourceRef="lc" targetRef="u"/>
+    <sequenceFlow id="f3" sourceRef="u" targetRef="e"/>
+    <sequenceFlow id="f4" sourceRef="skipped" targetRef="e"/>
+
+  </process>
+</definitions>

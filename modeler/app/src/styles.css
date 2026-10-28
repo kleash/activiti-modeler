@@ -1,0 +1,944 @@
+:root {
+  --bg: #ffffff;
+  --panel: #f6f7f9;
+  --panel-border: #d6d9de;
+  --text: #1c2330;
+  --muted: #5d6675;
+  --accent: #2f6fed;
+  --accent-text: #ffffff;
+  --danger: #c0392b;
+  --focus: #2f6fed;
+  --select: #e4ecfd;
+  --tab-active: #ffffff;
+  --status-bg: #eef0f3;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.startup {
+  padding: 32px;
+}
+
+.shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  min-width: 0;
+}
+
+.shell-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel);
+  min-height: 34px;
+}
+
+.brand {
+  font-weight: 600;
+}
+
+.shell-main {
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+}
+
+.side {
+  flex: none;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+}
+
+.side > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.center {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.bottom {
+  flex: none;
+  min-height: 0;
+  display: flex;
+}
+
+.bottom > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* --- menus ------------------------------------------------------------------------------------------ */
+
+.menubar {
+  display: flex;
+  position: relative;
+}
+
+.menu {
+  position: relative;
+}
+
+.menu-title {
+  background: none;
+  border: 0;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.menu-title:hover,
+.menu-title.open {
+  background: var(--select);
+}
+
+.menu-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 2000;
+  min-width: 250px;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 18%);
+}
+
+.menu-list.nested {
+  top: 0;
+  left: 100%;
+}
+
+.menu-list.context {
+  position: fixed;
+}
+
+.menu-list li {
+  position: relative;
+}
+
+.menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 6px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-item:hover:not(:disabled) {
+  background: var(--select);
+}
+
+.menu-item:disabled {
+  color: #9aa1ad;
+  cursor: default;
+}
+
+.menu-check {
+  width: 14px;
+  text-align: center;
+}
+
+.menu-label {
+  flex: 1;
+}
+
+.menu-shortcut {
+  color: var(--muted);
+  font-size: 12px;
+  padding-left: 24px;
+}
+
+.menu-separator {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--panel-border);
+}
+
+.context-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1900;
+}
+
+/* --- panels ------------------------------------------------------------------------------------------ */
+
+.explorer,
+.properties,
+.bottom-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.explorer {
+  border-right: 1px solid var(--panel-border);
+}
+
+.properties {
+  border-left: 1px solid var(--panel-border);
+}
+
+.bottom-panel {
+  border-top: 1px solid var(--panel-border);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.panel-body {
+  padding: 8px 12px;
+  overflow: auto;
+  flex: 1;
+}
+
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.panel-tabs button {
+  border: 0;
+  background: none;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.panel-tabs button.selected {
+  background: var(--bg);
+  font-weight: 600;
+}
+
+.project-name {
+  border: 0;
+  background: none;
+  font-weight: 600;
+  padding: 2px 4px;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon-button {
+  border: 1px solid var(--panel-border);
+  background: var(--bg);
+  width: 24px;
+  height: 24px;
+  line-height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.resizer {
+  flex: none;
+  background: transparent;
+  position: relative;
+  z-index: 5;
+}
+
+.resizer-v {
+  width: 5px;
+  cursor: col-resize;
+  margin: 0 -2px;
+}
+
+.resizer-h {
+  height: 5px;
+  cursor: row-resize;
+  margin: -2px 0;
+}
+
+.resizer:hover,
+.resizer:focus-visible {
+  background: var(--accent);
+  opacity: 0.4;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* --- explorer tree -------------------------------------------------------------------------------------- */
+
+.tree {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  overflow: auto;
+  flex: 1;
+}
+
+.tree-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: none;
+  padding: 3px 8px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tree-row:hover {
+  background: #e9ecf1;
+}
+
+.tree-row.selected {
+  background: var(--select);
+}
+
+.tree-row.current .tree-name {
+  font-weight: 600;
+}
+
+.tree-icon {
+  width: 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tree-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dirty-dot,
+.open-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.open-dot {
+  background: #b7c2d6;
+  width: 6px;
+  height: 6px;
+}
+
+/* --- tabs ---------------------------------------------------------------------------------------------------- */
+
+.tab-bar {
+  display: flex;
+  flex: none;
+  overflow-x: auto;
+  background: var(--panel);
+  border-bottom: 1px solid var(--panel-border);
+  min-height: 34px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--panel-border);
+  max-width: 260px;
+}
+
+.tab.active {
+  background: var(--tab-active);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.tab-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: none;
+  padding: 7px 4px 7px 12px;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.tab-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-error {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.tab-close {
+  border: 0;
+  background: none;
+  padding: 2px 8px;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.tab-close:hover {
+  color: var(--text);
+}
+
+/* --- editors ------------------------------------------------------------------------------------------ */
+
+.editor-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.editor-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-panel[hidden] {
+  display: none;
+}
+
+.editor-host,
+.bpmn-editor,
+.text-editor {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.bpmn-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.bpmn-stage.hidden {
+  display: none;
+}
+
+/* The canvas fills the editor area. Nothing may be positioned over its bottom-right corner:
+   the bpmn.io license requires the watermark to stay visible there (the minimap sits top right, panels and the status bar
+   are separate layout areas, toasts appear bottom left). */
+.bpmn-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.view-switch {
+  display: flex;
+  flex: none;
+  border-top: 1px solid var(--panel-border);
+  background: var(--panel);
+}
+
+.view-switch button {
+  border: 0;
+  background: none;
+  padding: 5px 14px;
+  cursor: pointer;
+}
+
+.view-switch button.selected {
+  background: var(--bg);
+  font-weight: 600;
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+
+.source-view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.source-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel);
+}
+
+.source-status {
+  color: var(--muted);
+}
+
+.code-editor {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.notice {
+  padding: 6px 12px;
+  background: #fff7e0;
+  border-bottom: 1px solid #ecd9a0;
+}
+
+.link {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.error-view,
+.welcome {
+  padding: 32px;
+  overflow: auto;
+}
+
+.error-detail {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  padding: 10px;
+  max-height: 260px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+.warning-group h3 {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+.warning-group ul {
+  margin: 0 0 8px;
+  padding-left: 20px;
+}
+
+/* --- buttons and dialogs ----------------------------------------------------------------------------- */
+
+.btn {
+  border: 1px solid var(--panel-border);
+  background: var(--bg);
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  color: #9aa1ad;
+  cursor: default;
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.btn.primary:disabled {
+  background: #a9bfee;
+  border-color: #a9bfee;
+}
+
+.btn.danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn.small {
+  padding: 2px 8px;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.button-row.end {
+  justify-content: flex-end;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(20 27 40 / 25%);
+}
+
+.modal {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  background: var(--bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 16px 20px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 28%);
+}
+
+.modal.wide {
+  width: min(720px, calc(100vw - 32px));
+}
+
+.modal h2 {
+  margin: 0 0 10px;
+  font-size: 17px;
+}
+
+.modal h3 {
+  margin: 14px 0 6px;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field input {
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+}
+
+.field input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.field-error {
+  color: var(--danger);
+  min-height: 1.4em;
+  margin: 6px 0 0;
+}
+
+#prompt-help {
+  min-height: 1.4em;
+  margin: 6px 0 0;
+}
+
+.template-list,
+.project-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.project-list li {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.template,
+.project-open {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  background: var(--bg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.template:hover,
+.project-open:hover {
+  background: var(--select);
+}
+
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 0 24px;
+}
+
+.shortcut-grid table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.shortcut-grid td {
+  padding: 3px 0;
+  border-bottom: 1px solid #eceff3;
+}
+
+.shortcut-grid td.keys {
+  text-align: right;
+  white-space: nowrap;
+}
+
+kbd {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  background: var(--panel);
+  font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* --- status bar, toasts, drop overlay ---------------------------------------------------------------- */
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 3px 12px;
+  background: var(--status-bg);
+  border-top: 1px solid var(--panel-border);
+  font-size: 12px;
+  min-height: 26px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.status-bar .spacer {
+  flex: 1;
+}
+
+.status-button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+}
+
+/* Bottom left, away from the bpmn.io watermark (bottom right of the canvas). */
+.toasts {
+  position: fixed;
+  left: 12px;
+  bottom: 38px;
+  z-index: 1500;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(420px, calc(100vw - 200px));
+}
+
+.toast {
+  position: relative;
+  background: #263146;
+  color: #fff;
+  padding: 10px 28px 10px 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 25%);
+}
+
+.toast.error {
+  background: #8c2a1f;
+}
+
+.toast.success {
+  background: #1f6b43;
+}
+
+.toast-detail {
+  margin: 6px 0 0;
+  max-height: 120px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 12px;
+}
+
+.toast-close {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.drop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3500;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(47 111 237 / 12%);
+  border: 3px dashed var(--accent);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* --- diagram-js popovers keep their own look; the search pad sits above the shell chrome ---------------- */
+
+.djs-search-container {
+  z-index: 10;
+}
+
+/* The minimap sits top right and the bpmn.io watermark bottom right: when the canvas is short (a bottom panel is open, a small
+   window) the minimap is clipped so that it never reaches the watermark. */
+.djs-minimap {
+  max-height: calc(100% - 80px);
+  overflow: hidden;
+}
+
+/* Small windows: the side panels never take more than a third of the width each, and below 640 px they are not shown at all
+   (the canvas, its palette and the bpmn.io watermark need the room). The layout choice is kept. */
+.side {
+  max-width: 34vw;
+}
+
+@media (max-width: 640px) {
+  .side,
+  .resizer-v {
+    display: none;
+  }
+}
+
+/* --- append indicator and keyboard palette (U30) --- */
+.activiti-append-indicator {
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--muted, #5d6675);
+  border-radius: 50%;
+  background: var(--bg, #fff);
+  color: var(--text, #22242a);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.12s;
+}
+.activiti-append-indicator:hover,
+.activiti-append-indicator:focus-visible {
+  opacity: 1;
+  border-color: var(--focus);
+}
+.djs-palette .entry:focus-visible,
+.djs-palette .djs-palette-toggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+/* --- Camunda 7 conversion offer and report (U17) --- */
+.camunda-offer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #fff4d6;
+  border-bottom: 1px solid #e3c26f;
+  color: #4a3600;
+  font-size: 13px;
+}
+.camunda-offer > span {
+  flex: 1 1 320px;
+}
+.loss-report section {
+  margin-bottom: 12px;
+}
+.loss-report table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.loss-report th,
+.loss-report td {
+  text-align: left;
+  vertical-align: top;
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--panel-border);
+}
+.loss-report code,
+.loss-converted code {
+  overflow-wrap: anywhere;
+}
+.loss-converted {
+  max-height: 180px;
+  overflow: auto;
+  font-size: 12.5px;
+}
+.modal.wide .loss-report {
+  max-height: 55vh;
+  overflow: auto;
+}
+
+/* settings dialog (U19) */
+.settings-group { border: 1px solid var(--panel-border); border-radius: 6px; margin: 0 0 12px; padding: 8px 12px 10px; }
+.settings-group legend { padding: 0 6px; font-weight: 600; }
+.check-row { display: flex; align-items: flex-start; gap: 8px; padding: 3px 0; cursor: pointer; }
+.check-row input { margin-top: 3px; }
+.settings-radios { display: flex; flex-direction: column; margin-bottom: 6px; }
+.settings-label { font-weight: 500; padding: 2px 0; }
+.settings-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 6px 0; }

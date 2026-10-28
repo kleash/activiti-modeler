@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "bookingTransaction": {
+      "definition": { "name": "Booking transaction", "category": "http://activiti.org/bpmn/corpus/C09" },
+      "elements": {
+        "booking": { "type": "transaction", "attributes": { "@class": "Transaction" } },
+        "cancelEnd": { "type": "endEvent", "attributes": { "eventDefinitions": [ { "@class": "CancelEventDefinition" } ] } },
+        "onCancel": { "type": "boundaryEvent", "attributes": { "attachedToRefId": "booking", "eventDefinitions": [ { "@class": "CancelEventDefinition" } ] } },
+        "onSeatCompensate": { "type": "boundaryEvent", "attributes": { "attachedToRefId": "reserveSeat", "eventDefinitions": [ { "@class": "CompensateEventDefinition" } ] } },
+        "releaseSeat": { "type": "serviceTask", "attributes": { "forCompensation": true } },
+        "releaseMeal": { "type": "serviceTask", "attributes": { "forCompensation": true } }
+      }
+    }
+  }
+}

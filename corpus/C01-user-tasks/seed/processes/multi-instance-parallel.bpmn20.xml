@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C01">
+  <process id="reviewParallel" name="Parallel multi-instance user task" isExecutable="true">
+    <documentation>A parallel multi-instance user task over the process variable reviewers (a collection named by activiti:collection). Each instance has the element variable reviewer and an assignee taken from it; the input mapping gives every task the local variables assignedTo and rule. The completion variable verdict is local to the instance and the outputDataItem collects it into verdicts (in completion order); the completion condition ends the loop once quorum instances are done and cancels the open ones.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_reviewEach" sourceRef="start" targetRef="reviewEach"/>
+    <userTask id="reviewEach" name="Review by ${reviewer}" activiti:assignee="${reviewer}">
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="reviewers" activiti:elementVariable="reviewer">
+        <loopDataOutputRef>verdicts</loopDataOutputRef>
+        <outputDataItem name="verdict"/>
+        <completionCondition>${nrOfCompletedInstances &gt;= quorum}</completionCondition>
+      </multiInstanceLoopCharacteristics>
+    </userTask>
+    <sequenceFlow id="f_reviewEach_summarize" sourceRef="reviewEach" targetRef="summarize"/>
+    <userTask id="summarize" name="Summarize" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_summarize_end" sourceRef="summarize" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="reviewParallel">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewEach_di" bpmnElement="reviewEach">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="summarize_di" bpmnElement="summarize">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_reviewEach_di" bpmnElement="f_start_reviewEach">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reviewEach_summarize_di" bpmnElement="f_reviewEach_summarize">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_summarize_end_di" bpmnElement="f_summarize_end">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

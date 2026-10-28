@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t16_send_impl_only" name="t16_send_impl_only" isExecutable="true">
+    <startEvent id="s"/>
+    <sendTask id="st" implementation="foo"/>
+    <endEvent id="e"/>
+    <sequenceFlow id="f_s_st" sourceRef="s" targetRef="st"/>
+    <sequenceFlow id="f_st_e" sourceRef="st" targetRef="e"/>
+
+  </process>
+</definitions>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t15_mi_usertask" name="t15_mi_usertask" isExecutable="true">
+    <startEvent id="s"/>
+    <userTask id="u" activiti:assignee="${person}"><multiInstanceLoopCharacteristics isSequential="false" activiti:collection="people" activiti:elementVariable="person"><completionCondition>${nrOfCompletedInstances/nrOfInstances >= 1}</completionCondition></multiInstanceLoopCharacteristics>
+    </userTask>
+    <endEvent id="e"/>
+    <sequenceFlow id="f_s_u" sourceRef="s" targetRef="u"/>
+    <sequenceFlow id="f_u_e" sourceRef="u" targetRef="e"/>
+
+  </process>
+</definitions>

@@ -1,0 +1,14 @@
+{
+  "id": "echo",
+  "name": "echo",
+  "description": "Returns its inbound variables unchanged (bean echo.EXECUTE)",
+  "actions": {
+    "EXECUTE": {
+      "id": "EXECUTE",
+      "name": "Echo",
+      "description": "Returns every inbound variable as an outbound variable of the same name and adds echoCount, the number of inbound variables",
+      "inputs": [],
+      "outputs": [ { "id": "echoCount", "name": "echoCount", "type": "integer" } ]
+    }
+  }
+}

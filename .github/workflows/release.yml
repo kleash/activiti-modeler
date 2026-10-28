@@ -1,0 +1,586 @@
+name: Release
+
+# Pushing a tag v* builds everything and publishes the GitHub Release (ADR 0008, feature K7):
+#   1. verify      scripts/verify-all.sh (the whole test suite) and the licence notices
+#   2. security    the OSV gate (scripts/cve-scan.sh, the same as osv-scan.yml) on the release build, and the CycloneDX SBOMs of the jar and the web app
+#   3. jar         the executable jar, smoke-tested
+#   4. bundle      the desktop bundle on each operating system, SMOKE-TESTED ON THAT RUNNER: unzip, start without arguments, check, stop
+#   5. docker      the image, smoke-tested, OSV-scanned (the same gate), then pushed to GHCR (amd64 and arm64)
+#   6. release     SHA256SUMS, notes from the matching CHANGELOG.md section (plus the open exceptions and the Java runtime versions), the GitHub
+#                  Release with every file: bundles, jar, the three SBOMs, the OpenVEX statement
+#   7. maven-central  the parent pom, the libraries and the server (its runnable jar as the classifier exec) for Maven Central (ADR 0009): built,
+#                  signed and bundled on every run, uploaded only by a run of its own (below); the GitHub Release waits for it
+# The gate must pass before anything is pushed or published: a release with an unexcepted known vulnerability is not made.
+# "Run workflow" (workflow_dispatch) with dry_run on builds and tests all of it and publishes nothing: the files are an artifact of the run.
+# Maven Central cannot be undone, so it is never implicit and comes last: after the tag's GitHub Release, "Run workflow" on the tag with dry_run off
+# and publish_maven_central on runs the OSV gate and job 7 only, which uploads the bundle; the maintainer then publishes it in the Central Portal.
+# See docs/developer-guide.md, "Maven Central".
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: build and smoke-test everything, publish nothing'
+        type: boolean
+        default: true
+      version:
+        description: 'Version to build when this is not run on a tag (for example 0.1.0-rc1)'
+        type: string
+        default: '0.0.0-dryrun'
+      publish_maven_central:
+        description: 'Maven Central, the last step of a release: upload its Maven artifacts and nothing else (on the v* tag, dry_run off, after its GitHub Release)'
+        type: boolean
+        default: false
+
+# Least privilege: every job asks for what it needs.
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      tag: ${{ steps.v.outputs.tag }}
+      publish: ${{ steps.v.outputs.publish }}
+      prerelease: ${{ steps.v.outputs.prerelease }}
+      image: ${{ steps.v.outputs.image }}
+      maven_central: ${{ steps.v.outputs.maven_central }}
+    steps:
+      - name: Work out the version and whether to publish
+        id: v
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          VERSION_INPUT: ${{ inputs.version }}
+          PUBLISH_MAVEN_CENTRAL: ${{ inputs.publish_maven_central }}
+          # only whether the four secrets are set, not their values
+          CENTRAL_SECRETS: ${{ secrets.MAVEN_CENTRAL_USERNAME != '' && secrets.MAVEN_CENTRAL_PASSWORD != '' && secrets.MAVEN_GPG_PRIVATE_KEY != '' && secrets.MAVEN_GPG_PASSPHRASE != '' }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          if [ "$REF_TYPE" = tag ]; then
+            tag="$REF_NAME"; version="${REF_NAME#v}"
+          else
+            tag=""; version="$VERSION_INPUT"
+          fi
+          publish=false
+          if [ "$EVENT" = push ]; then
+            publish=true
+          elif [ "$DRY_RUN" = false ]; then
+            [ -n "$tag" ] || { echo "::error::A real release runs on a tag. Run this workflow on a v* tag, or keep dry_run on."; exit 1; }
+            publish=true
+          fi
+          # Maven Central (job maven-central): "bundle" = build, sign and package, upload nothing (every run); "upload" only when asked for explicitly,
+          # and then the run publishes nothing else (the GitHub Release and the image exist already)
+          maven_central=bundle
+          if [ "$PUBLISH_MAVEN_CENTRAL" = true ]; then
+            [ -n "$tag" ] && [ "$DRY_RUN" = false ] || { echo "::error::publish_maven_central uploads a released version: run this workflow on its v* tag, with dry_run off."; exit 1; }
+            [ "$CENTRAL_SECRETS" = true ] || { echo "::error::publish_maven_central needs the secrets MAVEN_CENTRAL_USERNAME, MAVEN_CENTRAL_PASSWORD, MAVEN_GPG_PRIVATE_KEY and MAVEN_GPG_PASSPHRASE."; exit 1; }
+            maven_central=upload; publish=false
+          fi
+          echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' || { echo "::error::'$version' is not a version like 0.1.0 or 0.1.0-rc1"; exit 1; }
+          prerelease=false
+          case "$version" in *-*) prerelease=true ;; esac
+          {
+            echo "version=$version"
+            echo "tag=$tag"
+            echo "publish=$publish"
+            echo "prerelease=$prerelease"
+            echo "image=ghcr.io/$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')/activiti-modeler"
+            echo "maven_central=$maven_central"
+          } >> "$GITHUB_OUTPUT"
+          echo "Version $version, publish=$publish, prerelease=$prerelease, maven_central=$maven_central" >> "$GITHUB_STEP_SUMMARY"
+
+  verify:
+    name: verify (scripts/verify-all.sh)
+    needs: prepare
+    # The Maven Central run publishes a tag whose release passed all of this, so the tests and everything that needs them (jar, bundle, docker,
+    # release) do not run again; the OSV gate (security) does, because it must pass right before anything is published.
+    if: needs.prepare.outputs.maven_central != 'upload'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Set up Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: modeler/package-lock.json
+
+      - name: Install Playwright Chromium
+        working-directory: modeler
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Verify everything
+        run: scripts/verify-all.sh
+
+      - name: The licence notices match the dependencies
+        run: python3 -I scripts/generate-notices.py --check
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            modeler/playwright-report/
+            modeler/test-results/
+          if-no-files-found: ignore
+
+  security:
+    name: security (OSV gate and SBOMs)
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Set up Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: modeler/package-lock.json
+
+      # The release version goes into the SBOMs as the version of the component.
+      - name: Set the release version in the build (not committed)
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: ./java/mvnw -B -q -f java/pom.xml versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+
+      # Fails on any known vulnerability that osv-scanner.toml does not except (and on an expired or unused exception).
+      - name: OSV gate (both Activiti lines, the jar, npm)
+        run: scripts/cve-scan.sh --out cve-scan
+
+      - name: Name the SBOMs
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir sbom
+          cp cve-scan/sbom/activiti-9.*/activiti-modeler-server.cdx.json "sbom/activiti-modeler-$VERSION.cdx.json"
+          cp cve-scan/sbom/npm/modeler-web-app.cdx.json "sbom/activiti-modeler-web-$VERSION.cdx.json"
+          ls -l sbom
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sbom-jar-and-web
+          path: sbom/*.cdx.json
+          if-no-files-found: error
+
+      # One file, so that the release job's merged download has nothing that clashes.
+      - name: Pack the scan results
+        if: always()
+        run: tar -czf osv-results-source.tgz -C cve-scan results summary.md 2>/dev/null || true
+
+      - name: Upload the scan results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: osv-results-source
+          path: osv-results-source.tgz
+          if-no-files-found: ignore
+
+  jar:
+    name: jar (build.sh)
+    needs: [prepare, verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Only a JDK: Maven comes from the wrapper and Node from the frontend plugin, exactly as for a person who builds from source.
+      - name: Set up JDK 25
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Set the release version in the build (not committed)
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: ./java/mvnw -B -q -f java/pom.xml versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+
+      - name: Build the jar with the web app inside
+        run: ./build.sh
+
+      - name: Smoke-test the jar
+        run: scripts/smoke-server.sh
+
+      - name: Collect the jar
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          mkdir -p jar
+          cp "java/activiti-modeler-server/target/activiti-modeler-server-$VERSION-exec.jar" "jar/activiti-modeler-server-$VERSION.jar"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: jar
+          path: jar/*.jar
+          if-no-files-found: error
+
+  bundle:
+    name: bundle (${{ matrix.name }})
+    needs: [prepare, jar]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    defaults:
+      run:
+        shell: bash    # Git Bash on Windows: the same scripts everywhere
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: linux-x64, runner: ubuntu-latest }
+          - { name: macos-arm64, runner: macos-14 }
+          # macos-13 (Intel) was retired by GitHub in December 2025; macos-15-intel is its successor for x64.
+          - { name: macos-x64, runner: macos-15-intel }
+          - { name: windows-x64, runner: windows-latest }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # jlink and jpackage come with the JDK; the bundle's own runtime is built from this one.
+      - name: Set up JDK 25
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: jar
+          path: jar
+
+      - name: Build the desktop bundle
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: scripts/package-desktop.sh --jar "jar/activiti-modeler-server-$VERSION.jar" --version "$VERSION" 2>&1 | tee package.log
+
+      # On this runner, the operating system the bundle was built for: unzip, start without arguments, check health and the app, stop.
+      - name: Smoke-test the bundle on this runner
+        run: scripts/smoke-bundle.sh dist-desktop/*.zip
+
+      # The runtime inside the bundle is a trimmed copy of the JDK set up above ("25" resolves to the newest Temurin 25 GA); OSV does not cover a JDK,
+      # so its version goes into the release notes. scripts/build-runtime.sh prints it when it links the runtime.
+      - name: Record the Java runtime of the bundle
+        run: |
+          set -euo pipefail
+          mkdir runtime-info
+          sed -n 's/^    runtime: .*(\(Temurin-[^)]*\)).*/\1/p' package.log | head -1 > "runtime-info/runtime-${{ matrix.name }}.txt"
+          [ -s "runtime-info/runtime-${{ matrix.name }}.txt" ] || { echo "::error::the Java runtime version was not printed by the build"; exit 1; }
+          echo "Java runtime in ${{ matrix.name }}: $(cat "runtime-info/runtime-${{ matrix.name }}.txt")" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: bundle-${{ matrix.name }}
+          path: dist-desktop/*.zip
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: runtime-info-${{ matrix.name }}
+          path: runtime-info/*.txt
+          if-no-files-found: error
+
+  docker:
+    name: docker image
+    needs: [prepare, verify, security]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write     # push to ghcr.io (only used when publishing)
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The image's Java runtime is the Alpine build of Temurin 25 pinned in docker/jdk-alpine.env (OSV does not cover a JDK, and Dependabot cannot move a
+      # download). This warns (an annotation, not a failure) when a newer Temurin 25 GA exists, and fails when the Adoptium API publishes another checksum
+      # for the pinned build. To update: scripts/update-jdk-alpine.sh --write, then smoke test and image scan.
+      - name: Is the pinned Temurin 25 the newest?
+        run: scripts/update-jdk-alpine.sh
+
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build the image for this machine
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          load: true
+          tags: activiti-modeler:smoke
+          build-args: VERSION=${{ needs.prepare.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke-test the image
+        run: scripts/smoke-docker.sh activiti-modeler:smoke
+
+      # The same gate as osv-scan.yml, on the image that is about to be pushed (operating-system packages and the jar inside). Before the push.
+      - name: OSV gate on the image
+        run: scripts/cve-scan.sh --skip-java --skip-npm --image activiti-modeler:smoke --out cve-scan-image
+
+      - name: Record the Java runtime of the image and name its SBOM
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p image-info
+          docker run --rm --entrypoint /opt/runtime/bin/java activiti-modeler:smoke -XshowSettings:properties -version 2>&1 \
+            | awk -F' = ' '/java.vendor.version/ { print $2; exit }' > image-info/runtime-docker.txt
+          cp cve-scan-image/sbom/image/activiti-modeler-image.cdx.json "image-info/activiti-modeler-image-$VERSION.cdx.json"
+          echo "Java runtime in the image: $(cat image-info/runtime-docker.txt)" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: image-info
+          path: image-info/*
+          if-no-files-found: error
+
+      - name: Pack the scan results
+        if: always()
+        run: tar -czf osv-results-image.tgz -C cve-scan-image results summary.md 2>/dev/null || true
+
+      - name: Upload the scan results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: osv-results-image
+          path: osv-results-image.tgz
+          if-no-files-found: ignore
+
+      - name: Log in to GHCR
+        if: needs.prepare.outputs.publish == 'true'
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image tags
+        if: needs.prepare.outputs.publish == 'true'
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ needs.prepare.outputs.image }}
+          tags: |
+            type=raw,value=${{ needs.prepare.outputs.version }}
+            type=raw,value=latest,enable=${{ needs.prepare.outputs.prerelease == 'false' }}
+          labels: |
+            org.opencontainers.image.licenses=Apache-2.0
+
+      - name: Push the image (linux/amd64 and linux/arm64)
+        if: needs.prepare.outputs.publish == 'true'
+        id: push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: VERSION=${{ needs.prepare.outputs.version }}
+          cache-from: type=gha
+
+  release:
+    name: release
+    needs: [prepare, security, jar, bundle, docker, maven-central]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write     # create the release and upload its files
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+      PUBLISH: ${{ needs.prepare.outputs.publish }}
+      PRERELEASE: ${{ needs.prepare.outputs.prerelease }}
+      IMAGE: ${{ needs.prepare.outputs.image }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: '*'
+          path: collected
+          merge-multiple: true
+
+      - name: Name the files and write SHA256SUMS
+        run: |
+          set -euo pipefail
+          mkdir release
+          cp collected/*.zip release/
+          cp "collected/activiti-modeler-server-$VERSION.jar" "release/activiti-modeler-$VERSION.jar"
+          # CycloneDX SBOMs of the jar, the web app and the image, and the OpenVEX statement for the open exceptions (docs/security/)
+          cp "collected/activiti-modeler-$VERSION.cdx.json" "collected/activiti-modeler-web-$VERSION.cdx.json" "collected/activiti-modeler-image-$VERSION.cdx.json" release/
+          cp docs/security/vex.openvex.json release/activiti-modeler.openvex.json
+          (cd release && sha256sum -- * > SHA256SUMS && cat SHA256SUMS)
+          [ "$(ls release/*.zip | wc -l)" -eq 4 ] || { echo "::error::expected four desktop bundles"; ls release; exit 1; }
+
+      - name: Release notes from CHANGELOG.md
+        run: |
+          set -euo pipefail
+          allow=""; [ "$PUBLISH" = true ] || allow="--allow-unreleased"
+          repo_url="https://github.com/${{ github.repository }}"
+          pages_url="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          {
+            scripts/release-notes.sh "$VERSION" $allow
+            echo
+            echo "## Download"
+            echo
+            echo "| You have | Get |"
+            echo "|---|---|"
+            echo "| Windows | \`activiti-modeler-$VERSION-windows-x64.zip\` |"
+            echo "| macOS, Apple silicon (M1 and newer) | \`activiti-modeler-$VERSION-macos-arm64.zip\` |"
+            echo "| macOS, Intel | \`activiti-modeler-$VERSION-macos-x64.zip\` |"
+            echo "| Linux x64 | \`activiti-modeler-$VERSION-linux-x64.zip\` |"
+            echo "| Java 25 already | \`activiti-modeler-$VERSION.jar\`, then \`java -jar activiti-modeler-$VERSION.jar\` |"
+            echo "| Docker | \`docker run --rm -p 127.0.0.1:8080:8080 -v activiti-modeler-data:/data $IMAGE:$VERSION\` |"
+            echo "| Only a browser | $pages_url (projects stay in your browser; running models needs a server) |"
+            echo
+            echo
+            python3 -I scripts/cve-scan-check.py release-section --base-url "$repo_url/blob/${TAG:-main}"
+            echo "## Java runtime"
+            echo
+            echo "The desktop bundles carry a trimmed copy of the newest Temurin 25 release available when they were built; the Docker image (listed as \`docker\`) carries the Alpine (musl) build of Temurin 25 pinned in \`docker/jdk-alpine.env\`. OSV does not cover a JDK, so the versions are recorded here:"
+            echo
+            for f in collected/runtime-*.txt; do
+              name="$(basename "$f" .txt)"; name="${name#runtime-}"
+              echo "- \`$name\`: \`$(cat "$f")\`"
+            done
+            echo
+            echo "## Software bill of materials"
+            echo
+            echo "\`activiti-modeler-$VERSION.cdx.json\` (the jar and the desktop bundles), \`activiti-modeler-web-$VERSION.cdx.json\` (the web app) and \`activiti-modeler-image-$VERSION.cdx.json\` (the Docker image) are CycloneDX 1.5 files; \`activiti-modeler.openvex.json\` is the OpenVEX statement. All are listed in \`SHA256SUMS\`."
+            echo
+            echo "The desktop bundles are not code-signed yet: see the [install guide]($repo_url/blob/${TAG:-main}/docs/user-guide/install.md) for how to open them on macOS and Windows."
+            echo "Check a download with \`sha256sum -c SHA256SUMS\`."
+          } > notes.md
+          cat notes.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Dry run - keep the files as an artifact only
+        if: env.PUBLISH != 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-dry-run
+          path: |
+            release/*
+            notes.md
+          retention-days: 7
+
+      - name: Create the GitHub Release
+        if: env.PUBLISH == 'true'
+        run: |
+          set -euo pipefail
+          flags=()
+          [ "$PRERELEASE" = true ] && flags+=(--prerelease)
+          gh release create "$TAG" release/* --repo "$GITHUB_REPOSITORY" --verify-tag --title "Activiti Modeler $VERSION" --notes-file notes.md "${flags[@]}"
+
+  # Maven Central through the Sonatype Central Portal (ADR 0009): the parent pom, the five libraries and the server (the plain jar, and the runnable
+  # jar with the web app as the classifier exec), each with sources, javadoc and signatures; verification-harness is not published.
+  # A version on Central can never be changed or deleted, so nothing is uploaded implicitly:
+  #   bundle  (a tag push, a dry run, any other run): build, sign with the release key and package the bundle, upload nothing; the GitHub Release
+  #           waits for this, so a release whose Maven artifacts cannot be signed or bundled is not made
+  #   upload  (only Run workflow on the tag with dry_run off and publish_maven_central on, after the tag's GitHub Release): the same, then the upload.
+  #           The deployment waits in the Central Portal until the maintainer publishes it there (autoPublish is off).
+  maven-central:
+    name: maven-central (${{ needs.prepare.outputs.maven_central }})
+    needs: [prepare, security]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read      # checkout, and reading the tag's GitHub Release
+    steps:
+      - name: Maven Central comes after the GitHub Release of the tag
+        if: needs.prepare.outputs.maven_central == 'upload'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json tagName >/dev/null \
+            || { echo "::error::$TAG has no GitHub Release: release it first (push the tag), then upload to Maven Central."; exit 1; }
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # settings.xml gets the server "central" (the plugin's default id) with the Portal user token, read from the variables of the last step.
+      - name: Set up JDK 25 and the Central Portal credentials
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+          server-id: central
+          server-username-env-var: MAVEN_CENTRAL_USERNAME
+          server-password-env-var: MAVEN_CENTRAL_PASSWORD
+
+      - name: Set the release version in the build (not committed)
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: ./java/mvnw -B -q -f java/pom.xml versions:set -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+
+      # The web app for the exec jar, built as for the downloads, in a step WITHOUT the secrets: npm runs the install scripts of the packages here.
+      - name: Build the web app and the server jar
+        run: ./build.sh
+
+      # The profile release of java/pom.xml; bundle-modeler with skipFrontend puts the app built above into the exec jar (npm does not run again).
+      # The Bouncy Castle signer (gpg.signer=bc) reads the key and its passphrase from this step's environment only: no gpg, no keyring.
+      - name: Sign and bundle; upload in the Maven Central run only
+        env:
+          MODE: ${{ needs.prepare.outputs.maven_central }}
+          MAVEN_GPG_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          # the Portal token only where it is used
+          MAVEN_CENTRAL_USERNAME: ${{ needs.prepare.outputs.maven_central == 'upload' && secrets.MAVEN_CENTRAL_USERNAME || '' }}
+          MAVEN_CENTRAL_PASSWORD: ${{ needs.prepare.outputs.maven_central == 'upload' && secrets.MAVEN_CENTRAL_PASSWORD || '' }}
+        run: |
+          set -euo pipefail
+          signing=(-Dgpg.signer=bc)
+          if [ -z "$MAVEN_GPG_KEY" ] || [ -z "$MAVEN_GPG_PASSPHRASE" ]; then
+            echo "::notice title=Maven artifacts not signed::the secrets MAVEN_GPG_PRIVATE_KEY and MAVEN_GPG_PASSPHRASE are not set (docs/developer-guide.md, Maven Central)"
+            signing=(-Dgpg.skip)
+          fi
+          skip_upload=true; [ "$MODE" != upload ] || skip_upload=false
+          ./java/mvnw -B -f java/pom.xml -Prelease,bundle-modeler -Dmodeler.skipFrontend=true -DskipTests "${signing[@]}" -DskipUpload="$skip_upload" deploy
+          if [ "$MODE" = upload ]; then
+            echo "Uploaded and validated: publish the deployment at https://central.sonatype.com/publishing/deployments" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi

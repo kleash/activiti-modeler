@@ -1,0 +1,24 @@
+{
+ "id": "ext-t17bz",
+ "extensions": {
+  "t17bz": {
+   "properties": {
+    "p1": {
+     "id": "p1",
+     "name": "approved",
+     "type": "boolean"
+    }
+   },
+   "mappings": {
+    "u": {
+     "outputs": {
+      "approved": {
+       "type": "VARIABLE",
+       "value": "approved"
+      }
+     }
+    }
+   }
+  }
+ }
+}

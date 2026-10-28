@@ -1,0 +1,10 @@
+{
+  "id": "missingMapping-extensions",
+  "extensions": {
+    "missingMapping": {
+      "properties": {},
+      "mappings": { "review": { "mappingType": "MAP_ALL" } },
+      "constants": {}
+    }
+  }
+}

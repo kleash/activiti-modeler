@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C06 message event sub processes",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the interrupting event sub process cancels the work and ends the instance",
+      "start": { "process": "messageEventSubprocess", "user": "ann", "variables": { "orderId": "O-1" } },
+      "steps": [
+        { "expectTask": { "activity": "work", "assignee": "ann" } },
+        { "message": { "name": "escalate", "correlationKey": "O-1", "variables": { "why": "late", "noise": "x" } } },
+        { "expectTask": { "activity": "work", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["escalatedEnd"],
+        "variables": { "reason": "late", "escalated": true },
+        "absentVariables": ["why", "noise"],
+        "path": { "order": [["work", "markEscalated"], ["markEscalated", "escalatedEnd"]], "notContains": ["workEnd"], "sequenceFlows": ["f_escalateStart_markEscalated", "f_markEscalated_escalatedEnd"] }
+      }
+    },
+    {
+      "name": "the non-interrupting event sub process runs next to the open task, but only once",
+      "description": "EventSubProcessMessageStartEventActivityBehavior.trigger deletes the subscription for interrupting and non-interrupting alike and nothing creates it again (engine finding 32).",
+      "start": { "process": "messageEventSubprocess", "user": "ann", "variables": { "orderId": "O-1" } },
+      "steps": [
+        { "message": { "name": "note", "correlationKey": "O-1", "variables": { "text": "first" } } },
+        { "expectTask": { "activity": "work", "assignee": "ann" } },
+        { "message": { "name": "note", "correlationKey": "O-1", "variables": { "text": "second" },
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "Message subscription name 'note' with correlation key 'O-1' not found" } } },
+        { "completeTask": { "activity": "work", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["workEnd", "noteEnd"],
+        "variables": { "notes": 1, "lastNote": "first" },
+        "path": { "order": [["recordNote", "noteEnd"]], "sequenceFlows": ["f_noteStart_recordNote", "f_recordNote_noteEnd", "f_work_workEnd"] }
+      }
+    },
+    {
+      "name": "a message for another order does not reach the event sub process",
+      "start": { "process": "messageEventSubprocess", "user": "ann", "variables": { "orderId": "O-1" } },
+      "steps": [
+        { "message": { "name": "escalate", "correlationKey": "O-2",
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "correlation key 'O-2' not found" } } },
+        { "expectTask": { "activity": "work", "assignee": "ann" } },
+        { "completeTask": { "activity": "work", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["workEnd"], "absentVariables": ["escalated", "notes"] }
+    }
+  ]
+}

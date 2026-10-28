@@ -1,0 +1,193 @@
+/* The properties panel (bpmn-js-properties-panel host with the Activiti provider) inside the shell. */
+
+.panel-body--panel {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.panel-body--panel[hidden] {
+  display: none;
+}
+
+.panel-body--panel > .bio-properties-panel-container {
+  flex: 1;
+  min-height: 0;
+  height: auto !important;
+}
+
+.properties-hint {
+  padding: 8px 12px;
+}
+
+/* --- hints inside groups ------------------------------------------------------------------------------------ */
+
+.activiti-hint {
+  font-size: 12px;
+  border-left: 3px solid var(--bio-info, #4a7bd0);
+  background: var(--bio-surface-subtle, #f1f4fa);
+  padding: 6px 8px;
+  margin: 4px 0;
+  color: var(--text);
+}
+
+.activiti-hint--warning {
+  border-left-color: var(--bio-warning, #b7791f);
+  background: #fff7e6;
+}
+
+.activiti-hint__text {
+  white-space: normal;
+}
+
+.activiti-tooltip p {
+  margin: 0 0 6px;
+}
+
+/* --- expression editor ------------------------------------------------------------------------------------- */
+
+.activiti-juel-editor {
+  border: 1px solid var(--bio-border, #c4c9d1);
+  border-radius: 2px;
+  background: #fff;
+  max-height: 16em;
+  overflow: auto;
+}
+
+.activiti-juel-editor .cm-editor {
+  max-height: 16em;
+}
+
+.has-error .activiti-juel-editor {
+  border-color: var(--bio-danger, #c0392b);
+}
+
+.has-warning .activiti-juel-editor {
+  border-color: var(--bio-warning, #b7791f);
+}
+
+/* --- rows, tools -------------------------------------------------------------------------------------------- */
+
+.activiti-rows__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.activiti-row {
+  border: 1px solid var(--bio-border, #d6d9de);
+  border-radius: 3px;
+  padding: 6px 8px;
+  margin: 6px 0;
+  background: #fff;
+}
+
+.activiti-row__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.activiti-row__buttons {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.activiti-row__missing {
+  margin-top: 4px;
+}
+
+.activiti-tool {
+  border: 1px solid var(--bio-border, #c4c9d1);
+  background: #fff;
+  border-radius: 3px;
+  padding: 1px 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.activiti-tool:hover:not(:disabled) {
+  background: var(--bio-surface-subtle, #eef0f3);
+}
+
+.activiti-tool:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.activiti-tool--danger {
+  color: var(--bio-danger, #c0392b);
+}
+
+.activiti-item-tools {
+  display: flex;
+  gap: 6px;
+}
+
+/* --- field values, event types ------------------------------------------------------------------------------ */
+
+.activiti-field-value__inputs {
+  display: flex;
+  gap: 4px;
+}
+
+.activiti-field-value__inputs > input {
+  flex: 1;
+  min-width: 0;
+}
+
+.activiti-field-value__mode {
+  flex: none;
+  width: auto !important;
+}
+
+.activiti-event-types__list summary {
+  cursor: pointer;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.activiti-event-types__grid {
+  max-height: 14em;
+  overflow: auto;
+  display: grid;
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.activiti-event-types__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+/* --- notes with buttons, row details ------------------------------------------------------------------------ */
+
+.activiti-action__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.activiti-action__buttons:empty {
+  display: none;
+}
+
+.activiti-row__confirm {
+  font-size: 12px;
+  margin: 4px 0;
+  padding: 6px 8px;
+  background: #fff7e6;
+  border-left: 3px solid var(--bio-warning, #b7791f);
+}
+
+.activiti-row__more {
+  margin: 4px 0 2px;
+}

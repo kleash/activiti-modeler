@@ -1,0 +1,46 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C03 JavaScript script tasks",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "variables are visible by name, execution.setVariable writes, the last expression is the result",
+      "start": { "process": "javascriptScripts", "user": "ann", "variables": { "prices": [10, 20, 30], "factor": 2 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "sum": 60, "itemCount": 3, "scaled": 120, "summary": "items=3, scaled=120" },
+        "path": {
+          "order": [["sumPrices", "scale"], ["scale", "summarize"]],
+          "sequenceFlows": ["f_start_sumPrices", "f_sumPrices_scale", "f_scale_summarize", "f_summarize_end"]
+        }
+      }
+    },
+    {
+      "name": "an empty list and a fractional factor",
+      "start": { "process": "javascriptScripts", "user": "ann", "variables": { "prices": [], "factor": 1.5 } },
+      "expect": {
+        "state": "COMPLETED",
+        "variables": { "sum": 0, "itemCount": 0, "scaled": 0, "summary": "items=0, scaled=0" },
+        "endEvents": ["end"],
+        "path": {
+          "order": [["sumPrices", "scale"], ["scale", "summarize"], ["summarize", "end"]],
+          "sequenceFlows": ["f_start_sumPrices", "f_sumPrices_scale", "f_scale_summarize", "f_summarize_end"]
+        }
+      }
+    },
+    {
+      "name": "a fractional factor on a sum",
+      "start": { "process": "javascriptScripts", "user": "ann", "variables": { "prices": [10, 20, 30], "factor": 1.5 } },
+      "expect": {
+        "state": "COMPLETED",
+        "variables": { "sum": 60, "itemCount": 3, "scaled": 90, "summary": "items=3, scaled=90" },
+        "endEvents": ["end"],
+        "path": {
+          "order": [["sumPrices", "scale"], ["scale", "summarize"], ["summarize", "end"]],
+          "sequenceFlows": ["f_start_sumPrices", "f_sumPrices_scale", "f_scale_summarize", "f_summarize_end"]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/runner-test">
+  <signal id="runnerAsyncSignal" name="runnerAsyncPing"/>
+  <!-- an asynchronous signal throw: the engine creates an event job without process instance or execution -->
+  <process id="asyncSignal" name="Async signal" isExecutable="true">
+    <startEvent id="sStart"/>
+    <sequenceFlow id="f_sStart_sFork" sourceRef="sStart" targetRef="sFork"/>
+    <parallelGateway id="sFork"/>
+    <sequenceFlow id="f_sFork_sCatch" sourceRef="sFork" targetRef="sCatch"/>
+    <sequenceFlow id="f_sFork_sThrow" sourceRef="sFork" targetRef="sThrow"/>
+    <intermediateCatchEvent id="sCatch">
+      <signalEventDefinition signalRef="runnerAsyncSignal"/>
+    </intermediateCatchEvent>
+    <intermediateThrowEvent id="sThrow">
+      <signalEventDefinition signalRef="runnerAsyncSignal" activiti:async="true"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="f_sCatch_sJoin" sourceRef="sCatch" targetRef="sJoin"/>
+    <sequenceFlow id="f_sThrow_sJoin" sourceRef="sThrow" targetRef="sJoin"/>
+    <parallelGateway id="sJoin"/>
+    <sequenceFlow id="f_sJoin_sEnd" sourceRef="sJoin" targetRef="sEnd"/>
+    <endEvent id="sEnd"/>
+  </process>
+</definitions>

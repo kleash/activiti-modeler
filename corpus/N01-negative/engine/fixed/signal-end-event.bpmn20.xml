@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- What the quick fix of models/signal-end-event.bpmn20.xml leads to: an intermediate throw signal event, then a none end event.
+     Written by hand for the engine check (no diagram). -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_signalEnd" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:signal id="Signal_go" name="go" />
+  <bpmn:process id="signalEnd" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:task id="work" name="Work" />
+    <bpmn:intermediateThrowEvent id="raise" name="Raise the signal">
+      <bpmn:signalEventDefinition id="se_def" signalRef="Signal_go" />
+    </bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="raised" name="End" />
+    <bpmn:sequenceFlow id="f_start_work" sourceRef="start" targetRef="work" />
+    <bpmn:sequenceFlow id="f_work_raise" sourceRef="work" targetRef="raise" />
+    <bpmn:sequenceFlow id="f_raise_raised" sourceRef="raise" targetRef="raised" />
+  </bpmn:process>
+</bpmn:definitions>

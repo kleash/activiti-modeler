@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 multi-instance manual and receive tasks",
+  "description": "A multi-instance manual task passes through once per element. Every instance of a parallel multi-instance receive task waits for its own trigger (RuntimeService.trigger on the execution of that instance, picked by its element variable). outputDataItem names the element variable, so the collected lists show the order in which the instances completed.",
+  "scenarios": [
+    {
+      "name": "each parcel waits at the receive task for its own trigger; the collected lists follow the order in which the instances completed",
+      "start": { "process": "miWaitTasks", "variables": { "parcels": ["p1", "p2", "p3"] } },
+      "steps": [
+        { "expectActive": ["pickUpEach"] },
+        { "triggerReceiveTask": { "activity": "pickUpEach", "match": { "localVariables": { "parcel": "p2" } } } },
+        { "expectActive": ["pickUpEach"] },
+        { "triggerReceiveTask": { "activity": "pickUpEach", "match": { "localVariables": { "parcel": "p3" } } } },
+        { "expectActive": ["pickUpEach"] },
+        { "triggerReceiveTask": { "activity": "pickUpEach", "match": { "localVariables": { "parcel": "p1" } } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "packed": ["p1", "p2", "p3"], "pickedUp": ["p2", "p3", "p1"], "parcels": ["p1", "p2", "p3"] },
+        "absentVariables": ["parcel", "loopCounter", "nrOfInstances", "nrOfCompletedInstances", "nrOfActiveInstances"],
+        "path": {
+          "order": [["packEach", "pickUpEach"], ["pickUpEach", "end"]],
+          "sequenceFlows": ["f_start_packEach", "f_packEach_pickUpEach", "f_pickUpEach_end"]
+        }
+      }
+    }
+  ]
+}

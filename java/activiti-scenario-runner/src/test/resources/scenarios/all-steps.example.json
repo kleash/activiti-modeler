@@ -1,0 +1,87 @@
+{
+  "$schema": "../../../../../../schemas/scenario.schema.json",
+  "name": "every step type",
+  "description": "Parsed by ScenarioLoaderTest; shows every step and matcher once.",
+  "users": { "alice": ["reviewers"], "bob": ["managers"] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "all steps",
+      "description": "start by process key",
+      "clock": "2031-01-01T09:00:00+01:00",
+      "start": { "process": "loanApproval", "businessKey": "L-1", "user": "alice", "variables": { "amount": 5000 } },
+      "steps": [
+        { "expectTask": { "activity": "review", "name": "Review L-1", "description": "...", "assignee": null, "owner": null,
+            "candidateUsers": [], "candidateGroups": ["reviewers"], "priority": 80, "category": "credit", "formKey": "reviewForm",
+            "dueDate": "2030-01-02T09:00:00Z", "localVariables": { "amount": 5000 }, "partial": true,
+            "count": 1, "match": { "index": 1 }, "visibleTo": ["alice"], "notVisibleTo": ["bob"] } },
+        { "claim": { "activity": "review", "user": "alice" } },
+        { "release": { "activity": "review", "user": "alice" } },
+        { "assign": { "activity": "review", "assignee": "bob", "user": "alice" } },
+        { "completeTask": { "activity": "review", "user": "alice", "variables": { "approved": true } } },
+        { "completeTask": { "activity": "approveEach", "match": { "localVariables": { "person": "bob" } }, "user": "bob" } },
+        { "completeTask": { "activity": "bad", "user": "alice", "expectFailure": { "exception": "ActivitiException", "messageContains": "No outgoing" } } },
+        { "expectConnectorCall": { "activity": "callCrm", "connector": "crm.LOOKUP", "count": 1, "call": 1, "partial": true,
+            "inbound": { "customerId": "C-7", "_activiti_dmn_table_": { "$ignore": true } }, "outbound": { "name": { "$exists": true } } } },
+        { "expectChildInstance": { "callActivity": "doKyc", "process": "kyc", "businessKey": "L-1", "count": 1, "call": 1, "state": "COMPLETED",
+            "startVariables": { "cid": "C-7" }, "variables": { "result": { "$type": "string" } }, "absentVariables": ["tmp"],
+            "path": { "contains": ["kycDone"] } } },
+        { "message": { "name": "docsReceived", "correlationKey": "L-1", "variables": { "docs": 3 }, "user": "alice",
+            "expectFailure": { "messageContains": "not found" } } },
+        { "signal": { "name": "audit", "variables": {}, "user": "alice" } },
+        { "triggerReceiveTask": { "activity": "waitForPayment", "variables": { "paid": true } } },
+        { "expectTimer": { "activity": "reminder", "count": 1, "dueDate": { "$gt": "2030-01-01T09:00:00Z" } } },
+        { "fireTimer": { "activity": "reminder", "all": true } },
+        { "advanceClock": "PT25H" },
+        { "executeJobs": { "maxRounds": 10, "timeoutMs": 5000 } },
+        { "failJobUntilDeadLetter": { "activity": "flakyCall", "maxAttempts": 5 } },
+        { "expectActive": ["notify"] },
+        { "expectActive": { "exactly": ["notify"], "contains": ["notify"], "notContains": ["review"] } },
+        { "setVariables": { "x": 1 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["approvedEnd"],
+        "path": {
+          "contains": ["riskCheck", "review"],
+          "notContains": ["rejectedEnd"],
+          "order": [["start", "riskCheck"], ["riskCheck", "review"]],
+          "sequenceFlows": ["toReview"],
+          "notSequenceFlows": ["toReject"]
+        },
+        "variables": {
+          "riskLevel": "low",
+          "score": { "$gt": 10, "$lte": 100 },
+          "ref": { "$regex": "^L-" },
+          "list": { "$size": { "$gte": 1 }, "$contains": "a" },
+          "kind": { "$any": ["a", "b"] },
+          "n": { "$type": "integer", "$gte": 0, "$lt": 5 },
+          "maybe": { "$exists": false },
+          "nested": { "a": [1, { "$gt": 2 }] }
+        },
+        "absentVariables": ["tmp"],
+        "deadLetterJobs": [ { "activity": "flakyCall", "exceptionMessageContains": "boom" } ]
+      }
+    },
+    {
+      "name": "message start",
+      "start": { "message": "newLoan", "variables": { "amount": 1 } }
+    },
+    {
+      "name": "signal start",
+      "start": { "signal": "go", "process": "p" }
+    },
+    {
+      "name": "timer start",
+      "start": { "timer": "timerStart", "process": "p" }
+    },
+    {
+      "name": "start is rejected",
+      "start": { "process": "p", "expectFailure": { "messageContains": "required variables" } }
+    }
+  ],
+  "decisions": [
+    { "name": "medium risk", "decision": "riskLevel", "inputs": { "amount": 5000 },
+      "expect": { "result": [ { "riskLevel": "medium" } ], "matchedRules": ["Rule_medium"] } }
+  ]
+}

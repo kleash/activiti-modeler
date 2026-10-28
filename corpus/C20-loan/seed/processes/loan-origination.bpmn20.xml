@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_loanOrigination"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C20">
+  <message id="documentsReceivedMsg" name="documentsReceived"/>
+  <process id="loanOrigination" name="Loan origination" isExecutable="true">
+    <documentation>A personal loan application. The KYC check is a called process; its outcome and the credit score the analyst enters come back through the MAP_ALL mapping the modeler gives a call activity. A decision task evaluates the credit policy table and routes the application: decline, automatic offer, or manual underwriting by the underwriters group, escalated to the senior underwriters by a timer after 48 hours. The offer waits for the documentsReceived message, whose payload decides whether the loan is funded.</documentation>
+    <startEvent id="start" name="Application received"/>
+    <sequenceFlow id="f_start_kycCall" sourceRef="start" targetRef="kycCall"/>
+    <callActivity id="kycCall" name="KYC check" calledElement="kycCheck"/>
+    <sequenceFlow id="f_kycCall_kycGateway" sourceRef="kycCall" targetRef="kycGateway"/>
+    <exclusiveGateway id="kycGateway" name="KYC passed?" default="f_kycGateway_assessRisk"/>
+    <sequenceFlow id="f_kycGateway_kycRejectedEnd" name="failed" sourceRef="kycGateway" targetRef="kycRejectedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${kycStatus == 'FAILED'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_kycGateway_assessRisk" name="passed" sourceRef="kycGateway" targetRef="assessRisk"/>
+    <endEvent id="kycRejectedEnd" name="Rejected: KYC failed"/>
+    <serviceTask id="assessRisk" name="Assess credit risk" implementation="dmn-connector.EXECUTE_TABLE"/>
+    <sequenceFlow id="f_assessRisk_routeGateway" sourceRef="assessRisk" targetRef="routeGateway"/>
+    <exclusiveGateway id="routeGateway" name="Route" default="f_routeGateway_underwriting"/>
+    <sequenceFlow id="f_routeGateway_declinedEnd" name="decline" sourceRef="routeGateway" targetRef="declinedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${route == 'DECLINE'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_routeGateway_prepareOffer" name="auto" sourceRef="routeGateway" targetRef="prepareOffer">
+      <conditionExpression xsi:type="tFormalExpression">${route == 'AUTO'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_routeGateway_underwriting" name="manual" sourceRef="routeGateway" targetRef="underwriting"/>
+    <endEvent id="declinedEnd" name="Declined: credit policy"/>
+    <userTask id="underwriting" name="Underwrite the application" activiti:candidateGroups="underwriters"/>
+    <boundaryEvent id="underwritingTimeout" name="48 hours without a decision" attachedToRef="underwriting">
+      <timerEventDefinition>
+        <timeDuration>PT48H</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="f_underwriting_approvedGateway" sourceRef="underwriting" targetRef="approvedGateway"/>
+    <sequenceFlow id="f_underwritingTimeout_seniorReview" sourceRef="underwritingTimeout" targetRef="seniorReview"/>
+    <userTask id="seniorReview" name="Senior review" activiti:candidateGroups="senior-underwriters"/>
+    <sequenceFlow id="f_seniorReview_approvedGateway" sourceRef="seniorReview" targetRef="approvedGateway"/>
+    <exclusiveGateway id="approvedGateway" name="Approved?" default="f_approvedGateway_rejectedEnd"/>
+    <sequenceFlow id="f_approvedGateway_prepareOffer" name="yes" sourceRef="approvedGateway" targetRef="prepareOffer">
+      <conditionExpression xsi:type="tFormalExpression">${approved}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_approvedGateway_rejectedEnd" name="no" sourceRef="approvedGateway" targetRef="rejectedEnd"/>
+    <endEvent id="rejectedEnd" name="Rejected by underwriting"/>
+    <serviceTask id="prepareOffer" name="Prepare the offer" activiti:expression="${execution.setVariable('offerAmount', execution.getVariable('approvedAmount') != null ? execution.getVariable('approvedAmount') : amount)}"/>
+    <sequenceFlow id="f_prepareOffer_awaitDocuments" sourceRef="prepareOffer" targetRef="awaitDocuments"/>
+    <intermediateCatchEvent id="awaitDocuments" name="Documents received">
+      <messageEventDefinition messageRef="documentsReceivedMsg" activiti:correlationKey="${applicationId}"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_awaitDocuments_documentsGateway" sourceRef="awaitDocuments" targetRef="documentsGateway"/>
+    <exclusiveGateway id="documentsGateway" name="Documents complete?" default="f_documentsGateway_incompleteEnd"/>
+    <sequenceFlow id="f_documentsGateway_disburse" name="yes" sourceRef="documentsGateway" targetRef="disburse">
+      <conditionExpression xsi:type="tFormalExpression">${documentsComplete}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_documentsGateway_incompleteEnd" name="no" sourceRef="documentsGateway" targetRef="incompleteEnd"/>
+    <serviceTask id="disburse" name="Disburse the loan" activiti:expression="${execution.setVariable('disbursed', true)}"/>
+    <sequenceFlow id="f_disburse_fundedEnd" sourceRef="disburse" targetRef="fundedEnd"/>
+    <endEvent id="fundedEnd" name="Funded"/>
+    <endEvent id="incompleteEnd" name="Closed: documents incomplete"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="loanOrigination">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="kycCall_di" bpmnElement="kycCall">
+        <dc:Bounds x="220" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="kycGateway_di" bpmnElement="kycGateway" isMarkerVisible="true">
+        <dc:Bounds x="395" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="kycRejectedEnd_di" bpmnElement="kycRejectedEnd">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="assessRisk_di" bpmnElement="assessRisk">
+        <dc:Bounds x="520" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="routeGateway_di" bpmnElement="routeGateway" isMarkerVisible="true">
+        <dc:Bounds x="695" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="declinedEnd_di" bpmnElement="declinedEnd">
+        <dc:Bounds x="702" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="underwriting_di" bpmnElement="underwriting">
+        <dc:Bounds x="820" y="290" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="seniorReview_di" bpmnElement="seniorReview">
+        <dc:Bounds x="970" y="400" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approvedGateway_di" bpmnElement="approvedGateway" isMarkerVisible="true">
+        <dc:Bounds x="1145" y="305" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="rejectedEnd_di" bpmnElement="rejectedEnd">
+        <dc:Bounds x="1152" y="422" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepareOffer_di" bpmnElement="prepareOffer">
+        <dc:Bounds x="1270" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="awaitDocuments_di" bpmnElement="awaitDocuments">
+        <dc:Bounds x="1452" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="documentsGateway_di" bpmnElement="documentsGateway" isMarkerVisible="true">
+        <dc:Bounds x="1595" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="disburse_di" bpmnElement="disburse">
+        <dc:Bounds x="1720" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fundedEnd_di" bpmnElement="fundedEnd">
+        <dc:Bounds x="1902" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="incompleteEnd_di" bpmnElement="incompleteEnd">
+        <dc:Bounds x="1752" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="underwritingTimeout_di" bpmnElement="underwritingTimeout">
+        <dc:Bounds x="840" y="352" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_kycCall_di" bpmnElement="f_start_kycCall">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_kycCall_kycGateway_di" bpmnElement="f_kycCall_kycGateway">
+        <di:waypoint x="320" y="220"/>
+        <di:waypoint x="395" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_kycGateway_kycRejectedEnd_di" bpmnElement="f_kycGateway_kycRejectedEnd">
+        <di:waypoint x="420" y="245"/>
+        <di:waypoint x="420" y="275"/>
+        <di:waypoint x="420" y="275"/>
+        <di:waypoint x="420" y="128"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_kycGateway_assessRisk_di" bpmnElement="f_kycGateway_assessRisk">
+        <di:waypoint x="445" y="220"/>
+        <di:waypoint x="520" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_assessRisk_routeGateway_di" bpmnElement="f_assessRisk_routeGateway">
+        <di:waypoint x="620" y="220"/>
+        <di:waypoint x="695" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_routeGateway_declinedEnd_di" bpmnElement="f_routeGateway_declinedEnd">
+        <di:waypoint x="720" y="245"/>
+        <di:waypoint x="720" y="275"/>
+        <di:waypoint x="720" y="275"/>
+        <di:waypoint x="720" y="128"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_routeGateway_prepareOffer_di" bpmnElement="f_routeGateway_prepareOffer">
+        <di:waypoint x="745" y="220"/>
+        <di:waypoint x="1270" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_routeGateway_underwriting_di" bpmnElement="f_routeGateway_underwriting">
+        <di:waypoint x="745" y="220"/>
+        <di:waypoint x="782" y="220"/>
+        <di:waypoint x="782" y="330"/>
+        <di:waypoint x="820" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_underwriting_approvedGateway_di" bpmnElement="f_underwriting_approvedGateway">
+        <di:waypoint x="920" y="330"/>
+        <di:waypoint x="1145" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_underwritingTimeout_seniorReview_di" bpmnElement="f_underwritingTimeout_seniorReview">
+        <di:waypoint x="858" y="388"/>
+        <di:waypoint x="858" y="440"/>
+        <di:waypoint x="970" y="440"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_seniorReview_approvedGateway_di" bpmnElement="f_seniorReview_approvedGateway">
+        <di:waypoint x="1070" y="440"/>
+        <di:waypoint x="1108" y="440"/>
+        <di:waypoint x="1108" y="330"/>
+        <di:waypoint x="1145" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_approvedGateway_prepareOffer_di" bpmnElement="f_approvedGateway_prepareOffer">
+        <di:waypoint x="1195" y="330"/>
+        <di:waypoint x="1232" y="330"/>
+        <di:waypoint x="1232" y="220"/>
+        <di:waypoint x="1270" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_approvedGateway_rejectedEnd_di" bpmnElement="f_approvedGateway_rejectedEnd">
+        <di:waypoint x="1170" y="355"/>
+        <di:waypoint x="1170" y="488"/>
+        <di:waypoint x="1170" y="488"/>
+        <di:waypoint x="1170" y="458"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_prepareOffer_awaitDocuments_di" bpmnElement="f_prepareOffer_awaitDocuments">
+        <di:waypoint x="1370" y="220"/>
+        <di:waypoint x="1452" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_awaitDocuments_documentsGateway_di" bpmnElement="f_awaitDocuments_documentsGateway">
+        <di:waypoint x="1488" y="220"/>
+        <di:waypoint x="1595" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_documentsGateway_disburse_di" bpmnElement="f_documentsGateway_disburse">
+        <di:waypoint x="1645" y="220"/>
+        <di:waypoint x="1720" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_documentsGateway_incompleteEnd_di" bpmnElement="f_documentsGateway_incompleteEnd">
+        <di:waypoint x="1645" y="220"/>
+        <di:waypoint x="1698" y="220"/>
+        <di:waypoint x="1698" y="330"/>
+        <di:waypoint x="1752" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_disburse_fundedEnd_di" bpmnElement="f_disburse_fundedEnd">
+        <di:waypoint x="1820" y="220"/>
+        <di:waypoint x="1902" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

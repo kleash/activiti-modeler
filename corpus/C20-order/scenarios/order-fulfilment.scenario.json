@@ -1,0 +1,120 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C20 order fulfilment: template-made connector mappings, a compensated error path and a signal payload",
+  "description": "The connector tasks carry the mappings the connector templates created (a VARIABLE input per action input, a VARIABLE output per action output). The two signal catch events have no mapping at all - the modeler gives a signal catch event none - and the payload of both signals reaches the process anyway (signal-mapping-ignored.scenario.json shows that a mapping written on a signal catch event is not applied).",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a standard order: every connector gets exactly its mapped inputs, the outputs reach the process, the signal payload picks the notice",
+      "start": {
+        "process": "orderFulfilment",
+        "businessKey": "O-1",
+        "user": "ann",
+        "variables": { "orderId": "O-1", "customerId": "C-1", "sku": "SKU-7", "quantity": 2, "amount": 120, "cardToken": "tok-ok", "address": "1 Main St" }
+      },
+      "steps": [
+        { "expectConnectorCall": { "activity": "lookupCustomer", "connector": "crm.LOOKUP", "count": 1,
+            "inbound": { "customerId": "C-1" },
+            "outbound": { "customerName": "Customer C-1", "tier": "standard", "found": true } } },
+        { "expectConnectorCall": { "activity": "reserveStock", "connector": "inventory.RESERVE", "count": 1,
+            "inbound": { "sku": "SKU-7", "quantity": 2 },
+            "outbound": { "reservationId": "RES-SKU-7", "reservedQuantity": 2, "reserved": true } } },
+        { "expectConnectorCall": { "activity": "chargePayment", "connector": "payment.CHARGE", "count": 1,
+            "inbound": { "orderId": "O-1", "amount": 120, "cardToken": "tok-ok" },
+            "outbound": { "paymentId": "PAY-O-1", "chargedAmount": 120 } } },
+        { "expectConnectorCall": { "activity": "createShipment", "connector": "shipping.CREATE", "count": 1,
+            "inbound": { "orderId": "O-1", "address": "1 Main St" },
+            "outbound": { "trackingNumber": "TRK-O-1", "labelCreated": true } } },
+        { "expectActive": ["awaitPickup"] },
+        { "signal": { "name": "carrierPickedUp", "variables": { "carrier": "POSTAL", "pickedUpAt": "2030-01-02T10:00:00Z" } } },
+        { "expectActive": ["awaitDelivery"] },
+        { "signal": { "name": "orderDelivered", "variables": { "deliveredTo": "J. Doe", "deliveredAt": "2030-01-04T12:00:00Z" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["shippedEnd"],
+        "path": {
+          "contains": ["lookupCustomer", "reserveStock", "chargePayment", "fork", "packOrder", "createShipment", "join", "awaitPickup", "awaitDelivery", "carrierGateway", "standardNotice", "shippedEnd"],
+          "notContains": ["paymentDeclined", "rollbackOrder", "releaseStock", "declinedEnd", "expressNotice", "expressShippedEnd"],
+          "order": [["lookupCustomer", "reserveStock"], ["reserveStock", "chargePayment"], ["chargePayment", "fork"], ["fork", "packOrder"], ["fork", "createShipment"], ["packOrder", "join"], ["createShipment", "join"], ["join", "awaitPickup"], ["awaitPickup", "awaitDelivery"], ["awaitDelivery", "standardNotice"]],
+          "sequenceFlows": [
+            "f_start_lookupCustomer", "f_lookupCustomer_reserveStock", "f_reserveStock_chargePayment", "f_chargePayment_fork", "f_fork_packOrder", "f_fork_createShipment",
+            "f_packOrder_join", "f_createShipment_join", "f_join_awaitPickup", "f_awaitPickup_awaitDelivery", "f_awaitDelivery_carrierGateway", "f_carrierGateway_standardNotice", "f_standardNotice_shippedEnd"
+          ],
+          "notSequenceFlows": ["f_carrierGateway_expressNotice", "f_paymentDeclined_rollbackOrder"]
+        },
+        "variables": {
+          "customerName": "Customer C-1",
+          "tier": "standard",
+          "found": true,
+          "reservationId": "RES-SKU-7",
+          "reservedQuantity": 2,
+          "reserved": true,
+          "paymentId": "PAY-O-1",
+          "chargedAmount": 120,
+          "trackingNumber": "TRK-O-1",
+          "labelCreated": true,
+          "packed": true,
+          "carrier": "POSTAL",
+          "pickedUpAt": "2030-01-02T10:00:00Z",
+          "deliveredTo": "J. Doe",
+          "deliveredAt": "2030-01-04T12:00:00Z",
+          "notice": "STANDARD"
+        },
+        "absentVariables": ["stockReleased"]
+      }
+    },
+    {
+      "name": "an express pickup: the carrier in the signal payload routes the exclusive gateway",
+      "start": {
+        "process": "orderFulfilment",
+        "businessKey": "O-2",
+        "user": "ann",
+        "variables": { "orderId": "O-2", "customerId": "G-9", "sku": "SKU-1", "quantity": 1, "amount": 5000, "cardToken": "tok-gold", "address": "9 High St" }
+      },
+      "steps": [
+        { "expectConnectorCall": { "activity": "lookupCustomer", "outbound": { "customerName": "Customer G-9", "tier": "gold", "found": true } } },
+        { "signal": { "name": "carrierPickedUp", "variables": { "carrier": "EXPRESS" } } },
+        { "signal": { "name": "orderDelivered", "variables": { "deliveredTo": "reception" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["expressShippedEnd"],
+        "path": {
+          "contains": ["awaitPickup", "carrierGateway", "expressNotice", "expressShippedEnd"],
+          "notContains": ["standardNotice", "shippedEnd"],
+          "sequenceFlows": ["f_carrierGateway_expressNotice", "f_expressNotice_expressShippedEnd"],
+          "notSequenceFlows": ["f_carrierGateway_standardNotice"]
+        },
+        "variables": { "tier": "gold", "carrier": "EXPRESS", "deliveredTo": "reception", "notice": "EXPRESS", "trackingNumber": "TRK-O-2", "paymentId": "PAY-O-2", "chargedAmount": 5000 },
+        "absentVariables": ["pickedUpAt", "deliveredAt", "stockReleased"]
+      }
+    },
+    {
+      "name": "a declined card: the error boundary compensates the stock reservation and cancels the order",
+      "start": {
+        "process": "orderFulfilment",
+        "businessKey": "O-3",
+        "user": "ann",
+        "variables": { "orderId": "O-3", "customerId": "C-3", "sku": "SKU-3", "quantity": 4, "amount": 800, "cardToken": "DECLINED", "address": "3 Low St" }
+      },
+      "steps": [
+        { "expectConnectorCall": { "activity": "reserveStock", "count": 1, "outbound": { "reservationId": "RES-SKU-3", "reservedQuantity": 4, "reserved": true } } },
+        { "expectConnectorCall": { "activity": "chargePayment", "connector": "payment.CHARGE", "count": 1 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["declinedEnd"],
+        "path": {
+          "contains": ["reserveStock", "chargePayment", "paymentDeclined", "rollbackOrder", "releaseStock", "declinedEnd"],
+          "notContains": ["fork", "packOrder", "createShipment", "join", "awaitPickup", "awaitDelivery", "shippedEnd", "expressShippedEnd"],
+          "order": [["reserveStock", "chargePayment"], ["paymentDeclined", "rollbackOrder"], ["rollbackOrder", "declinedEnd"]],
+          "sequenceFlows": ["f_start_lookupCustomer", "f_reserveStock_chargePayment", "f_paymentDeclined_rollbackOrder", "f_rollbackOrder_declinedEnd"],
+          "notSequenceFlows": ["f_chargePayment_fork"]
+        },
+        "variables": { "reservationId": "RES-SKU-3", "reserved": true, "stockReleased": true, "tier": "standard" },
+        "absentVariables": ["paymentId", "chargedAmount", "trackingNumber", "packed", "notice", "deliveredTo"]
+      }
+    }
+  ]
+}

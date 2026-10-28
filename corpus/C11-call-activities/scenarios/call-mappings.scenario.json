@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C11 call activities with extensions mappings, property validation and MAP_ALL",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a short customer id is low risk: mapped inputs, child defaults, constant, mapped outputs only",
+      "start": { "process": "callMappings", "user": "ann", "variables": { "customerId": "C-1" } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "riskLookup", "process": "riskCheck", "state": "COMPLETED",
+                                   "startVariables": { "customerId": "C-1", "channel": "web", "model": "v2", "retries": 3 },
+                                   "variables": { "riskScore": 30, "riskBand": "low" },
+                                   "path": { "order": [["score", "band"]], "sequenceFlows": ["f_score_band"] } } },
+        { "expectChildInstance": { "callActivity": "passAll", "process": "echoChild", "state": "COMPLETED",
+                                   "startVariables": { "customerId": "C-1", "score": 30, "band": "low" },
+                                   "variables": { "childRan": true } } },
+        { "expectChildInstance": { "callActivity": "passBare", "process": "leafChild", "state": "COMPLETED",
+                                   "variables": { "leafRan": true },
+                                   "absentVariables": ["customerId", "score", "band"] } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "customerId": "C-1", "score": 30, "band": "low", "childRan": true, "leafRan": true },
+        "absentVariables": ["riskScore", "riskBand", "channel", "model", "retries"],
+        "path": { "sequenceFlows": ["f_start_riskLookup", "f_riskLookup_passAll", "f_passAll_passBare", "f_passBare_end"] }
+      }
+    },
+    {
+      "name": "a long customer id is high risk",
+      "start": { "process": "callMappings", "user": "ann", "variables": { "customerId": "C-123456" } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "riskLookup", "variables": { "riskScore": 80, "riskBand": "high" } } }
+      ],
+      "expect": { "state": "COMPLETED", "variables": { "score": 80, "band": "high" } }
+    },
+    {
+      "name": "the child's required property customerId is enforced when the mapping supplies no value",
+      "start": { "process": "callMappings", "user": "ann", "variables": {},
+                 "expectFailure": { "exception": "ActivitiException", "messageContains": "Can't start process 'riskCheck' without required variables - customerId" } }
+    }
+  ]
+}

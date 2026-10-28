@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C03">
+  <process id="juelScripts" name="JUEL scripts" isExecutable="true">
+    <documentation>Script tasks in the default script language (JUEL): the script is an expression, its value goes to the result variable.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_calcTotal" sourceRef="start" targetRef="calcTotal"/>
+    <scriptTask id="calcTotal" name="Calculate total" activiti:resultVariable="total">
+      <script>${price * quantity}</script>
+    </scriptTask>
+    <sequenceFlow id="f_calcTotal_applyDiscount" sourceRef="calcTotal" targetRef="applyDiscount"/>
+    <scriptTask id="applyDiscount" name="Apply discount" scriptFormat="juel" activiti:resultVariable="net">
+      <script>${total &gt; 100 ? total * 0.9 : total}</script>
+    </scriptTask>
+    <sequenceFlow id="f_applyDiscount_greet" sourceRef="applyDiscount" targetRef="greet"/>
+    <scriptTask id="greet" name="Greet customer" scriptFormat="juel" activiti:resultVariable="greeting">
+      <script>${greeter.greet(scriptHelper.upper(customer))}</script>
+    </scriptTask>
+    <sequenceFlow id="f_greet_flagLarge" sourceRef="greet" targetRef="flagLarge"/>
+    <scriptTask id="flagLarge" name="Flag large orders" scriptFormat="juel">
+      <script>${execution.setVariable('large', net &gt; 100)}</script>
+    </scriptTask>
+    <sequenceFlow id="f_flagLarge_sizeGate" sourceRef="flagLarge" targetRef="sizeGate"/>
+    <exclusiveGateway id="sizeGate" name="Large?" default="f_sizeGate_smallEnd"/>
+    <sequenceFlow id="f_sizeGate_largeEnd" sourceRef="sizeGate" targetRef="largeEnd">
+      <conditionExpression xsi:type="tFormalExpression">${large}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_sizeGate_smallEnd" sourceRef="sizeGate" targetRef="smallEnd"/>
+    <endEvent id="largeEnd" name="Large order"/>
+    <endEvent id="smallEnd" name="Small order"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="juelScripts">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="calcTotal_di" bpmnElement="calcTotal">
+        <dc:Bounds x="220" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="applyDiscount_di" bpmnElement="applyDiscount">
+        <dc:Bounds x="370" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="greet_di" bpmnElement="greet">
+        <dc:Bounds x="520" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="flagLarge_di" bpmnElement="flagLarge">
+        <dc:Bounds x="670" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sizeGate_di" bpmnElement="sizeGate" isMarkerVisible="true">
+        <dc:Bounds x="845" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="largeEnd_di" bpmnElement="largeEnd">
+        <dc:Bounds x="1002" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="smallEnd_di" bpmnElement="smallEnd">
+        <dc:Bounds x="1002" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_calcTotal_di" bpmnElement="f_start_calcTotal">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_calcTotal_applyDiscount_di" bpmnElement="f_calcTotal_applyDiscount">
+        <di:waypoint x="320" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_applyDiscount_greet_di" bpmnElement="f_applyDiscount_greet">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="520" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_greet_flagLarge_di" bpmnElement="f_greet_flagLarge">
+        <di:waypoint x="620" y="220"/>
+        <di:waypoint x="670" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_flagLarge_sizeGate_di" bpmnElement="f_flagLarge_sizeGate">
+        <di:waypoint x="770" y="220"/>
+        <di:waypoint x="845" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sizeGate_largeEnd_di" bpmnElement="f_sizeGate_largeEnd">
+        <di:waypoint x="895" y="220"/>
+        <di:waypoint x="948" y="220"/>
+        <di:waypoint x="948" y="110"/>
+        <di:waypoint x="1002" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sizeGate_smallEnd_di" bpmnElement="f_sizeGate_smallEnd">
+        <di:waypoint x="895" y="220"/>
+        <di:waypoint x="948" y="220"/>
+        <di:waypoint x="948" y="330"/>
+        <di:waypoint x="1002" y="330"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

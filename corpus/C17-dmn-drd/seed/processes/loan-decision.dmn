@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="Definitions_loanDecision" name="Loan decision" namespace="http://activiti.org/schema/1.0/dmn/Definitions_loanDecision">
+  <inputData id="InputData_age" name="age">
+    <variable id="InputData_age_variable" name="age" typeRef="number" />
+  </inputData>
+  <inputData id="InputData_country" name="country">
+    <variable id="InputData_country_variable" name="country" typeRef="string" />
+  </inputData>
+  <inputData id="InputData_income" name="income">
+    <variable id="InputData_income_variable" name="income" typeRef="number" />
+  </inputData>
+  <inputData id="InputData_amount" name="amount">
+    <variable id="InputData_amount_variable" name="amount" typeRef="number" />
+  </inputData>
+  <decision id="riskClass" name="riskClass">
+    <variable id="riskClass_variable" name="riskClass" typeRef="string" />
+    <informationRequirement id="riskClass_req_InputData_age">
+      <requiredInput href="#InputData_age" />
+    </informationRequirement>
+    <informationRequirement id="riskClass_req_InputData_country">
+      <requiredInput href="#InputData_country" />
+    </informationRequirement>
+    <decisionTable id="riskClass_table" hitPolicy="PRIORITY">
+      <input id="riskClass_input1" label="Age">
+        <inputExpression id="riskClass_inputExpression1" typeRef="number">
+          <text>age</text>
+        </inputExpression>
+      </input>
+      <input id="riskClass_input2" label="Country">
+        <inputExpression id="riskClass_inputExpression2" typeRef="string">
+          <text>country</text>
+        </inputExpression>
+      </input>
+      <output id="riskClass_output1" name="riskClass" typeRef="string">
+        <outputValues id="riskClass_outputValues1">
+          <text>"HIGH","MEDIUM","LOW"</text>
+        </outputValues>
+      </output>
+      <rule id="riskClass_highYoung">
+        <inputEntry id="riskClass_highYoung_in1"><text>&lt; 21</text></inputEntry>
+        <inputEntry id="riskClass_highYoung_in2"><text>-</text></inputEntry>
+        <outputEntry id="riskClass_highYoung_out1"><text>"HIGH"</text></outputEntry>
+      </rule>
+      <rule id="riskClass_mediumAbroad">
+        <inputEntry id="riskClass_mediumAbroad_in1"><text>-</text></inputEntry>
+        <inputEntry id="riskClass_mediumAbroad_in2"><text>not("DE","AT","CH")</text></inputEntry>
+        <outputEntry id="riskClass_mediumAbroad_out1"><text>"MEDIUM"</text></outputEntry>
+      </rule>
+      <rule id="riskClass_lowDefault">
+        <inputEntry id="riskClass_lowDefault_in1"><text>-</text></inputEntry>
+        <inputEntry id="riskClass_lowDefault_in2"><text>-</text></inputEntry>
+        <outputEntry id="riskClass_lowDefault_out1"><text>"LOW"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <decision id="maxLoan" name="maxLoan">
+    <variable id="maxLoan_variable" name="maxLoan" typeRef="number" />
+    <informationRequirement id="maxLoan_req_InputData_income">
+      <requiredInput href="#InputData_income" />
+    </informationRequirement>
+    <literalExpression id="maxLoan_expression" typeRef="number">
+      <text>income * 4</text>
+    </literalExpression>
+  </decision>
+  <decision id="loanOffer" name="loanOffer">
+    <variable id="loanOffer_variable" name="loanOffer" typeRef="string" />
+    <informationRequirement id="loanOffer_req_riskClass">
+      <requiredDecision href="#riskClass" />
+    </informationRequirement>
+    <informationRequirement id="loanOffer_req_maxLoan">
+      <requiredDecision href="#maxLoan" />
+    </informationRequirement>
+    <informationRequirement id="loanOffer_req_InputData_amount">
+      <requiredInput href="#InputData_amount" />
+    </informationRequirement>
+    <decisionTable id="loanOffer_table" hitPolicy="UNIQUE">
+      <input id="loanOffer_input1" label="Risk class">
+        <inputExpression id="loanOffer_inputExpression1" typeRef="string">
+          <text>riskClass</text>
+        </inputExpression>
+      </input>
+      <input id="loanOffer_input2" label="Within limit">
+        <inputExpression id="loanOffer_inputExpression2" typeRef="boolean">
+          <text>amount &lt;= maxLoan</text>
+        </inputExpression>
+      </input>
+      <output id="loanOffer_output1" name="offer" typeRef="string" />
+      <rule id="loanOffer_approve">
+        <inputEntry id="loanOffer_approve_in1"><text>"LOW","MEDIUM"</text></inputEntry>
+        <inputEntry id="loanOffer_approve_in2"><text>true</text></inputEntry>
+        <outputEntry id="loanOffer_approve_out1"><text>"APPROVE"</text></outputEntry>
+      </rule>
+      <rule id="loanOffer_review">
+        <inputEntry id="loanOffer_review_in1"><text>"HIGH"</text></inputEntry>
+        <inputEntry id="loanOffer_review_in2"><text>true</text></inputEntry>
+        <outputEntry id="loanOffer_review_out1"><text>"REVIEW"</text></outputEntry>
+      </rule>
+      <rule id="loanOffer_declineLimit">
+        <inputEntry id="loanOffer_declineLimit_in1"><text>-</text></inputEntry>
+        <inputEntry id="loanOffer_declineLimit_in2"><text>false</text></inputEntry>
+        <outputEntry id="loanOffer_declineLimit_out1"><text>"DECLINE"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_loanOffer" dmnElementRef="loanOffer">
+        <dc:Bounds height="80" width="180" x="230" y="40" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_riskClass" dmnElementRef="riskClass">
+        <dc:Bounds height="80" width="180" x="60" y="200" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_maxLoan" dmnElementRef="maxLoan">
+        <dc:Bounds height="80" width="180" x="400" y="200" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_age" dmnElementRef="InputData_age">
+        <dc:Bounds height="45" width="120" x="20" y="380" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_country" dmnElementRef="InputData_country">
+        <dc:Bounds height="45" width="120" x="160" y="380" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_income" dmnElementRef="InputData_income">
+        <dc:Bounds height="45" width="120" x="440" y="380" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_amount" dmnElementRef="InputData_amount">
+        <dc:Bounds height="45" width="120" x="620" y="200" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_loanOffer_req_riskClass" dmnElementRef="loanOffer_req_riskClass">
+        <di:waypoint x="150" y="200" />
+        <di:waypoint x="290" y="120" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_loanOffer_req_maxLoan" dmnElementRef="loanOffer_req_maxLoan">
+        <di:waypoint x="490" y="200" />
+        <di:waypoint x="350" y="120" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_loanOffer_req_InputData_amount" dmnElementRef="loanOffer_req_InputData_amount">
+        <di:waypoint x="680" y="200" />
+        <di:waypoint x="410" y="90" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_riskClass_req_InputData_age" dmnElementRef="riskClass_req_InputData_age">
+        <di:waypoint x="80" y="380" />
+        <di:waypoint x="130" y="280" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_riskClass_req_InputData_country" dmnElementRef="riskClass_req_InputData_country">
+        <di:waypoint x="220" y="380" />
+        <di:waypoint x="170" y="280" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_maxLoan_req_InputData_income" dmnElementRef="maxLoan_req_InputData_income">
+        <di:waypoint x="500" y="380" />
+        <di:waypoint x="490" y="280" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

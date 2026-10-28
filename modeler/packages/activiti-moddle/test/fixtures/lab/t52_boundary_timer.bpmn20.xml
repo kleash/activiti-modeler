@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t52_boundary_timer" name="t52_boundary_timer" isExecutable="true">
+    <startEvent id="s"/><userTask id="u"/><endEvent id="e"/>
+    <boundaryEvent id="bt" attachedToRef="u" cancelActivity="false"><timerEventDefinition><timeDuration>PT1S</timeDuration></timerEventDefinition></boundaryEvent><userTask id="esc"/><endEvent id="e2"/>
+    <boundaryEvent id="bt2" attachedToRef="u"><timerEventDefinition><timeCycle>0 0 12 * * ?</timeCycle></timerEventDefinition></boundaryEvent><endEvent id="e3"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="u"/>
+    <sequenceFlow id="f2" sourceRef="u" targetRef="e"/>
+    <sequenceFlow id="f3" sourceRef="bt" targetRef="esc"/>
+    <sequenceFlow id="f4" sourceRef="esc" targetRef="e2"/>
+    <sequenceFlow id="f5" sourceRef="bt2" targetRef="e3"/>
+
+  </process>
+</definitions>

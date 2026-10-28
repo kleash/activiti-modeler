@@ -1,0 +1,41 @@
+{
+  "id": "inputsOnlyMapping-extensions",
+  "name": "inputsOnlyMapping",
+  "type": "PROCESS",
+  "extensions": {
+    "inputsOnlyMapping": {
+      "properties": {
+        "Property_n": {
+          "id": "Property_n",
+          "name": "n",
+          "type": "integer",
+          "required": false
+        },
+        "Property_fee": {
+          "id": "Property_fee",
+          "name": "fee",
+          "type": "string",
+          "required": false
+        }
+      },
+      "mappings": {
+        "decide": {
+          "inputs": {
+            "n": {
+              "type": "variable",
+              "value": "n"
+            }
+          },
+          "outputs": {}
+        }
+      },
+      "constants": {
+        "decide": {
+          "_activiti_dmn_table_": {
+            "value": "feeTable"
+          }
+        }
+      }
+    }
+  }
+}

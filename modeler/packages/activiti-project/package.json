@@ -1,0 +1,25 @@
+{
+  "name": "@activiti-modeler/activiti-project",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Project model: files, layout, extensions sidecars",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "generate:model-snapshot": "node scripts/generate-model-snapshot.mjs"
+  },
+  "dependencies": {
+    "@activiti-modeler/activiti-moddle": "0.1.0",
+    "fflate": "0.8.3",
+    "idb": "8.0.4"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.2.6"
+  }
+}

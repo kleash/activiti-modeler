@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 expression text in mapped values",
+  "description": "ExtensionsVariablesMappingProvider.calculateOutPutVariables refuses every output mapping whose available variables contain ${...} text (before it looks at the mapping type), while MAP_ALL_INPUTS does not resolve expressions at all.",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "MAP_ALL_INPUTS passes expression text untouched and the same task then cannot be completed",
+      "start": { "process": "expressionValues", "user": "ann", "variables": { "mode": "expression" } },
+      "steps": [
+        { "expectTask": { "activity": "showTemplate", "count": 1, "localVariables": { "mode": "expression", "template": "Hello ${name}" } } },
+        { "completeTask": { "activity": "showTemplate", "user": "ann",
+            "expectFailure": { "exception": "ActivitiIllegalArgumentException", "messageContains": "Expressions are not allowed as variable values in the output mapping" } } },
+        { "expectTask": { "activity": "showTemplate", "count": 1, "assignee": "ann" } },
+        { "expectTask": { "activity": "ask", "count": 0 } }
+      ],
+      "expect": { "state": "ACTIVE", "variables": { "mode": "expression", "template": "Hello ${name}" }, "path": { "contains": ["prepare", "showTemplate"], "notContains": ["ask", "end"] } }
+    },
+    {
+      "name": "a reply that contains an expression is refused, the task stays open and a plain reply goes through",
+      "start": { "process": "expressionValues", "user": "ann", "variables": { "mode": "plain" } },
+      "steps": [
+        { "expectTask": { "activity": "showTemplate", "localVariables": { "mode": "plain", "template": "Hello" } } },
+        { "completeTask": { "activity": "showTemplate", "user": "ann" } },
+        { "expectTask": { "activity": "ask", "count": 1, "localVariables": {} } },
+        { "completeTask": { "activity": "ask", "user": "ann", "variables": { "comment": "costs ${price}" },
+            "expectFailure": { "exception": "ActivitiIllegalArgumentException", "messageContains": "Expressions are not allowed as variable values in the output mapping" } } },
+        { "expectTask": { "activity": "ask", "count": 1 } },
+        { "completeTask": { "activity": "ask", "user": "ann", "variables": { "comment": "plain" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "mode": "plain", "template": "Hello", "reply": "plain" },
+        "absentVariables": ["comment", "price"],
+        "path": { "order": [["prepare", "showTemplate"], ["showTemplate", "ask"], ["ask", "end"]], "sequenceFlows": ["f_start_prepare", "f_prepare_showTemplate", "f_showTemplate_ask", "f_ask_end"] }
+      }
+    }
+  ]
+}

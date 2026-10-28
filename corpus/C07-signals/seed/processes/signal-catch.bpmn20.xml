@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C07">
+  <signal id="approvedSignal" name="approved"/>
+  <signal id="auditedSignal" name="audited"/>
+  <process id="signalCatch" name="Signal catch events" isExecutable="true">
+    <documentation>Two intermediate catch signals in a row. A signal that is sent before the instance waits for it is lost; a signal the instance waits for is delivered with its variables.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_waitApproval" sourceRef="start" targetRef="waitApproval"/>
+    <intermediateCatchEvent id="waitApproval" name="Approved">
+      <signalEventDefinition signalRef="approvedSignal"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_waitApproval_waitAudit" sourceRef="waitApproval" targetRef="waitAudit"/>
+    <intermediateCatchEvent id="waitAudit" name="Audited">
+      <signalEventDefinition signalRef="auditedSignal"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_waitAudit_end" sourceRef="waitAudit" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="signalCatch">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitApproval_di" bpmnElement="waitApproval">
+        <dc:Bounds x="252" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitAudit_di" bpmnElement="waitAudit">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_waitApproval_di" bpmnElement="f_start_waitApproval">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="252" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitApproval_waitAudit_di" bpmnElement="f_waitApproval_waitAudit">
+        <di:waypoint x="288" y="110"/>
+        <di:waypoint x="402" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitAudit_end_di" bpmnElement="f_waitAudit_end">
+        <di:waypoint x="438" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

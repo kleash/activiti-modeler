@@ -1,0 +1,17 @@
+{
+  "id": "badProperty-extensions",
+  "extensions": {
+    "badProperty": {
+      "properties": {
+        "p1": {
+          "id": "p1",
+          "name": "amount",
+          "type": "number",
+          "value": 1
+        }
+      },
+      "mappings": {},
+      "constants": {}
+    }
+  }
+}

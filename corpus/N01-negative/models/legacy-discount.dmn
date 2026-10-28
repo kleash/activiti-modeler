@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/DMN/20151101/dmn.xsd" id="legacy" name="legacy" namespace="http://camunda.org/schema/1.0/dmn">
+  <decision id="discount" name="Discount">
+    <decisionTable id="decisionTable" hitPolicy="FIRST">
+      <input id="input1" label="Customer">
+        <inputExpression id="inputExpression1" typeRef="string"><text>customer</text></inputExpression>
+      </input>
+      <output id="output1" label="Discount" typeRef="integer" />
+      <rule id="rule1"><inputEntry id="in1"><text>"gold"</text></inputEntry><outputEntry id="out1"><text>10</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+</definitions>

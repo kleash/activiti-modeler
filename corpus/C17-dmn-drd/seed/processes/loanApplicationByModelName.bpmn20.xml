@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_loanApplicationByModelName"
+             targetNamespace="http://kleash.github.io/corpus/C17">
+  <process id="loanApplicationByModelName" name="Loan application (DMN model name)" isExecutable="true">
+    <startEvent id="start" name="Start" />
+    <serviceTask id="decideOffer" name="Decide loan offer" implementation="dmn-connector.EXECUTE_TABLE" />
+    <exclusiveGateway id="routeOffer" name="Offer?" default="flow_routeOffer_declinedEnd" />
+    <endEvent id="approvedEnd" name="Approved" />
+    <endEvent id="reviewEnd" name="Manual review" />
+    <endEvent id="declinedEnd" name="Declined" />
+    <sequenceFlow id="flow_start_decideOffer" sourceRef="start" targetRef="decideOffer" />
+    <sequenceFlow id="flow_decideOffer_routeOffer" sourceRef="decideOffer" targetRef="routeOffer" />
+    <sequenceFlow id="flow_routeOffer_approvedEnd" sourceRef="routeOffer" targetRef="approvedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${offer == 'APPROVE'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_routeOffer_reviewEnd" sourceRef="routeOffer" targetRef="reviewEnd">
+      <conditionExpression xsi:type="tFormalExpression">${offer == 'REVIEW'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow_routeOffer_declinedEnd" sourceRef="routeOffer" targetRef="declinedEnd" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_loanApplicationByModelName">
+    <bpmndi:BPMNPlane id="BPMNPlane_loanApplicationByModelName" bpmnElement="loanApplicationByModelName">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="40" y="160" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="13" y="200" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideOffer_di" bpmnElement="decideOffer">
+        <dc:Bounds x="130" y="143" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="routeOffer_di" bpmnElement="routeOffer">
+        <dc:Bounds x="340" y="153" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="320" y="133" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approvedEnd_di" bpmnElement="approvedEnd">
+        <dc:Bounds x="450" y="60" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="423" y="100" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewEnd_di" bpmnElement="reviewEnd">
+        <dc:Bounds x="450" y="160" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="423" y="200" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="declinedEnd_di" bpmnElement="declinedEnd">
+        <dc:Bounds x="450" y="260" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="423" y="300" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_start_decideOffer_di" bpmnElement="flow_start_decideOffer">
+        <di:waypoint x="76" y="178" />
+        <di:waypoint x="130" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideOffer_routeOffer_di" bpmnElement="flow_decideOffer_routeOffer">
+        <di:waypoint x="260" y="178" />
+        <di:waypoint x="340" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_routeOffer_approvedEnd_di" bpmnElement="flow_routeOffer_approvedEnd">
+        <di:waypoint x="390" y="178" />
+        <di:waypoint x="420" y="178" />
+        <di:waypoint x="420" y="78" />
+        <di:waypoint x="450" y="78" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_routeOffer_reviewEnd_di" bpmnElement="flow_routeOffer_reviewEnd">
+        <di:waypoint x="390" y="178" />
+        <di:waypoint x="450" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_routeOffer_declinedEnd_di" bpmnElement="flow_routeOffer_declinedEnd">
+        <di:waypoint x="390" y="178" />
+        <di:waypoint x="420" y="178" />
+        <di:waypoint x="420" y="278" />
+        <di:waypoint x="450" y="278" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

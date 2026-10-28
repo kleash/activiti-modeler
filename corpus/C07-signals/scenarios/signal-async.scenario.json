@@ -1,0 +1,27 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C07 asynchronous signal throw",
+  "description": "activiti:async on the signal event definition makes the engine create an event job instead of delivering at once. The job has no process instance: the runner attributes it through the event subscription (docs/user-guide/scenarios.md).",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the catch waits until the event job has been executed",
+      "start": { "process": "signalAsync", "user": "ann" },
+      "steps": [
+        { "expectActive": ["waitAsync"] },
+        { "executeJobs": {} }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": { "order": [["raiseAsync", "join"], ["waitAsync", "join"], ["join", "end"]], "sequenceFlows": ["f_fork_waitAsync", "f_fork_raiseAsync", "f_raiseAsync_join", "f_waitAsync_join", "f_join_end"] }
+      }
+    },
+    {
+      "name": "without executing the job nothing is delivered",
+      "start": { "process": "signalAsync", "user": "ann" },
+      "steps": [ { "expectActive": ["waitAsync"] } ],
+      "expect": { "state": "ACTIVE", "path": { "contains": ["raiseAsync"], "notContains": ["end"] } }
+    }
+  ]
+}

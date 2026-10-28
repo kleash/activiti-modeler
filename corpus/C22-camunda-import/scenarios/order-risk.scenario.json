@@ -1,0 +1,15 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C22 imported Camunda decision: the order risk table",
+  "description": "order-risk.dmn is what the modeler writes for the decision the business rule task refers to. The table is evaluated directly.",
+  "decisions": [
+    { "name": "a small order is low risk", "decision": "orderRisk", "inputs": { "quantity": 3 },
+      "expect": { "result": [ { "riskClass": "low" } ], "matchedRules": ["orderRisk_small"] } },
+    { "name": "the lower bound of the medium range", "decision": "orderRisk", "inputs": { "quantity": 10 },
+      "expect": { "result": [ { "riskClass": "medium" } ], "matchedRules": ["orderRisk_medium"] } },
+    { "name": "the upper bound of the medium range", "decision": "orderRisk", "inputs": { "quantity": 49 },
+      "expect": { "result": [ { "riskClass": "medium" } ], "matchedRules": ["orderRisk_medium"] } },
+    { "name": "a large order is high risk", "decision": "orderRisk", "inputs": { "quantity": 50 },
+      "expect": { "result": [ { "riskClass": "high" } ], "matchedRules": ["orderRisk_large"] } }
+  ]
+}

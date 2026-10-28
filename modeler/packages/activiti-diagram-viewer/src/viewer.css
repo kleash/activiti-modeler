@@ -1,0 +1,107 @@
+/* Overlays of the Activiti diagram viewer. Everything is a custom property, so a host page (the modeler or another one) can re-theme it. */
+:root {
+  --activiti-viewer-active: #2563eb;
+  --activiti-viewer-active-fill: rgba(37, 99, 235, 0.14);
+  --activiti-viewer-completed: #15803d;
+  --activiti-viewer-completed-fill: rgba(21, 128, 61, 0.1);
+  --activiti-viewer-incident: #dc2626;
+  --activiti-viewer-incident-fill: rgba(220, 38, 38, 0.14);
+  --activiti-viewer-selected: #7c3aed;
+}
+
+.djs-element.activiti-completed .djs-visual > :is(rect, circle, polygon, path, ellipse):first-child {
+  stroke: var(--activiti-viewer-completed) !important;
+  stroke-width: 2.5px !important;
+  fill: var(--activiti-viewer-completed-fill) !important;
+}
+
+.djs-element.activiti-active .djs-visual > :is(rect, circle, polygon, path, ellipse):first-child {
+  stroke: var(--activiti-viewer-active) !important;
+  stroke-width: 3.5px !important;
+  fill: var(--activiti-viewer-active-fill) !important;
+}
+
+.djs-element.activiti-incident .djs-visual > :is(rect, circle, polygon, path, ellipse):first-child {
+  stroke: var(--activiti-viewer-incident) !important;
+  stroke-width: 3.5px !important;
+  fill: var(--activiti-viewer-incident-fill) !important;
+}
+
+.djs-element.activiti-selected .djs-visual > :is(rect, circle, polygon, path, ellipse):first-child {
+  stroke-dasharray: 6 3;
+  stroke: var(--activiti-viewer-selected) !important;
+}
+
+.djs-connection.activiti-flow-taken .djs-visual > path {
+  stroke: var(--activiti-viewer-completed) !important;
+  stroke-width: 3px !important;
+}
+
+/* a participant, lane or sub process container keeps its own fill; only its border says "visited" */
+.djs-element.activiti-completed[data-element-id] .djs-visual > rect[style*="fill-opacity"] {
+  fill-opacity: 0.1 !important;
+}
+
+.activiti-token {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--activiti-viewer-active);
+  color: #fff;
+  font: 600 11px/18px system-ui, sans-serif;
+  text-align: center;
+  box-shadow: 0 0 0 2px #fff;
+  pointer-events: none;
+}
+
+.activiti-incident-badge {
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--activiti-viewer-incident);
+  color: #fff;
+  font: 700 12px/18px system-ui, sans-serif;
+  text-align: center;
+  box-shadow: 0 0 0 2px #fff;
+  pointer-events: none;
+}
+
+.activiti-badge {
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #1f2937;
+  color: #fff;
+  font: 500 10px/14px system-ui, sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* the viewer fills its container; the bpmn.io watermark is the viewer's own and stays visible (licence) */
+.activiti-viewer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 160px;
+}
+
+.activiti-viewer .bjs-container,
+.activiti-viewer .dmn-js-parent {
+  width: 100%;
+  height: 100%;
+}
+
+/* DMN: the rules a decision matched */
+.activiti-dmn-viewer .dmn-decision-table-container tr.activiti-rule-matched td {
+  background: var(--activiti-viewer-completed-fill) !important;
+  box-shadow: inset 0 0 0 1px var(--activiti-viewer-completed);
+}
+
+.activiti-dmn-viewer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 160px;
+  overflow: auto;
+  background: #fff;
+}

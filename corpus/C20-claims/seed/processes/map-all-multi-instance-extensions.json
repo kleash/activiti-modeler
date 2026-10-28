@@ -1,0 +1,10 @@
+{
+  "id": "map-all-multi-instance-extensions",
+  "extensions": {
+    "mapAllMultiInstance": {
+      "mappings": {
+        "reviewEach": { "mappingType": "MAP_ALL" }
+      }
+    }
+  }
+}

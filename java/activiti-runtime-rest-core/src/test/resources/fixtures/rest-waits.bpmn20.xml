@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/rest-core-test">
+  <message id="restMessage" name="restPaid"/>
+  <message id="restOrderMessage" name="restOrderPlaced"/>
+  <signal id="restSignalDef" name="restGo"/>
+
+  <process id="restMessageStart" name="Message start" isExecutable="true">
+    <startEvent id="msStart"><messageEventDefinition messageRef="restOrderMessage"/></startEvent>
+    <sequenceFlow id="f_msStart_msTask" sourceRef="msStart" targetRef="msTask"/>
+    <userTask id="msTask" name="Handle the order" activiti:candidateUsers="alice"/>
+    <sequenceFlow id="f_msTask_msEnd" sourceRef="msTask" targetRef="msEnd"/>
+    <endEvent id="msEnd"/>
+  </process>
+
+  <process id="restReceive" name="Receive task" isExecutable="true">
+    <startEvent id="rcStart"/>
+    <sequenceFlow id="f_rcStart_rcWait" sourceRef="rcStart" targetRef="rcWait"/>
+    <receiveTask id="rcWait" name="Wait for the goods"/>
+    <sequenceFlow id="f_rcWait_rcEnd" sourceRef="rcWait" targetRef="rcEnd"/>
+    <endEvent id="rcEnd"/>
+  </process>
+
+  <process id="restMessageCatch" name="Message catch" isExecutable="true">
+    <startEvent id="mcStart"/>
+    <sequenceFlow id="f_mcStart_mcWait" sourceRef="mcStart" targetRef="mcWait"/>
+    <intermediateCatchEvent id="mcWait" name="Paid">
+      <messageEventDefinition messageRef="restMessage" activiti:correlationKey="${orderId}"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_mcWait_mcEnd" sourceRef="mcWait" targetRef="mcEnd"/>
+    <endEvent id="mcEnd"/>
+  </process>
+
+  <process id="restSignalCatch" name="Signal catch" isExecutable="true">
+    <startEvent id="scStart"/>
+    <sequenceFlow id="f_scStart_scWait" sourceRef="scStart" targetRef="scWait"/>
+    <intermediateCatchEvent id="scWait" name="Go">
+      <signalEventDefinition signalRef="restSignalDef"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_scWait_scEnd" sourceRef="scWait" targetRef="scEnd"/>
+    <endEvent id="scEnd"/>
+  </process>
+
+  <process id="restTimer" name="Timer" isExecutable="true">
+    <startEvent id="tmStart"/>
+    <sequenceFlow id="f_tmStart_tmWait" sourceRef="tmStart" targetRef="tmWait"/>
+    <intermediateCatchEvent id="tmWait" name="One hour">
+      <timerEventDefinition>
+        <timeDuration>PT1H</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_tmWait_tmEnd" sourceRef="tmWait" targetRef="tmEnd"/>
+    <endEvent id="tmEnd"/>
+  </process>
+</definitions>

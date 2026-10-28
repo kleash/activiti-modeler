@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             id="legacy" name="legacy" namespace="http://activiti.org/schema/1.0/dmn/legacy">
+  <inputData id="InputData_customer" name="customer">
+    <variable id="InputData_customer_variable" name="customer" typeRef="string" />
+  </inputData>
+  <decision id="discount" name="Discount">
+    <variable id="discount_variable" name="Discount" />
+    <informationRequirement id="discount_req_InputData_customer">
+      <requiredInput href="#InputData_customer" />
+    </informationRequirement>
+    <decisionTable id="decisionTable" hitPolicy="FIRST">
+      <input id="input1" label="Customer">
+        <inputExpression id="inputExpression1" typeRef="string">
+          <text>customer</text>
+        </inputExpression>
+      </input>
+      <output id="output1" label="Discount" name="Discount" typeRef="number" />
+      <rule id="rule1">
+        <inputEntry id="in1"><text>"gold"</text></inputEntry>
+        <outputEntry id="out1"><text>10</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

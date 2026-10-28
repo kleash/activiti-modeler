@@ -1,0 +1,40 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "exclusiveRouting": {
+      "definition": { "name": "Exclusive routing", "category": "http://activiti.org/bpmn/corpus/C04" },
+      "elements": {
+        "route": { "type": "exclusiveGateway", "attributes": { "name": "Route", "defaultFlow": "f_route_default" } },
+        "f_route_vip": { "type": "sequenceFlow", "attributes": { "name": "vip", "sourceRef": "route", "targetRef": "endVip", "conditionExpression": "${vip == true}" } },
+        "f_route_exact": { "type": "sequenceFlow", "attributes": { "skipExpression": "${forceSkip == false}", "conditionExpression": "${amount == 5000}" } },
+        "f_route_small": { "type": "sequenceFlow", "attributes": {
+          "executionListeners": [ { "event": "take", "implementationType": "class", "implementation": "io.github.kleash.activiti.harness.support.RecordingExecutionListener" } ] } }
+      }
+    },
+    "exclusiveSkip": {
+      "elements": {
+        "f_route_forced": { "type": "sequenceFlow", "attributes": { "skipExpression": "${forceSkip == true}", "conditionExpression": "${false}" } }
+      }
+    },
+    "inclusiveRouting": {
+      "elements": {
+        "split": { "type": "inclusiveGateway", "attributes": { "defaultFlow": "f_split_none" } },
+        "join": { "type": "inclusiveGateway" }
+      }
+    },
+    "parallelForkJoin": {
+      "elements": {
+        "fork": { "type": "parallelGateway", "attributes": { "outgoingFlows": [ { "id": "f_fork_taskA" }, { "id": "f_fork_taskB" }, { "id": "f_fork_taskC" } ] } },
+        "join": { "type": "parallelGateway", "attributes": { "incomingFlows": [ { "id": "f_taskA_join" }, { "id": "f_taskB_join" }, { "id": "f_taskC_join" } ] } }
+      }
+    },
+    "eventBased": {
+      "elements": {
+        "race": { "type": "eventBasedGateway", "attributes": { "outgoingFlows": [ { "targetRef": "timerCatch" }, { "targetRef": "messageCatch" } ] } },
+        "timerCatch": { "type": "intermediateCatchEvent", "attributes": { "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeDuration": "PT1H" } ] } },
+        "messageCatch": { "type": "intermediateCatchEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "MessageEventDefinition", "messageRef": "approveOrder", "correlationKey": "${orderId}" } ] } }
+      }
+    }
+  }
+}

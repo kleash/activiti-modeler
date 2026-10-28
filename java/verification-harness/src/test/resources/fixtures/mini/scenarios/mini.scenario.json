@@ -1,0 +1,29 @@
+{
+  "name": "mini",
+  "users": { "ann": ["starters", "checkers"], "ben": ["checkers"], "cy": [] },
+  "scenarios": [
+    {
+      "name": "accepted",
+      "start": { "process": "mini", "user": "ann" },
+      "steps": [
+        { "expectTask": { "activity": "check", "category": "quality", "candidateGroups": ["checkers"], "assignee": null, "visibleTo": ["ann", "ben"], "notVisibleTo": ["cy"] } },
+        { "completeTask": { "activity": "check", "user": "ben", "variables": { "ok": true } } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["acceptedEnd"], "path": { "sequenceFlows": ["f_gate_accepted"] }, "variables": { "ok": true } }
+    },
+    {
+      "name": "rejected",
+      "start": { "process": "mini", "user": "ann" },
+      "steps": [ { "completeTask": { "activity": "check", "user": "ann", "variables": { "ok": false } } } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["rejectedEnd"], "path": { "sequenceFlows": ["f_gate_rejected"] } }
+    },
+    {
+      "name": "only starters can start",
+      "start": { "process": "mini", "user": "cy", "expectFailure": { "messageContains": "Unable to find process definition" } }
+    }
+  ],
+  "decisions": [
+    { "name": "a passing score", "decision": "grade", "inputs": { "score": 70 }, "expect": { "result": [ { "grade": "pass" } ], "matchedRules": ["R1"] } },
+    { "name": "a failing score, addressed by the file name", "decision": "rules", "inputs": { "score": 10 }, "expect": { "result": [ { "grade": "fail" } ], "matchedRules": ["R2"] } }
+  ]
+}

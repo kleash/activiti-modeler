@@ -1,0 +1,51 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C05 intermediate catch timers",
+  "users": { "ann": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "firing each timer job: duration, date, and a cycle that fires only once",
+      "start": { "process": "intermediateTimers", "user": "ann" },
+      "steps": [
+        { "expectActive": ["waitDuration"] },
+        { "expectTimer": { "activity": "waitDuration", "count": 1, "dueDate": "2030-01-01T09:30:00Z" } },
+        { "fireTimer": { "activity": "waitDuration" } },
+        { "expectActive": ["waitDate"] },
+        { "expectTimer": { "activity": "waitDate", "count": 1, "dueDate": "2030-01-01T12:00:00Z" } },
+        { "fireTimer": { "activity": "waitDate" } },
+        { "expectActive": ["waitCycle"] },
+        { "expectTimer": { "activity": "waitCycle", "count": 1, "dueDate": "2030-01-01T10:00:00Z" } },
+        { "fireTimer": { "activity": "waitCycle" } },
+        { "expectTimer": { "activity": "waitCycle", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": {
+          "order": [["waitDuration", "waitDate"], ["waitDate", "waitCycle"], ["waitCycle", "end"]],
+          "sequenceFlows": ["f_start_waitDuration", "f_waitDuration_waitDate", "f_waitDate_waitCycle", "f_waitCycle_end"]
+        }
+      }
+    },
+    {
+      "name": "the engine clock drives the timers: a timer is not due before its time",
+      "start": { "process": "intermediateTimers", "user": "ann" },
+      "steps": [
+        { "advanceClock": "PT29M" },
+        { "executeJobs": {} },
+        { "expectActive": ["waitDuration"] },
+        { "advanceClock": "PT1M" },
+        { "executeJobs": {} },
+        { "expectActive": ["waitDate"] },
+        { "advanceClock": "PT2H30M" },
+        { "executeJobs": {} },
+        { "expectActive": ["waitCycle"] },
+        { "expectTimer": { "activity": "waitCycle", "count": 1, "dueDate": "2030-01-01T13:00:00Z" } },
+        { "advanceClock": "PT1H" },
+        { "executeJobs": {} }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"] }
+    }
+  ]
+}

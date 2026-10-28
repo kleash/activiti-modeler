@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C06">
+  <message id="paymentMsg" name="paymentReceived"/>
+  <message id="docsMsg" name="docsReceived"/>
+  <process id="messageCatch" name="Intermediate catch message events" isExecutable="true">
+    <documentation>Two catch events in a row: one named by messageRef with a correlation key, one named by a message expression. The payload reaches the process only through the catch event's mapping.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_waitPayment" sourceRef="start" targetRef="waitPayment"/>
+    <intermediateCatchEvent id="waitPayment" name="Payment received">
+      <messageEventDefinition messageRef="paymentMsg" activiti:correlationKey="${orderId}"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_waitPayment_waitDocs" sourceRef="waitPayment" targetRef="waitDocs"/>
+    <intermediateCatchEvent id="waitDocs" name="Documents received for the region">
+      <messageEventDefinition activiti:messageExpression="${'docs-'.concat(region)}" activiti:correlationKey="${orderId}"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_waitDocs_end" sourceRef="waitDocs" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="messageCatch">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitPayment_di" bpmnElement="waitPayment">
+        <dc:Bounds x="252" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitDocs_di" bpmnElement="waitDocs">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_waitPayment_di" bpmnElement="f_start_waitPayment">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="252" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitPayment_waitDocs_di" bpmnElement="f_waitPayment_waitDocs">
+        <di:waypoint x="288" y="110"/>
+        <di:waypoint x="402" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitDocs_end_di" bpmnElement="f_waitDocs_end">
+        <di:waypoint x="438" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,53 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C06 boundary message events",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the interrupting message cancels the task; its payload goes through the boundary mapping",
+      "start": { "process": "messageBoundary", "user": "ann", "variables": { "orderId": "O-1" } },
+      "steps": [
+        { "expectTask": { "activity": "review", "assignee": "ann" } },
+        { "message": { "name": "cancelRequest", "correlationKey": "O-2",
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "correlation key 'O-2' not found" } } },
+        { "expectTask": { "activity": "review", "assignee": "ann" } },
+        { "message": { "name": "cancelRequest", "correlationKey": "O-1", "variables": { "reason": "customer", "noise": "x" } } },
+        { "expectTask": { "activity": "review", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["cancelledEnd"],
+        "variables": { "cancelReason": "customer" },
+        "absentVariables": ["reason", "noise"],
+        "path": { "contains": ["cancelBoundary"], "notContains": ["noteInfo", "reviewedEnd"], "sequenceFlows": ["f_cancelBoundary_cancelledEnd"], "notSequenceFlows": ["f_review_reviewedEnd"] }
+      }
+    },
+    {
+      "name": "the non-interrupting message can be received repeatedly while the task stays open",
+      "start": { "process": "messageBoundary", "user": "ann", "variables": { "orderId": "O-1" } },
+      "steps": [
+        { "message": { "name": "additionalInfo", "correlationKey": "O-1", "variables": { "text": "first" } } },
+        { "expectTask": { "activity": "review", "assignee": "ann" } },
+        { "message": { "name": "additionalInfo", "correlationKey": "O-1", "variables": { "text": "second" } } },
+        { "expectTask": { "activity": "review", "assignee": "ann" } },
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["reviewedEnd", "infoEnd"],
+        "variables": { "infos": 2, "lastInfo": "second" },
+        "path": { "contains": ["infoBoundary", "noteInfo"], "sequenceFlows": ["f_infoBoundary_noteInfo", "f_noteInfo_infoEnd", "f_review_reviewedEnd"] }
+      }
+    },
+    {
+      "name": "after the task is completed the boundary subscriptions are gone",
+      "start": { "process": "messageBoundary", "user": "ann", "variables": { "orderId": "O-1" } },
+      "steps": [
+        { "completeTask": { "activity": "review", "user": "ann" } },
+        { "message": { "name": "additionalInfo", "correlationKey": "O-1",
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "Message subscription name 'additionalInfo' with correlation key 'O-1' not found" } } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["reviewedEnd"], "absentVariables": ["infos"] }
+    }
+  ]
+}

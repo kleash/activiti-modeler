@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Parent of the Java modules. Main target: Activiti 9.0.0 on Spring Boot 3.5.x, JDK 25. Second, tested target: Activiti 8.8.1 on
+  JDK 21 (profile activiti8). See docs/adr/0002-runtime-target.md.
+  Activiti 8.x/9.x are only published to the Alfresco repository (Maven Central stops at 7.1.0.M6).
+  The versions are properties so the same build can run a matrix, e.g.
+    mvn verify -Dactiviti.version=9.0.0 -Dspring-boot.version=3.5.7
+  Activiti 8.8.1 on JDK 21:
+    mvn verify -Pactiviti8                                   (Spring Boot 3.5.16, the version that ships)
+    mvn verify -Pactiviti8 -Dspring-boot.version=3.5.7       (Activiti 8.8.1's own baseline: a compatibility run, not a release)
+  Every module compiles to Java 21 bytecode (release 21) so that the jars users embed run on both stacks; the build itself
+  needs JDK 25 (default) or JDK 21 (profile activiti8), see the enforcer rule below.
+  Maven Central: profile release, below (ADR 0009). The url, licences, developers and scm are what Central requires of every published pom;
+  the modules inherit them, without the module name appended to the URLs (child...inherit.append.path).
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+         child.project.url.inherit.append.path="false">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.github.kleash.activiti</groupId>
+  <artifactId>activiti-modeler-parent</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Activiti modeler (parent)</name>
+  <description>Parent of the Activiti Modeler Java modules: the DMN connector, the scenario runner, the runtime REST API and the modeler server for Activiti 9.0.0 and 8.8.1.</description>
+  <url>https://github.com/kleash/activiti-modeler</url>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>The Activiti Modeler contributors</name>
+      <url>https://github.com/kleash/activiti-modeler/graphs/contributors</url>
+    </developer>
+  </developers>
+  <scm child.scm.connection.inherit.append.path="false"
+       child.scm.developerConnection.inherit.append.path="false"
+       child.scm.url.inherit.append.path="false">
+    <connection>scm:git:https://github.com/kleash/activiti-modeler.git</connection>
+    <developerConnection>scm:git:git@github.com:kleash/activiti-modeler.git</developerConnection>
+    <url>https://github.com/kleash/activiti-modeler</url>
+  </scm>
+
+  <modules>
+    <module>activiti-dmn-connector</module>
+    <module>activiti-dmn-connector-kie</module>
+    <module>activiti-scenario-runner</module>
+    <module>activiti-runtime-rest-core</module>
+    <module>activiti-runtime-rest-dev</module>
+    <module>activiti-modeler-server</module>
+    <module>verification-harness</module>
+  </modules>
+
+  <properties>
+    <!--
+      Bytecode level of every module. NOT called java.version: that is a JVM system property, which the enforcer reads,
+      so -Djava.version=21 would lower the JDK check as well. Activiti 9.0.0 itself is Java 25 bytecode and needs a JDK 25 to
+      run; our own jars are Java 21 bytecode and run on both stacks. Compiling with release 21 also makes javac reject JDK 22+ APIs.
+    -->
+    <java.release>21</java.release>
+    <maven.compiler.release>${java.release}</maven.compiler.release>
+    <!-- Range of JDKs the build itself accepts (enforcer): Activiti 9.0.0 needs 25. The activiti8 profile lowers it to 21. -->
+    <enforcer.java.range>[25,)</enforcer.java.range>
+    <enforcer.java.minimum>25</enforcer.java.minimum>
+    <enforcer.java.message>JDK 25 or newer is required for Activiti 9.x (Java 25 bytecode). Run scripts/setup-jdk.sh, then: source scripts/env.sh. For Activiti 8.8.1 on JDK 21 use the profile activiti8 (ACTIVITI_LINE=8 scripts/setup-jdk.sh).</enforcer.java.message>
+    <maven.compiler.parameters>true</maven.compiler.parameters>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring-boot.version>3.5.16</spring-boot.version>
+    <activiti.version>9.0.0</activiti.version>
+    <!-- DMN engines (ADR 0004). feel-engine is pinned below the version Operaton brings, see dependencyManagement. -->
+    <operaton.version>2.2.0</operaton.version>
+    <feel-engine.version>1.20.0</feel-engine.version>
+    <kie.version>10.2.0</kie.version>
+    <!-- All Scala 2.13.x are binary compatible; the highest one requested by feel-engine, Operaton and jackson-module-scala wins. -->
+    <scala-library.version>2.13.18</scala-library.version>
+    <!-- REST layer. springdoc 2.8.x is the line for Spring Boot 3.4/3.5 (3.x targets Boot 4). -->
+    <springdoc.version>2.8.17</springdoc.version>
+    <!-- Embedded SMTP server of the modeler server (mail tasks); 2.1.x is the Jakarta Mail line. -->
+    <greenmail.version>2.1.3</greenmail.version>
+  </properties>
+
+  <!--
+    Stays in the pom published to Maven Central. Central discourages repositories in a pom but accepts them, and there is no alternative:
+    Activiti 8.x/9.x are on no other repository, and resolving any module's pom needs the activiti-dependencies BOM imported below.
+  -->
+  <repositories>
+    <repository>
+      <id>activiti-releases</id>
+      <url>https://artifacts.alfresco.com/nexus/content/repositories/activiti-releases/</url>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+  </repositories>
+
+  <dependencyManagement>
+    <dependencies>
+      <!--
+        Security overrides (scanned by scripts/cve-scan.sh; the policy is in docs/security/README.md). Rules:
+        - the first import wins, so the two BOMs below come BEFORE Spring Boot's and beat the versions it manages; a direct entry beats every import;
+        - patch or minor steps inside the line Spring Boot 3.5 manages only (never Spring Framework 7, Boot 4 or Tomcat 11);
+        - every entry says which advisory it fixes and when it can go: delete it as soon as the Spring Boot BOM manages that version or a newer one.
+        Jackson: GHSA-7hhh-6rmp-j9qf, GHSA-p6pp-m3f8-5c89, GHSA-cxp5-3px4-pw24, GHSA-wv8q-qhhj-9h54, GHSA-q4xh-88c3-wmh7 and six more, fixed in 2.21.7;
+        2.21.8 is the newest patch of the 2.21 line (also fixes CVE-2026-110879). Boot 3.5.16 manages 2.21.4. Remove when Boot manages 2.21.8 or newer.
+      -->
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>2.21.8</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Log4j: GHSA-qv9r-c865-cp47 (log4j-api 2.24.3, via spring-boot-starter-logging -> log4j-to-slf4j), fixed in 2.25.5, the newest 2.25.x. Remove when Boot manages 2.25.5 or newer. -->
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-bom</artifactId>
+        <version>2.25.5</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Spring Boot's versions take precedence over the ones Activiti's BOM brings. -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.activiti</groupId>
+        <artifactId>activiti-dependencies</artifactId>
+        <version>${activiti.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!--
+        Security overrides without a BOM to import. Tomcat: GHSA-9xv2-5v5q-p794, GHSA-gcx9-497g-6cp6, GHSA-h3x4-894j-xpx5 (tomcat-embed 10.1.55 in Boot 3.5.16),
+        fixed in 10.1.58, which is not on Maven Central; 10.1.61 is the newest 10.1.x there. The three artifacts move together. A property cannot do this
+        (tomcat.version belongs to the imported Boot BOM). Remove when Boot manages 10.1.61 or newer.
+      -->
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>10.1.61</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-el</artifactId>
+        <version>10.1.61</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-websocket</artifactId>
+        <version>10.1.61</version>
+      </dependency>
+      <!-- commons-lang3: GHSA-j288-q9x7-2f5v (3.17.0, via activiti-spring), fixed in 3.18.0; binary compatible. Remove when Boot manages 3.18.0 or newer. -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.18.0</version>
+      </dependency>
+      <!-- Jakarta Mail: GHSA-9342-92gg-6v29 (2.0.1, via activiti-engine -> commons-email2-jakarta), fixed in 2.0.2; neither Boot nor Activiti manage it. -->
+      <dependency>
+        <groupId>com.sun.mail</groupId>
+        <artifactId>jakarta.mail</artifactId>
+        <version>2.0.2</version>
+      </dependency>
+      <!--
+        NOT overridden, on purpose: MyBatis. 3.5.19 (the last 3.5.x, the engine's persistence layer) embeds a repackaged OGNL 3.4.4
+        (org.apache.ibatis.ognl) with GHSA-crwc-vw2r-qr6m, fixed in OGNL 3.4.13. MyBatis 3.6.0 embeds OGNL 3.4.16 but is binary incompatible with
+        activiti-engine 9.0.0 and 8.8.1: the engine fails to start with NoSuchMethodError TypeHandlerRegistry.register(Class, JdbcType, TypeHandler)
+        (tried 2026-10-27). That is why the advisory is a documented exception in osv-scanner.toml.
+      -->
+      <!-- Test scope only: GHSA-rqfh-9r24-8c9r (assertj-core 3.27.6, which Boot 3.5.7 manages; Boot 3.5.16 already manages 3.27.7). Keeps the 3.5.7 compatibility run clean. -->
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.27.7</version>
+      </dependency>
+      <!-- JSON Schema 2020-12 validator (2.x is on Jackson 2; 3.x moved to Jackson 3 and would clash with Boot 3.5). -->
+      <dependency>
+        <groupId>com.networknt</groupId>
+        <artifactId>json-schema-validator</artifactId>
+        <version>2.0.8</version>
+      </dependency>
+
+      <!-- DMN (ADR 0004). -->
+      <dependency>
+        <groupId>org.operaton.bpm.dmn</groupId>
+        <artifactId>operaton-engine-dmn</artifactId>
+        <version>${operaton.version}</version>
+      </dependency>
+      <!--
+        Operaton 2.2.0 brings feel-engine 1.22.1 -> jackson-module-scala 2.22.1. Without the Spring Boot BOM that
+        module refuses to run against older Jackson ("Scala module 2.22.1 requires Jackson Databind version >= 2.22.0");
+        with the Boot 3.5.x BOM (Jackson 2.21.x on 3.5.16) it is realigned. feel-engine 1.20.0 is pinned as the
+        conservative choice (ADR 0004). The same pin is declared directly in activiti-dmn-connector's pom so that host
+        applications get it transitively (dependencyManagement of this parent is not inherited by hosts).
+      -->
+      <dependency>
+        <groupId>org.camunda.feel</groupId>
+        <artifactId>feel-engine</artifactId>
+        <version>${feel-engine.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>${scala-library.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.kie</groupId>
+        <artifactId>kie-dmn-core</artifactId>
+        <version>${kie.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+        <version>${springdoc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.icegreen</groupId>
+        <artifactId>greenmail</artifactId>
+        <version>${greenmail.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.kleash.activiti</groupId>
+        <artifactId>activiti-dmn-connector</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.kleash.activiti</groupId>
+        <artifactId>activiti-dmn-connector</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>io.github.kleash.activiti</groupId>
+        <artifactId>activiti-scenario-runner</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.kleash.activiti</groupId>
+        <artifactId>activiti-runtime-rest-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.kleash.activiti</groupId>
+        <artifactId>activiti-runtime-rest-dev</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.github.kleash.activiti</groupId>
+        <artifactId>activiti-dmn-connector-kie</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- JUnit 5, AssertJ and Spring test support for every module. -->
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.14.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.5.4</version>
+          <configuration>
+            <!-- the two tests that assert the engine report compare against this; a module's own systemPropertyVariables merge with it -->
+            <systemPropertyVariables>
+              <expected.activiti.version>${activiti.version}</expected.activiti.version>
+              <expected.java.minimum>${enforcer.java.minimum}</expected.java.minimum>
+            </systemPropertyVariables>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.6.3</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.4.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>${spring-boot.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-java</id>
+            <goals><goal>enforce</goal></goals>
+            <configuration>
+              <rules>
+                <!-- Activiti 9.x is compiled to Java 25 bytecode; Activiti 8.8.1 (profile activiti8) to Java 21. -->
+                <requireJavaVersion>
+                  <version>${enforcer.java.range}</version>
+                  <message>${enforcer.java.message}</message>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <!--
+      Second target: Activiti 8.8.1 on JDK 21. Spring Boot 3.5.16 is what ships (the property default, so the security overrides below apply
+      to both lines); 3.5.7 is Activiti 8.8.1's own baseline and stays a compatibility run. Same sources, same tests, same jars as far as our
+      modules go; only the engine on the class path and the minimum JDK of the build change.
+        mvn -Pactiviti8 verify                                    (ships)
+        mvn -Pactiviti8 verify -Dspring-boot.version=3.5.7        (compatibility)
+      The build may still run on JDK 25 with this profile (the enforcer range is 21+).
+    -->
+    <profile>
+      <id>activiti8</id>
+      <properties>
+        <activiti.version>8.8.1</activiti.version>
+        <enforcer.java.range>[21,)</enforcer.java.range>
+        <enforcer.java.minimum>21</enforcer.java.minimum>
+      </properties>
+    </profile>
+
+    <!--
+      Maven Central through the Sonatype Central Portal (ADR 0009): sources and javadoc jars, GPG signatures, one bundle for all modules.
+      Published: this parent and every module except verification-harness. The server's runnable jar is its classifier exec.
+      The release workflow (job maven-central, docs/developer-guide.md "Maven Central") runs, the Portal token in the settings.xml server "central"
+      and MAVEN_GPG_KEY / MAVEN_GPG_PASSPHRASE in the environment:
+        mvn -Prelease,bundle-modeler -Dmodeler.skipFrontend=true -DskipTests -Dgpg.signer=bc -DskipUpload=<true unless publishing> deploy
+      The upload ends when Central has validated the deployment; it is published by hand in the Portal (autoPublish is false by default).
+      Locally, with no key and no upload: -Prelease -DskipTests -Dgpg.skip verify makes the sources and javadoc jars; deploy -DskipUpload also
+      writes the bundle (java/target/central-publishing/central-bundle.zip), on a release version only (a -SNAPSHOT is staged, not bundled).
+    -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.4.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals><goal>jar-no-fork</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.12.0</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals><goal>jar</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.2.8</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <goals><goal>sign</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!--
+            Replaces maven-deploy-plugin in the deploy phase (extensions) and uploads all modules as one deployment at the end of the build. The build
+            waits until Central has validated it (and fails if Central refuses it). Nothing is published without the maintainer: autoPublish keeps
+            its default, false, so the deployment waits in the Portal for its Publish button.
+          -->
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.12.0</version>
+            <extensions>true</extensions>
+            <configuration>
+              <excludeArtifacts>
+                <artifact>verification-harness</artifact>
+              </excludeArtifacts>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

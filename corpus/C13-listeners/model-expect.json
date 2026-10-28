@@ -1,0 +1,81 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "executionListeners": {
+      "definition": { "name": "Execution listeners", "category": "http://activiti.org/bpmn/corpus/C13" },
+      "process": {
+        "executionListeners": [
+          { "event": "start", "implementationType": "class", "implementation": "io.github.kleash.activiti.harness.support.RecordingExecutionListener" },
+          { "event": "start", "implementationType": "class", "implementation": "io.github.kleash.activiti.harness.support.FieldExecutionListener", "fieldExtensions": [ { "fieldName": "tag", "stringValue": "process" } ] },
+          { "event": "end", "implementationType": "class", "implementation": "io.github.kleash.activiti.harness.support.EndGuardListener" },
+          { "event": "end", "implementationType": "delegateExpression", "implementation": "${endGuard}" },
+          { "event": "end", "implementationType": "expression", "implementation": "${endGuard.check(execution, 'expression')}" }
+        ]
+      },
+      "elements": {
+        "begin": { "type": "startEvent", "attributes": { "executionListeners": [ { "event": "end", "implementationType": "class" } ] } },
+        "prepare": { "type": "serviceTask", "attributes": { "executionListeners": [
+          { "event": "start", "implementationType": "delegateExpression", "implementation": "${recordingExecutionListener}" },
+          { "event": "start", "implementationType": "expression" },
+          { "event": "end", "implementationType": "class" },
+          { "event": "end", "implementationType": "class", "fieldExtensions": [ { "fieldName": "tag", "stringValue": "prepare-end" } ] }
+        ] } },
+        "decide": { "type": "exclusiveGateway", "attributes": { "executionListeners": [ { "event": "start", "implementationType": "class" }, { "event": "end", "implementationType": "delegateExpression" } ] } },
+        "f_begin_prepare": { "type": "sequenceFlow", "attributes": { "executionListeners": [ { "event": "take", "implementationType": "expression", "implementation": "${listenerRecorder.recordExecution(execution)}" } ] } },
+        "f_prepare_decide": { "type": "sequenceFlow", "attributes": { "executionListeners": [ { "event": "take", "implementationType": "class" } ] } },
+        "f_decide_review": { "type": "sequenceFlow", "attributes": { "executionListeners": [ { "event": "take", "implementationType": "delegateExpression" } ] } },
+        "f_decide_finish": { "type": "sequenceFlow", "attributes": { "executionListeners": [ { "event": "take", "implementationType": "class", "fieldExtensions": [ { "fieldName": "tag", "expression": "${reviewer}" } ] } ] } },
+        "review": { "type": "userTask", "attributes": { "executionListeners": [
+          { "event": "start", "implementationType": "class" },
+          { "event": "start", "implementationType": "delegateExpression", "implementation": "${fieldExecutionListener}", "fieldExtensions": [ { "fieldName": "tag", "stringValue": "review-start" } ] },
+          { "event": "end", "implementationType": "class" }
+        ] } }
+      }
+    },
+    "transactionListeners": {
+      "elements": {
+        "trigger": { "type": "userTask", "attributes": { "taskListeners": [
+          { "event": "complete", "implementationType": "delegateExpression", "implementation": "${beforeCommitTaskListener}", "onTransaction": "before-commit",
+            "customPropertiesResolverImplementationType": "class", "customPropertiesResolverImplementation": "io.github.kleash.activiti.harness.support.CorpusPropertiesResolver" },
+          { "event": "complete", "implementationType": "delegateExpression", "implementation": "${committedTaskListener}", "onTransaction": "committed",
+            "customPropertiesResolverImplementationType": "expression", "customPropertiesResolverImplementation": "${propertiesFactory.resolved('expression', execution)}" },
+          { "event": "complete", "implementationType": "delegateExpression", "implementation": "${rolledBackTaskListener}", "onTransaction": "rolled-back",
+            "customPropertiesResolverImplementationType": "delegateExpression", "customPropertiesResolverImplementation": "${delegatePropertiesResolver}" }
+        ] } },
+        "explode": { "type": "serviceTask", "attributes": { "executionListeners": [
+          { "event": "start", "implementationType": "delegateExpression", "implementation": "${beforeCommitExecutionListener}", "onTransaction": "before-commit", "customPropertiesResolverImplementationType": "expression" },
+          { "event": "start", "implementationType": "delegateExpression", "implementation": "${committedExecutionListener}", "onTransaction": "committed", "customPropertiesResolverImplementationType": "delegateExpression" },
+          { "event": "start", "implementationType": "delegateExpression", "implementation": "${rolledBackExecutionListener}", "onTransaction": "rolled-back", "customPropertiesResolverImplementationType": "class" }
+        ] } }
+      }
+    },
+    "taskListeners": {
+      "elements": {
+        "approve": { "type": "userTask", "attributes": { "taskListeners": [
+          { "event": "create", "implementationType": "class" },
+          { "event": "assignment", "implementationType": "delegateExpression", "implementation": "${recordingTaskListener}" },
+          { "event": "complete", "implementationType": "expression", "implementation": "${listenerRecorder.recordTask(task)}" },
+          { "event": "delete", "implementationType": "class" },
+          { "event": "all", "implementationType": "class", "fieldExtensions": [ { "fieldName": "tag", "stringValue": "all" } ] }
+        ] } },
+        "giveUp": { "type": "boundaryEvent", "attributes": { "attachedToRefId": "cancellable", "cancelActivity": true } }
+      }
+    },
+    "eventListeners": {
+      "process": {
+        "eventListeners": [
+          { "events": "PROCESS_STARTED,PROCESS_COMPLETED", "implementationType": "class", "implementation": "io.github.kleash.activiti.harness.support.RecordingEventListener", "entityType": null },
+          { "events": "TASK_CREATED,TASK_COMPLETED", "implementationType": "delegateExpression", "implementation": "${recordingEventListener}", "entityType": "task" },
+          { "events": "TASK_COMPLETED", "implementationType": "throwSignalEvent", "implementation": "taskDone", "entityType": "task" },
+          { "events": "TASK_COMPLETED", "implementationType": "throwGlobalSignalEvent", "implementation": "taskDoneGlobal", "entityType": "task" },
+          { "events": "TASK_COMPLETED", "implementationType": "throwMessageEvent", "implementation": "taskDoneMessage", "entityType": "task" }
+        ]
+      }
+    },
+    "errorEventListener": {
+      "process": {
+        "eventListeners": [ { "events": "TASK_CREATED", "implementationType": "throwErrorEvent", "implementation": "GUARD", "entityType": "task" } ]
+      }
+    }
+  }
+}

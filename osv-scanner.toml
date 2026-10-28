@@ -1,0 +1,33 @@
+# Accepted vulnerabilities: the only way past the OSV gate (scripts/cve-scan.sh, .github/workflows/osv-scan.yml).
+#
+# Policy (enforced by scripts/cve-scan-check.py):
+#   - an exception is for an advisory that has NO fixed version we can use (here: the fix is Enterprise-only, needs a major upgrade, or is in a
+#     release that does not run with Activiti);
+#   - ignoreUntil is mandatory and at most 90 days away (30 for operating-system advisories); when it passes, the scan fails again;
+#   - the reason starts with the OpenVEX justification and every id here has a matching statement in docs/security/vex.openvex.json;
+#   - an exception that matches nothing any more fails the scan too: delete it as soon as the vulnerability is fixed;
+#   - PackageOverrides are not allowed (they would hide advisories that are published later).
+# Renewing needs a reviewed pull request that says what changed. Background and evidence: SECURITY.md, docs/security/README.md.
+
+# CVE-2026-47884, org.springframework:spring-webmvc 6.2.19 (Spring Boot 3.5.16, the last 3.5.x), XsltView SSRF/RCE.
+# Fixed in 7.0.9 (Spring Boot 4, which no stable Activiti supports) and in 6.2.20, which spring.io lists as "Enterprise Support Only".
+[[IgnoredVulns]]
+id = "GHSA-pc63-qcmh-9cmg"
+ignoreUntil = 2027-01-25
+reason = "vulnerable_code_not_in_execute_path: the advisory needs an XsltView that Spring MVC renders for a catch-all (/**) mapping with an unset view name. The server has no XsltView, no ViewResolver bean of its own, no template engine and no ModelAndView; its controllers are @RestController JSON endpoints and its only /** mapping is a static resource handler (WebConfiguration.addResourceHandlers) that returns files and renders no view. spring.io rates it Medium (OSV/GitHub score 9.8). Revisit when Spring Boot 3.5 gets an OSS fix or the project moves to Spring Boot 4."
+
+# CVE-2026-47890, org.springframework:spring-webmvc 6.2.19, Server-Sent Events stream corruption while rendering view fragments.
+# Same fix situation as above.
+[[IgnoredVulns]]
+id = "GHSA-j9f9-w8pj-32f8"
+ignoreUntil = 2027-01-25
+reason = "vulnerable_code_not_in_execute_path: the advisory needs Server-Sent Events that carry rendered view fragments. The server uses no SseEmitter, ServerSentEvent or text/event-stream and renders no view fragments. spring.io rates it Low (OSV/GitHub score 9.8). Revisit with GHSA-pc63-qcmh-9cmg."
+
+# CVE-2026-113730, ognl:ognl 3.4.4, embedded (repackaged as org.apache.ibatis.ognl) in org.mybatis:mybatis 3.5.19, the engine's persistence layer.
+# No Maven SBOM lists it; the scan of the built jar and of the image does (embedded pom.properties). OGNL fixes it in 3.4.13. MyBatis 3.6.0 embeds
+# OGNL 3.4.16 but cannot be used: activiti-engine 9.0.0 and 8.8.1 fail to start on it (NoSuchMethodError
+# TypeHandlerRegistry.register(Class, JdbcType, TypeHandler), tried 2026-10-27). There is no other MyBatis release with a patched OGNL.
+[[IgnoredVulns]]
+id = "GHSA-crwc-vw2r-qr6m"
+ignoreUntil = 2027-01-25
+reason = "vulnerable_code_cannot_be_controlled_by_adversary: the advisory is a bypass of OGNL's optional stricter-invocation block list (a secondary layer) and only matters to an application that evaluates attacker-controlled OGNL expressions. MyBatis evaluates OGNL only for the expressions written in mapper XML (<if test>, <foreach>, ${...}), and the engine's mappers are packaged in the activiti-engine jar; user input only ever supplies the values those expressions read, never expression text. The server configures no custom mapper (customMybatisMappers, customMybatisXMLMappers). GitHub rates it Moderate (5.6) and describes it as hardening of a secondary layer. Revisit when Activiti runs on a MyBatis release with OGNL 3.4.13 or newer, or when the project moves to Spring Boot 4 and a newer Activiti."

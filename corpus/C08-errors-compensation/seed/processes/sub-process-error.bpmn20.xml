@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_subProcessError"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C08">
+  <error id="stockError" name="Out of stock" errorCode="OUT_OF_STOCK"/>
+  <process id="subProcessError" name="Error end event in a sub process" isExecutable="true">
+    <documentation>An error end event inside an embedded sub process throws OUT_OF_STOCK; the error boundary event on the sub process catches it, the sub process is cancelled and the process continues on the boundary event's flow instead of the normal one.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_fulfilment" sourceRef="start" targetRef="fulfilment"/>
+    <subProcess id="fulfilment" name="Fulfil order">
+      <startEvent id="fStart"/>
+      <sequenceFlow id="f_fStart_stockGate" sourceRef="fStart" targetRef="stockGate"/>
+      <exclusiveGateway id="stockGate" name="In stock?" default="f_stockGate_outOfStock"/>
+      <sequenceFlow id="f_stockGate_pack" name="yes" sourceRef="stockGate" targetRef="pack">
+        <conditionExpression xsi:type="tFormalExpression">${inStock == true}</conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="f_stockGate_outOfStock" name="no" sourceRef="stockGate" targetRef="outOfStock"/>
+      <serviceTask id="pack" name="Pack items" activiti:expression="${execution.setVariable('packed', true)}"/>
+      <sequenceFlow id="f_pack_packed" sourceRef="pack" targetRef="packed"/>
+      <endEvent id="packed" name="Packed"/>
+      <endEvent id="outOfStock" name="Out of stock">
+        <errorEventDefinition errorRef="stockError"/>
+      </endEvent>
+    </subProcess>
+    <sequenceFlow id="f_fulfilment_ship" sourceRef="fulfilment" targetRef="ship"/>
+    <serviceTask id="ship" name="Ship" activiti:expression="${execution.setVariable('status', 'shipped')}"/>
+    <sequenceFlow id="f_ship_shipped" sourceRef="ship" targetRef="shipped"/>
+    <endEvent id="shipped" name="Shipped"/>
+    <boundaryEvent id="onStockError" name="Out of stock" attachedToRef="fulfilment">
+      <errorEventDefinition errorRef="stockError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onStockError_backorder" sourceRef="onStockError" targetRef="backorder"/>
+    <serviceTask id="backorder" name="Create back order" activiti:expression="${execution.setVariable('status', 'backordered')}"/>
+    <sequenceFlow id="f_backorder_backordered" sourceRef="backorder" targetRef="backordered"/>
+    <endEvent id="backordered" name="Back ordered"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="subProcessError">
+      <bpmndi:BPMNShape id="fulfilment_di" bpmnElement="fulfilment" isExpanded="true">
+        <dc:Bounds x="362" y="10" width="566" height="248"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fStart_di" bpmnElement="fStart">
+        <dc:Bounds x="402" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="stockGate_di" bpmnElement="stockGate" isMarkerVisible="true">
+        <dc:Bounds x="545" y="65" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pack_di" bpmnElement="pack">
+        <dc:Bounds x="670" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="packed_di" bpmnElement="packed">
+        <dc:Bounds x="852" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="outOfStock_di" bpmnElement="outOfStock">
+        <dc:Bounds x="702" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ship_di" bpmnElement="ship">
+        <dc:Bounds x="1120" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shipped_di" bpmnElement="shipped">
+        <dc:Bounds x="1302" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="backorder_di" bpmnElement="backorder">
+        <dc:Bounds x="820" y="380" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="backordered_di" bpmnElement="backordered">
+        <dc:Bounds x="1002" y="402" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onStockError_di" bpmnElement="onStockError">
+        <dc:Bounds x="382" y="240" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_fulfilment_di" bpmnElement="f_start_fulfilment">
+        <di:waypoint x="138" y="200"/>
+        <di:waypoint x="250" y="200"/>
+        <di:waypoint x="250" y="134"/>
+        <di:waypoint x="362" y="134"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fStart_stockGate_di" bpmnElement="f_fStart_stockGate">
+        <di:waypoint x="438" y="90"/>
+        <di:waypoint x="545" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_stockGate_pack_di" bpmnElement="f_stockGate_pack">
+        <di:waypoint x="595" y="90"/>
+        <di:waypoint x="670" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_stockGate_outOfStock_di" bpmnElement="f_stockGate_outOfStock">
+        <di:waypoint x="595" y="90"/>
+        <di:waypoint x="648" y="90"/>
+        <di:waypoint x="648" y="200"/>
+        <di:waypoint x="702" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_pack_packed_di" bpmnElement="f_pack_packed">
+        <di:waypoint x="770" y="90"/>
+        <di:waypoint x="852" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fulfilment_ship_di" bpmnElement="f_fulfilment_ship">
+        <di:waypoint x="928" y="134"/>
+        <di:waypoint x="1024" y="134"/>
+        <di:waypoint x="1024" y="200"/>
+        <di:waypoint x="1120" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_ship_shipped_di" bpmnElement="f_ship_shipped">
+        <di:waypoint x="1220" y="200"/>
+        <di:waypoint x="1302" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onStockError_backorder_di" bpmnElement="f_onStockError_backorder">
+        <di:waypoint x="400" y="276"/>
+        <di:waypoint x="400" y="420"/>
+        <di:waypoint x="820" y="420"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_backorder_backordered_di" bpmnElement="f_backorder_backordered">
+        <di:waypoint x="920" y="420"/>
+        <di:waypoint x="1002" y="420"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

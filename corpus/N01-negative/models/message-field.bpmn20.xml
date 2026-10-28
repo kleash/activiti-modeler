@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_messageField" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:message id="Message_note" name="note" />
+  <bpmn:process id="messageField" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:intermediateThrowEvent id="say" name="Say it"><bpmn:messageEventDefinition id="m_def" messageRef="Message_note"><bpmn:extensionElements><activiti:field name="to"><activiti:string>ann</activiti:string></activiti:field></bpmn:extensionElements></bpmn:messageEventDefinition></bpmn:intermediateThrowEvent>
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_say" sourceRef="start" targetRef="say" />
+    <bpmn:sequenceFlow id="f_say_end" sourceRef="say" targetRef="end" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_messageField">
+    <bpmndi:BPMNPlane id="BPMNPlane_messageField" bpmnElement="messageField">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="150" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="say_di" bpmnElement="say"><dc:Bounds x="246" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end"><dc:Bounds x="342" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_say_di" bpmnElement="f_start_say"><di:waypoint x="186" y="160" /><di:waypoint x="246" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_say_end_di" bpmnElement="f_say_end"><di:waypoint x="282" y="160" /><di:waypoint x="342" y="160" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

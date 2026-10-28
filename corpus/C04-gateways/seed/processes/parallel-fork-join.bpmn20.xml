@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C04">
+  <process id="parallelForkJoin" name="Parallel fork and join" isExecutable="true">
+    <documentation>Parallel gateway: all three branches run; the join waits for every incoming flow.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_fork" sourceRef="start" targetRef="fork"/>
+    <parallelGateway id="fork" name="Fork"/>
+    <sequenceFlow id="f_fork_taskA" sourceRef="fork" targetRef="taskA"/>
+    <sequenceFlow id="f_fork_taskB" sourceRef="fork" targetRef="taskB"/>
+    <sequenceFlow id="f_fork_taskC" sourceRef="fork" targetRef="taskC"/>
+    <userTask id="taskA" name="Branch A" activiti:candidateUsers="ann"/>
+    <userTask id="taskB" name="Branch B" activiti:candidateUsers="ben"/>
+    <userTask id="taskC" name="Branch C" activiti:candidateUsers="cy"/>
+    <sequenceFlow id="f_taskA_join" sourceRef="taskA" targetRef="join"/>
+    <sequenceFlow id="f_taskB_join" sourceRef="taskB" targetRef="join"/>
+    <sequenceFlow id="f_taskC_join" sourceRef="taskC" targetRef="join"/>
+    <parallelGateway id="join" name="Join"/>
+    <sequenceFlow id="f_join_afterJoin" sourceRef="join" targetRef="afterJoin"/>
+    <userTask id="afterJoin" name="After the join" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_afterJoin_end" sourceRef="afterJoin" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="parallelForkJoin">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fork_di" bpmnElement="fork">
+        <dc:Bounds x="245" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskA_di" bpmnElement="taskA">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskB_di" bpmnElement="taskB">
+        <dc:Bounds x="370" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskC_di" bpmnElement="taskC">
+        <dc:Bounds x="370" y="290" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="join_di" bpmnElement="join">
+        <dc:Bounds x="545" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="afterJoin_di" bpmnElement="afterJoin">
+        <dc:Bounds x="670" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="852" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_fork_di" bpmnElement="f_start_fork">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="245" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_taskA_di" bpmnElement="f_fork_taskA">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="332" y="220"/>
+        <di:waypoint x="332" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_taskB_di" bpmnElement="f_fork_taskB">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_taskC_di" bpmnElement="f_fork_taskC">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="332" y="220"/>
+        <di:waypoint x="332" y="330"/>
+        <di:waypoint x="370" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_taskA_join_di" bpmnElement="f_taskA_join">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="508" y="110"/>
+        <di:waypoint x="508" y="220"/>
+        <di:waypoint x="545" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_taskB_join_di" bpmnElement="f_taskB_join">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="545" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_taskC_join_di" bpmnElement="f_taskC_join">
+        <di:waypoint x="470" y="330"/>
+        <di:waypoint x="508" y="330"/>
+        <di:waypoint x="508" y="220"/>
+        <di:waypoint x="545" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_join_afterJoin_di" bpmnElement="f_join_afterJoin">
+        <di:waypoint x="595" y="220"/>
+        <di:waypoint x="670" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_afterJoin_end_di" bpmnElement="f_afterJoin_end">
+        <di:waypoint x="770" y="220"/>
+        <di:waypoint x="852" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

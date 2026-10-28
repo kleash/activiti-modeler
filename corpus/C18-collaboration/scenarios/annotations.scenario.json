@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C18 a text annotation in a process without pools",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the annotated process runs like any other: the annotation and its association are documentation",
+      "start": { "process": "annotatedRequest", "user": "ann" },
+      "steps": [
+        { "expectTask": { "activity": "check", "assignee": "ann" } },
+        { "completeTask": { "activity": "check", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["requestEnd"],
+        "path": { "order": [["check", "requestEnd"]], "sequenceFlows": ["f_requestStart_check", "f_check_requestEnd"] }
+      }
+    }
+  ]
+}

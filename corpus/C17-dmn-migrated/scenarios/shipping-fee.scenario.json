@@ -1,0 +1,14 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C17 migrated DMN 1.2: the decision table evaluated directly",
+  "decisions": [
+    { "name": "express wins at any weight because the table takes the first rule that matches", "decision": "shippingFee", "inputs": { "weight": 1, "express": true },
+      "expect": { "result": [ { "fee": 25 } ], "matchedRules": ["Rule_express"] } },
+    { "name": "a light parcel without express costs 5", "decision": "shippingFee", "inputs": { "weight": 1.5, "express": false },
+      "expect": { "result": [ { "fee": 5 } ], "matchedRules": ["Rule_light"] } },
+    { "name": "a parcel of exactly 2 is heavy", "decision": "shippingFee", "inputs": { "weight": 2, "express": false },
+      "expect": { "result": [ { "fee": 12.5 } ], "matchedRules": ["Rule_heavy"] } },
+    { "name": "the file name addresses the same decision", "decision": "shipping-fee", "inputs": { "weight": 10, "express": false },
+      "expect": { "result": [ { "fee": 12.5 } ], "matchedRules": ["Rule_heavy"] } }
+  ]
+}

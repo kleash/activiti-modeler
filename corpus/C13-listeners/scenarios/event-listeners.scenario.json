@@ -1,0 +1,33 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C13 process event listeners: class, delegate expression, throw signal, global signal, message and error",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "recording listeners see the events they are registered for; the throwing listeners wake the catch events when the task completes",
+      "start": { "process": "eventListeners", "user": "ann" },
+      "steps": [
+        { "expectActive": { "exactly": ["waitSignal", "waitGlobal", "waitMessage", "trigger"] } },
+        { "completeTask": { "activity": "trigger", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["signalSeen", "globalSeen", "messageSeen", "triggered"],
+        "variables": { "eventListenerCalls": ["PROCESS_STARTED", "TASK_CREATED:trigger", "TASK_COMPLETED:trigger", "PROCESS_COMPLETED"] },
+        "path": {
+          "contains": ["waitSignal", "waitGlobal", "waitMessage"],
+          "sequenceFlows": ["f_waitSignal_signalSeen", "f_waitGlobal_globalSeen", "f_waitMessage_messageSeen", "f_trigger_triggered"]
+        }
+      }
+    },
+    {
+      "name": "an error-throwing listener raises GUARD when the task is created and the boundary event catches it",
+      "start": { "process": "errorEventListener", "user": "ann" },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["guardFailed"],
+        "path": { "contains": ["guarded", "onGuard", "guardFailed"], "sequenceFlows": ["f_start_guarded", "f_onGuard_guardFailed"] }
+      }
+    }
+  ]
+}

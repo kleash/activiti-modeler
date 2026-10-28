@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C21">
+  <process id="miStandardForm" name="Multi-instance in the standard form" isExecutable="true">
+    <documentation>A parallel multi-instance service task that names its collection and its element the standard BPMN way, with loopDataInputRef and inputDataItem, instead of activiti:collection and activiti:elementVariable. Activiti reads both forms into the same fields. The modeler does not write this form itself; it keeps it when it opens such a file.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_greetEach" sourceRef="start" targetRef="greetEach"/>
+    <serviceTask id="greetEach" name="Greet each guest" activiti:expression="${execution.setVariableLocal('greeting', 'Hello '.concat(guest))}">
+      <multiInstanceLoopCharacteristics isSequential="false">
+        <loopDataInputRef>guests</loopDataInputRef>
+        <loopDataOutputRef>greetings</loopDataOutputRef>
+        <inputDataItem name="guest"/>
+        <outputDataItem name="greeting"/>
+      </multiInstanceLoopCharacteristics>
+    </serviceTask>
+    <sequenceFlow id="f_greetEach_end" sourceRef="greetEach" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="miStandardForm">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="greetEach_di" bpmnElement="greetEach">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_greetEach_di" bpmnElement="f_start_greetEach">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_greetEach_end_di" bpmnElement="f_greetEach_end">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="402" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

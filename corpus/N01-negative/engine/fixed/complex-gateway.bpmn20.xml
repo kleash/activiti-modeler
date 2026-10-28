@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- What the quick fix of models/complex-gateway.bpmn20.xml leads to: an exclusive gateway with the same flows and conditions.
+     Written by hand for the engine check (no diagram). -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_complexGateway" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="complexGateway" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:exclusiveGateway id="route" name="Route the order" />
+    <bpmn:task id="small" name="Small order" />
+    <bpmn:task id="large" name="Large order" />
+    <bpmn:endEvent id="endSmall" name="End" />
+    <bpmn:endEvent id="endLarge" name="End" />
+    <bpmn:sequenceFlow id="f_start_route" sourceRef="start" targetRef="route" />
+    <bpmn:sequenceFlow id="f_small" sourceRef="route" targetRef="small" name="small">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${amount &lt; 100}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f_large" sourceRef="route" targetRef="large" name="large">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${amount &gt;= 100}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f_small_endSmall" sourceRef="small" targetRef="endSmall" />
+    <bpmn:sequenceFlow id="f_large_endLarge" sourceRef="large" targetRef="endLarge" />
+  </bpmn:process>
+</bpmn:definitions>

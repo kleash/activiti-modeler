@@ -1,0 +1,94 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "DMN decision task with MAP_ALL_OUTPUTS",
+  "users": {
+    "alice": []
+  },
+  "scenarios": [
+    {
+      "name": "all connector outputs become process variables",
+      "start": {
+        "process": "mapAllOutputs",
+        "user": "alice",
+        "variables": {
+          "amount": 2000
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "end"
+        ],
+        "path": {
+          "contains": [
+            "decideAlerts",
+            "end"
+          ],
+          "order": [
+            [
+              "start",
+              "decideAlerts"
+            ],
+            [
+              "decideAlerts",
+              "end"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideAlerts",
+            "flow_decideAlerts_end"
+          ]
+        },
+        "variables": {
+          "alerts": 2,
+          "_activiti_dmn_matched_": true,
+          "_activiti_dmn_matched_rules_": [
+            "collectCountAlerts_large",
+            "collectCountAlerts_huge"
+          ]
+        }
+      }
+    },
+    {
+      "name": "count is 0 when nothing matches",
+      "start": {
+        "process": "mapAllOutputs",
+        "user": "alice",
+        "variables": {
+          "amount": 50
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "end"
+        ],
+        "path": {
+          "contains": [
+            "decideAlerts",
+            "end"
+          ],
+          "order": [
+            [
+              "start",
+              "decideAlerts"
+            ],
+            [
+              "decideAlerts",
+              "end"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideAlerts",
+            "flow_decideAlerts_end"
+          ]
+        },
+        "variables": {
+          "alerts": 0,
+          "_activiti_dmn_matched_": false,
+          "_activiti_dmn_matched_rules_": []
+        }
+      }
+    }
+  ]
+}

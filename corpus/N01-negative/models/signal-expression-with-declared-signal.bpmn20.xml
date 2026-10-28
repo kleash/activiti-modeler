@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_sigExprDeclared" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:signal id="Signal_go" name="go" />
+  <bpmn:process id="sigExprDeclared" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:intermediateCatchEvent id="catch" name="Wait for the region"><bpmn:signalEventDefinition id="x_def" activiti:signalExpression="${region}" /></bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_catch" sourceRef="start" targetRef="catch" />
+    <bpmn:sequenceFlow id="f_catch_end" sourceRef="catch" targetRef="end" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_sigExprDeclared">
+    <bpmndi:BPMNPlane id="BPMNPlane_sigExprDeclared" bpmnElement="sigExprDeclared">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="150" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="catch_di" bpmnElement="catch"><dc:Bounds x="246" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end"><dc:Bounds x="342" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_catch_di" bpmnElement="f_start_catch"><di:waypoint x="186" y="160" /><di:waypoint x="246" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_catch_end_di" bpmnElement="f_catch_end"><di:waypoint x="282" y="160" /><di:waypoint x="342" y="160" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

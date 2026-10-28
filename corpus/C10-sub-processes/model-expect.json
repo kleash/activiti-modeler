@@ -1,0 +1,57 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "embeddedSubProcess": {
+      "definition": { "name": "Embedded sub process", "category": "http://activiti.org/bpmn/corpus/C10" },
+      "process": { "dataObjects": [ { "name": "region", "value": "EU" } ] },
+      "elements": {
+        "review": { "type": "subProcess", "attributes": { "dataObjects": [ { "name": "subScore", "value": 7 } ] } }
+      }
+    },
+    "asyncSubProcess": {
+      "elements": {
+        "prepare": { "type": "subProcess", "attributes": { "async": true, "exclusive": false } }
+      }
+    },
+    "miSubProcess": {
+      "elements": {
+        "reviewEach": { "type": "subProcess", "attributes": {
+          "loopCharacteristics": {
+            "sequential": false,
+            "inputDataItem": "reviewers",
+            "elementVariable": "reviewer",
+            "loopDataOutputRef": "verdicts",
+            "outputDataItem": "verdict",
+            "completionCondition": "${nrOfCompletedInstances >= quorum}"
+          } } },
+        "record": { "type": "scriptTask", "attributes": { "scriptFormat": "juel" } }
+      }
+    },
+    "miSequential": {
+      "elements": {
+        "rounds": { "type": "subProcess", "attributes": {
+          "loopCharacteristics": { "sequential": true, "loopCardinality": "${roundCount}", "elementIndexVariable": "round" } } }
+      }
+    },
+    "terminateScopes": {
+      "elements": {
+        "terminateInSub": { "type": "endEvent", "attributes": { "eventDefinitions": [ { "@class": "TerminateEventDefinition", "terminateAll": false, "terminateMultiInstance": false } ] } }
+      }
+    },
+    "terminateAllScopes": {
+      "elements": {
+        "terminateInSub": { "type": "endEvent", "attributes": { "eventDefinitions": [ { "@class": "TerminateEventDefinition", "terminateAll": true, "terminateMultiInstance": false } ] } }
+      }
+    },
+    "terminateMiDefault": {
+      "elements": {
+        "terminateItem": { "type": "endEvent", "attributes": { "eventDefinitions": [ { "@class": "TerminateEventDefinition", "terminateAll": false, "terminateMultiInstance": false } ] } }
+      }
+    },
+    "terminateMiRoot": {
+      "elements": {
+        "terminateItem": { "type": "endEvent", "attributes": { "eventDefinitions": [ { "@class": "TerminateEventDefinition", "terminateAll": false, "terminateMultiInstance": true } ] } }
+      }
+    }
+  }
+}

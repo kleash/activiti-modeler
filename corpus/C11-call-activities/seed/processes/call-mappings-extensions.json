@@ -1,0 +1,31 @@
+{
+  "id": "call-mappings-extensions",
+  "extensions": {
+    "callMappings": {
+      "properties": {
+        "p1": { "id": "p1", "name": "customerId", "type": "string" },
+        "p2": { "id": "p2", "name": "score", "type": "integer" },
+        "p3": { "id": "p3", "name": "band", "type": "string" }
+      },
+      "mappings": {
+        "riskLookup": {
+          "inputs": {
+            "customerId": { "type": "VARIABLE", "value": "customerId" },
+            "channel": { "type": "VALUE", "value": "web" }
+          },
+          "outputs": {
+            "score": { "type": "VARIABLE", "value": "riskScore" },
+            "band": { "type": "VARIABLE", "value": "riskBand" }
+          }
+        },
+        "passAll": { "mappingType": "MAP_ALL" },
+        "passBare": { "mappingType": "MAP_ALL" }
+      },
+      "constants": {
+        "riskLookup": {
+          "model": { "value": "v2" }
+        }
+      }
+    }
+  }
+}

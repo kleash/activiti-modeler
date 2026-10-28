@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C21">
+  <process id="mapAllVariants" name="MAP_ALL_INPUTS and MAP_ALL_OUTPUTS" isExecutable="true">
+    <documentation>The two one-direction mapping types on a connector and on a user task: MAP_ALL_INPUTS passes every process variable in and uses the explicit outputs, MAP_ALL_OUTPUTS uses the explicit inputs and copies everything back. The explicit mappings of the other direction are ignored.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_echoAllInputs" sourceRef="start" targetRef="echoAllInputs"/>
+    <serviceTask id="echoAllInputs" name="Echo with all inputs" implementation="echo.EXECUTE"/>
+    <sequenceFlow id="f_echoAllInputs_reviewAllInputs" sourceRef="echoAllInputs" targetRef="reviewAllInputs"/>
+    <userTask id="reviewAllInputs" name="Review with all inputs" activiti:assignee="ann"/>
+    <sequenceFlow id="f_reviewAllInputs_lookupAllOutputs" sourceRef="reviewAllInputs" targetRef="lookupAllOutputs"/>
+    <serviceTask id="lookupAllOutputs" name="Look up with all outputs" implementation="crm.LOOKUP"/>
+    <sequenceFlow id="f_lookupAllOutputs_reviewAllOutputs" sourceRef="lookupAllOutputs" targetRef="reviewAllOutputs"/>
+    <userTask id="reviewAllOutputs" name="Review with all outputs" activiti:assignee="ann"/>
+    <sequenceFlow id="f_reviewAllOutputs_end" sourceRef="reviewAllOutputs" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="mapAllVariants">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="echoAllInputs_di" bpmnElement="echoAllInputs">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewAllInputs_di" bpmnElement="reviewAllInputs">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="lookupAllOutputs_di" bpmnElement="lookupAllOutputs">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewAllOutputs_di" bpmnElement="reviewAllOutputs">
+        <dc:Bounds x="670" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="852" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_echoAllInputs_di" bpmnElement="f_start_echoAllInputs">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_echoAllInputs_reviewAllInputs_di" bpmnElement="f_echoAllInputs_reviewAllInputs">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reviewAllInputs_lookupAllOutputs_di" bpmnElement="f_reviewAllInputs_lookupAllOutputs">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_lookupAllOutputs_reviewAllOutputs_di" bpmnElement="f_lookupAllOutputs_reviewAllOutputs">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="670" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reviewAllOutputs_end_di" bpmnElement="f_reviewAllOutputs_end">
+        <di:waypoint x="770" y="110"/>
+        <di:waypoint x="852" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

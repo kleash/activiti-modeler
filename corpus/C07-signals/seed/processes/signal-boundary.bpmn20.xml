@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C07">
+  <signal id="cancelOrderSignal" name="cancelOrder"/>
+  <signal id="orderNoteSignal" name="orderNote"/>
+  <process id="signalBoundary" name="Boundary signal events" isExecutable="true">
+    <documentation>A user task with an interrupting boundary signal (cancelOrder) and a non-interrupting one (orderNote) that can be received any number of times.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_work" sourceRef="start" targetRef="work"/>
+    <userTask id="work" name="Work on the order" activiti:assignee="ann"/>
+    <boundaryEvent id="cancelBoundary" name="Cancel order" attachedToRef="work">
+      <signalEventDefinition signalRef="cancelOrderSignal"/>
+    </boundaryEvent>
+    <boundaryEvent id="noteBoundary" name="Order note" cancelActivity="false" attachedToRef="work">
+      <signalEventDefinition signalRef="orderNoteSignal"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_cancelBoundary_cancelledEnd" sourceRef="cancelBoundary" targetRef="cancelledEnd"/>
+    <endEvent id="cancelledEnd" name="Cancelled"/>
+    <sequenceFlow id="f_noteBoundary_takeNote" sourceRef="noteBoundary" targetRef="takeNote"/>
+    <serviceTask id="takeNote" name="Count the note" activiti:class="io.github.kleash.activiti.harness.support.IncrementDelegate">
+      <extensionElements>
+        <activiti:field name="variable">
+          <activiti:string>notes</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_takeNote_noteEnd" sourceRef="takeNote" targetRef="noteEnd"/>
+    <endEvent id="noteEnd" name="Note taken"/>
+    <sequenceFlow id="f_work_completedEnd" sourceRef="work" targetRef="completedEnd"/>
+    <endEvent id="completedEnd" name="Completed"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="signalBoundary">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="work_di" bpmnElement="work">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelledEnd_di" bpmnElement="cancelledEnd">
+        <dc:Bounds x="252" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="takeNote_di" bpmnElement="takeNote">
+        <dc:Bounds x="370" y="290" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="noteEnd_di" bpmnElement="noteEnd">
+        <dc:Bounds x="552" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="completedEnd_di" bpmnElement="completedEnd">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelBoundary_di" bpmnElement="cancelBoundary">
+        <dc:Bounds x="240" y="132" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="noteBoundary_di" bpmnElement="noteBoundary">
+        <dc:Bounds x="288" y="132" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_work_di" bpmnElement="f_start_work">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_cancelBoundary_cancelledEnd_di" bpmnElement="f_cancelBoundary_cancelledEnd">
+        <di:waypoint x="258" y="168"/>
+        <di:waypoint x="258" y="330"/>
+        <di:waypoint x="252" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_noteBoundary_takeNote_di" bpmnElement="f_noteBoundary_takeNote">
+        <di:waypoint x="306" y="168"/>
+        <di:waypoint x="306" y="330"/>
+        <di:waypoint x="370" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_takeNote_noteEnd_di" bpmnElement="f_takeNote_noteEnd">
+        <di:waypoint x="470" y="330"/>
+        <di:waypoint x="552" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_work_completedEnd_di" bpmnElement="f_work_completedEnd">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,14 @@
+target/
+.DS_Store
+node_modules/
+.tools/
+dist/
+playwright-report/
+test-results/
+*.log
+.vite/
+.claude/worktrees/
+.scratch/
+dist-*/
+playwright.mine*.config.ts
+playwright.m[0-9]*.config.ts

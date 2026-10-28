@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Helper of the N01 engine checks (not a lint case): a decision task that evaluates the decision "discount" of the DMN file next to it,
+     with the input "customer". -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" id="Definitions_dmnCaller" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="dmnCaller" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:serviceTask id="decide" name="Decide the discount" implementation="dmn-connector.EXECUTE_TABLE" />
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_decide" sourceRef="start" targetRef="decide" />
+    <bpmn:sequenceFlow id="f_decide_end" sourceRef="decide" targetRef="end" />
+  </bpmn:process>
+</bpmn:definitions>

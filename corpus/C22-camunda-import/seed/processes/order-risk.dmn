@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="Definitions_orderRisk" name="order-risk" namespace="http://activiti.org/schema/1.0/dmn/Definitions_orderRisk">
+  <inputData id="InputData_quantity" name="quantity">
+    <variable id="InputData_quantity_variable" name="quantity" typeRef="number" />
+  </inputData>
+  <decision id="orderRisk" name="orderRisk">
+    <variable id="orderRisk_variable" name="orderRisk" typeRef="string" />
+    <informationRequirement id="orderRisk_req_InputData_quantity">
+      <requiredInput href="#InputData_quantity" />
+    </informationRequirement>
+    <decisionTable id="orderRisk_table" hitPolicy="UNIQUE">
+      <input id="orderRisk_input1" label="Quantity">
+        <inputExpression id="orderRisk_inputExpression1" typeRef="number">
+          <text>quantity</text>
+        </inputExpression>
+      </input>
+      <output id="orderRisk_output1" name="riskClass" typeRef="string" />
+      <rule id="orderRisk_small">
+        <inputEntry id="orderRisk_small_in1"><text>&lt; 10</text></inputEntry>
+        <outputEntry id="orderRisk_small_out1"><text>"low"</text></outputEntry>
+      </rule>
+      <rule id="orderRisk_medium">
+        <inputEntry id="orderRisk_medium_in1"><text>[10..49]</text></inputEntry>
+        <outputEntry id="orderRisk_medium_out1"><text>"medium"</text></outputEntry>
+      </rule>
+      <rule id="orderRisk_large">
+        <inputEntry id="orderRisk_large_in1"><text>&gt;= 50</text></inputEntry>
+        <outputEntry id="orderRisk_large_out1"><text>"high"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_orderRisk" dmnElementRef="orderRisk">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_quantity" dmnElementRef="InputData_quantity">
+        <dc:Bounds height="45" width="125" x="187" y="280" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_quantity_orderRisk" dmnElementRef="orderRisk_req_InputData_quantity">
+        <di:waypoint x="250" y="280" />
+        <di:waypoint x="250" y="180" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

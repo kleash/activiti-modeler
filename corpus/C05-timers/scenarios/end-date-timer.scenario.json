@@ -1,0 +1,38 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C05 non-interrupting repeating timer with activiti:endDate",
+  "description": "R/PT1H repeats without bound; activiti:endDate=2030-01-01T11:30:00Z stops the chain: an occurrence after the end date is never scheduled.",
+  "users": { "ann": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "reminders at 10:00 and 11:00, none at 12:00",
+      "start": { "process": "endDateTimer", "user": "ann" },
+      "steps": [
+        { "expectTimer": { "activity": "reviewTimer", "count": 1, "dueDate": "2030-01-01T10:00:00Z" } },
+        { "advanceClock": "PT1H" },
+        { "executeJobs": {} },
+        { "expectTimer": { "activity": "reviewTimer", "count": 1, "dueDate": "2030-01-01T11:00:00Z" } },
+        { "advanceClock": "PT1H" },
+        { "executeJobs": {} },
+        { "expectTimer": { "activity": "reviewTimer", "count": 0 } },
+        { "advanceClock": "PT3H" },
+        { "executeJobs": {} },
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["doneEnd", "remindedEnd"], "variables": { "reminders": 2 } }
+    },
+    {
+      "name": "a late executor: the occurrences it missed are skipped and the chain ends",
+      "description": "Engine finding 27: the next occurrence is computed from the clock (13:00 after a firing at 12:00), not from the schedule, and 13:00 is after the end date.",
+      "start": { "process": "endDateTimer", "user": "ann" },
+      "steps": [
+        { "advanceClock": "PT3H" },
+        { "executeJobs": {} },
+        { "expectTimer": { "activity": "reviewTimer", "count": 0 } },
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["doneEnd", "remindedEnd"], "variables": { "reminders": 1 } }
+    }
+  ]
+}

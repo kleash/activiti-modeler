@@ -1,0 +1,54 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C05 non-interrupting repeating timer (R3/PT1H)",
+  "users": { "ann": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "R3 fires three times at hourly intervals, then no timer is left; the task stays open throughout",
+      "start": {"process": "repeatingTimer", "user": "ann"},
+      "steps": [
+        {"expectTimer": {"activity": "draftTimer", "count": 1, "dueDate": "2030-01-01T10:00:00Z"}},
+        {"advanceClock": "PT59M"},
+        {"executeJobs": {}},
+        {"expectTimer": {"activity": "draftTimer", "count": 1, "dueDate": "2030-01-01T10:00:00Z"}},
+        {"advanceClock": "PT1M"},
+        {"executeJobs": {}},
+        {"expectTimer": {"activity": "draftTimer", "count": 1, "dueDate": "2030-01-01T11:00:00Z"}},
+        {"expectTask": {"activity": "draft", "assignee": "ann"}},
+        {"advanceClock": "PT1H"},
+        {"executeJobs": {}},
+        {"expectTimer": {"activity": "draftTimer", "count": 1, "dueDate": "2030-01-01T12:00:00Z"}},
+        {"advanceClock": "PT1H"},
+        {"executeJobs": {}},
+        {"expectTimer": {"activity": "draftTimer", "count": 0}},
+        {"expectTask": {"activity": "draft", "assignee": "ann"}},
+        {"completeTask": {"activity": "draft", "user": "ann"}}
+      ],
+      "expect": {"state": "COMPLETED", "endEvents": ["doneEnd", "remindedEnd"], "variables": {"reminders": 3}, "path": {"contains": ["draftTimer", "remind", "remindedEnd", "draft", "doneEnd"], "sequenceFlows": ["f_draftTimer_remind", "f_remind_remindedEnd", "f_start_draft", "f_draft_doneEnd"]}}
+    },
+    {
+      "name": "fireTimer forces a firing whatever the clock says; the third firing is the last",
+      "start": {"process": "repeatingTimer", "user": "ann"},
+      "steps": [
+        {"fireTimer": {"activity": "draftTimer"}},
+        {"expectTimer": {"activity": "draftTimer", "count": 1}},
+        {"fireTimer": {"activity": "draftTimer"}},
+        {"expectTimer": {"activity": "draftTimer", "count": 1}},
+        {"fireTimer": {"activity": "draftTimer"}},
+        {"expectTimer": {"activity": "draftTimer", "count": 0}},
+        {"completeTask": {"activity": "draft", "user": "ann"}}
+      ],
+      "expect": {"state": "COMPLETED", "endEvents": ["doneEnd", "remindedEnd"], "variables": {"reminders": 3}}
+    },
+    {
+      "name": "completing the task before the first firing removes the timer: no reminder",
+      "start": {"process": "repeatingTimer", "user": "ann"},
+      "steps": [
+        {"completeTask": {"activity": "draft", "user": "ann"}},
+        {"expectTimer": {"activity": "draftTimer", "count": 0}}
+      ],
+      "expect": {"state": "COMPLETED", "endEvents": ["doneEnd"], "absentVariables": ["reminders"], "path": {"notContains": ["draftTimer", "remind", "remindedEnd"], "sequenceFlows": ["f_start_draft", "f_draft_doneEnd"]}}
+    }
+  ]
+}

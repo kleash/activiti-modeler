@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C07">
+  <signal id="localPingSignal" name="localPing" activiti:scope="processInstance"/>
+  <process id="signalLocalScope" name="Signal with processInstance scope" isExecutable="true">
+    <documentation>The signal localPing has scope processInstance: a throw in the same instance reaches the catch event, a broadcast from outside (ProcessRuntime.signal) does not.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_fork" sourceRef="start" targetRef="fork"/>
+    <parallelGateway id="fork"/>
+    <sequenceFlow id="f_fork_waitLocal" sourceRef="fork" targetRef="waitLocal"/>
+    <sequenceFlow id="f_fork_work" sourceRef="fork" targetRef="work"/>
+    <intermediateCatchEvent id="waitLocal" name="Local ping">
+      <signalEventDefinition signalRef="localPingSignal"/>
+    </intermediateCatchEvent>
+    <userTask id="work" name="Work" activiti:assignee="ann"/>
+    <sequenceFlow id="f_waitLocal_join" sourceRef="waitLocal" targetRef="join"/>
+    <sequenceFlow id="f_work_raiseLocal" sourceRef="work" targetRef="raiseLocal"/>
+    <intermediateThrowEvent id="raiseLocal" name="Raise local ping">
+      <signalEventDefinition signalRef="localPingSignal"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="f_raiseLocal_join" sourceRef="raiseLocal" targetRef="join"/>
+    <parallelGateway id="join"/>
+    <sequenceFlow id="f_join_end" sourceRef="join" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="signalLocalScope">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fork_di" bpmnElement="fork">
+        <dc:Bounds x="245" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitLocal_di" bpmnElement="waitLocal">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="work_di" bpmnElement="work">
+        <dc:Bounds x="370" y="290" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="raiseLocal_di" bpmnElement="raiseLocal">
+        <dc:Bounds x="552" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="join_di" bpmnElement="join">
+        <dc:Bounds x="695" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="852" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_fork_di" bpmnElement="f_start_fork">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="245" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_waitLocal_di" bpmnElement="f_fork_waitLocal">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="348" y="220"/>
+        <di:waypoint x="348" y="110"/>
+        <di:waypoint x="402" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_work_di" bpmnElement="f_fork_work">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="332" y="220"/>
+        <di:waypoint x="332" y="330"/>
+        <di:waypoint x="370" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitLocal_join_di" bpmnElement="f_waitLocal_join">
+        <di:waypoint x="438" y="110"/>
+        <di:waypoint x="566" y="110"/>
+        <di:waypoint x="566" y="220"/>
+        <di:waypoint x="695" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_work_raiseLocal_di" bpmnElement="f_work_raiseLocal">
+        <di:waypoint x="470" y="330"/>
+        <di:waypoint x="552" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_raiseLocal_join_di" bpmnElement="f_raiseLocal_join">
+        <di:waypoint x="588" y="330"/>
+        <di:waypoint x="642" y="330"/>
+        <di:waypoint x="642" y="220"/>
+        <di:waypoint x="695" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_join_end_di" bpmnElement="f_join_end">
+        <di:waypoint x="745" y="220"/>
+        <di:waypoint x="852" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

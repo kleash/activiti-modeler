@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/runner-test">
+  <process id="parent" name="Parent" isExecutable="true">
+    <startEvent id="parentStart"/>
+    <sequenceFlow id="f_parentStart_callKyc" sourceRef="parentStart" targetRef="callKyc"/>
+    <callActivity id="callKyc" name="KYC" calledElement="kyc" activiti:inheritBusinessKey="true">
+      <extensionElements>
+        <activiti:in source="customerId" target="cid"/>
+        <activiti:out source="result" target="kycResult"/>
+      </extensionElements>
+    </callActivity>
+    <sequenceFlow id="f_callKyc_parentEnd" sourceRef="callKyc" targetRef="parentEnd"/>
+    <endEvent id="parentEnd"/>
+  </process>
+  <process id="kyc" name="KYC" isExecutable="true">
+    <startEvent id="kycStart"/>
+    <sequenceFlow id="f_kycStart_kycCheck" sourceRef="kycStart" targetRef="kycCheck"/>
+    <userTask id="kycCheck" name="KYC check" activiti:candidateGroups="reviewers"/>
+    <sequenceFlow id="f_kycCheck_kycDone" sourceRef="kycCheck" targetRef="kycDone"/>
+    <endEvent id="kycDone"/>
+  </process>
+</definitions>

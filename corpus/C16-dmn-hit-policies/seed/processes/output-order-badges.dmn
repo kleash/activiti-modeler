@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="Definitions_outputOrderBadges" name="output-order-badges" namespace="http://activiti.org/schema/1.0/dmn/Definitions_outputOrderBadges">
+  <inputData id="InputData_score" name="score">
+    <variable id="InputData_score_variable" name="score" typeRef="number" />
+  </inputData>
+  <decision id="outputOrderBadges" name="outputOrderBadges">
+    <variable id="outputOrderBadges_variable" name="outputOrderBadges" />
+    <informationRequirement id="outputOrderBadges_req_InputData_score">
+      <requiredInput href="#InputData_score" />
+    </informationRequirement>
+    <decisionTable id="outputOrderBadges_table" hitPolicy="OUTPUT ORDER">
+      <input id="outputOrderBadges_input1" label="Score">
+        <inputExpression id="outputOrderBadges_inputExpression1" typeRef="number">
+          <text>score</text>
+        </inputExpression>
+      </input>
+      <output id="outputOrderBadges_output1" name="badge" typeRef="string">
+        <outputValues id="outputOrderBadges_outputValues1">
+          <text>"star","achiever","participant"</text>
+        </outputValues>
+      </output>
+      <rule id="outputOrderBadges_participant">
+        <inputEntry id="outputOrderBadges_participant_in1"><text>&gt;= 0</text></inputEntry>
+        <outputEntry id="outputOrderBadges_participant_out1"><text>"participant"</text></outputEntry>
+      </rule>
+      <rule id="outputOrderBadges_star">
+        <inputEntry id="outputOrderBadges_star_in1"><text>&gt;= 80</text></inputEntry>
+        <outputEntry id="outputOrderBadges_star_out1"><text>"star"</text></outputEntry>
+      </rule>
+      <rule id="outputOrderBadges_achiever">
+        <inputEntry id="outputOrderBadges_achiever_in1"><text>&gt;= 50</text></inputEntry>
+        <outputEntry id="outputOrderBadges_achiever_out1"><text>"achiever"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_outputOrderBadges" dmnElementRef="outputOrderBadges">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_score" dmnElementRef="InputData_score">
+        <dc:Bounds height="45" width="150" x="160" y="300" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_outputOrderBadges_req_InputData_score" dmnElementRef="outputOrderBadges_req_InputData_score">
+        <di:waypoint x="235" y="300" />
+        <di:waypoint x="250" y="180" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

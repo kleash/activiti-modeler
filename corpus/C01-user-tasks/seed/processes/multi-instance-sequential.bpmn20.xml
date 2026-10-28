@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C01">
+  <process id="reviewSequential" name="Sequential multi-instance user task" isExecutable="true">
+    <documentation>A sequential multi-instance user task over a collection given as an expression, with a custom element index variable (position, starting at 0) and a completion condition on nrOfCompletedInstances; then a sequential multi-instance user task driven by a loop cardinality and the default index variable loopCounter.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_approveInTurn" sourceRef="start" targetRef="approveInTurn"/>
+    <userTask id="approveInTurn" name="Approval ${position + 1} by ${approver}" activiti:assignee="${approver}">
+      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="${approvers}" activiti:elementVariable="approver" activiti:elementIndexVariable="position">
+        <completionCondition>${nrOfCompletedInstances &gt;= limit}</completionCondition>
+      </multiInstanceLoopCharacteristics>
+    </userTask>
+    <sequenceFlow id="f_approveInTurn_signOff" sourceRef="approveInTurn" targetRef="signOff"/>
+    <userTask id="signOff" name="Sign-off ${loopCounter + 1}" activiti:candidateUsers="ann">
+      <multiInstanceLoopCharacteristics isSequential="true">
+        <loopCardinality>2</loopCardinality>
+      </multiInstanceLoopCharacteristics>
+    </userTask>
+    <sequenceFlow id="f_signOff_end" sourceRef="signOff" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="reviewSequential">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approveInTurn_di" bpmnElement="approveInTurn">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="signOff_di" bpmnElement="signOff">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_approveInTurn_di" bpmnElement="f_start_approveInTurn">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_approveInTurn_signOff_di" bpmnElement="f_approveInTurn_signOff">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_signOff_end_di" bpmnElement="f_signOff_end">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

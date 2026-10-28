@@ -1,0 +1,20 @@
+{
+  "id": "decisionUnknown-extensions",
+  "extensions": {
+    "decisionUnknown": {
+      "properties": {},
+      "mappings": {
+        "decide": {
+          "mappingType": "MAP_ALL"
+        }
+      },
+      "constants": {
+        "decide": {
+          "_activiti_dmn_table_": {
+            "value": "nothing"
+          }
+        }
+      }
+    }
+  }
+}

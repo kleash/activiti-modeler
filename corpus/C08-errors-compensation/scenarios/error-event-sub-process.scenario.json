@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 error start events of event sub processes",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "no error: the main flow completes and no event sub process starts",
+      "start": { "process": "errorEventSubProcess", "user": "ann", "variables": { "errorCode": "" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["workDone"],
+        "absentVariables": ["handledBy"],
+        "path": { "notContains": ["validationErrorStart", "anyErrorStart"], "sequenceFlows": ["f_start_work", "f_work_workDone"] }
+      }
+    },
+    {
+      "name": "VALIDATION is handled by the event sub process whose error start event names it",
+      "start": { "process": "errorEventSubProcess", "user": "ann", "variables": { "errorCode": "VALIDATION" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["validationHandled"],
+        "variables": { "handledBy": "validation" },
+        "path": {
+          "contains": ["validationErrorStart", "markValidation", "validationHandled"],
+          "notContains": ["workDone", "anyErrorStart", "markOther"],
+          "order": [["validationErrorStart", "markValidation"], ["markValidation", "validationHandled"]],
+          "sequenceFlows": ["f_validationErrorStart_markValidation", "f_markValidation_validationHandled"],
+          "notSequenceFlows": ["f_work_workDone"]
+        }
+      }
+    },
+    {
+      "name": "any other code is handled by the event sub process with an error start event without errorRef",
+      "start": { "process": "errorEventSubProcess", "user": "ann", "variables": { "errorCode": "TIMEOUT" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["otherHandled"],
+        "variables": { "handledBy": "other" },
+        "path": {
+          "contains": ["anyErrorStart", "markOther", "otherHandled"],
+          "notContains": ["workDone", "validationErrorStart", "markValidation"],
+          "sequenceFlows": ["f_anyErrorStart_markOther", "f_markOther_otherHandled"],
+          "notSequenceFlows": ["f_validationErrorStart_markValidation"]
+        }
+      }
+    }
+  ]
+}

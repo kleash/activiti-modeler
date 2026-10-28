@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_discountOrder"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://kleash.github.io/corpus/C17-migrated">
+  <process id="discountOrder" name="Discount for an order" isExecutable="true">
+    <documentation>A decision task evaluates the migrated decision "discount" (a DMN 1.1 file that the modeler migrated to 1.3) and the exclusive gateway routes on whether a rule matched: gold customers get 10, everybody else gets no discount (the table has no other rule, so no rule matches).</documentation>
+    <startEvent id="start" name="Order received"/>
+    <sequenceFlow id="f_start_decideDiscount" sourceRef="start" targetRef="decideDiscount"/>
+    <serviceTask id="decideDiscount" name="Decide the discount" implementation="dmn-connector.EXECUTE_TABLE"/>
+    <sequenceFlow id="f_decideDiscount_discountGateway" sourceRef="decideDiscount" targetRef="discountGateway"/>
+    <exclusiveGateway id="discountGateway" name="Discount?" default="f_discountGateway_noDiscountEnd"/>
+    <sequenceFlow id="f_discountGateway_discountedEnd" name="matched" sourceRef="discountGateway" targetRef="discountedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${matched}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_discountGateway_noDiscountEnd" name="no rule matched" sourceRef="discountGateway" targetRef="noDiscountEnd"/>
+    <endEvent id="discountedEnd" name="Discounted"/>
+    <endEvent id="noDiscountEnd" name="No discount"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="discountOrder">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideDiscount_di" bpmnElement="decideDiscount">
+        <dc:Bounds x="220" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="discountGateway_di" bpmnElement="discountGateway" isMarkerVisible="true">
+        <dc:Bounds x="395" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="discountedEnd_di" bpmnElement="discountedEnd">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="noDiscountEnd_di" bpmnElement="noDiscountEnd">
+        <dc:Bounds x="552" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_decideDiscount_di" bpmnElement="f_start_decideDiscount">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_decideDiscount_discountGateway_di" bpmnElement="f_decideDiscount_discountGateway">
+        <di:waypoint x="320" y="220"/>
+        <di:waypoint x="395" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_discountGateway_discountedEnd_di" bpmnElement="f_discountGateway_discountedEnd">
+        <di:waypoint x="445" y="220"/>
+        <di:waypoint x="498" y="220"/>
+        <di:waypoint x="498" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_discountGateway_noDiscountEnd_di" bpmnElement="f_discountGateway_noDiscountEnd">
+        <di:waypoint x="445" y="220"/>
+        <di:waypoint x="498" y="220"/>
+        <di:waypoint x="498" y="330"/>
+        <di:waypoint x="552" y="330"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

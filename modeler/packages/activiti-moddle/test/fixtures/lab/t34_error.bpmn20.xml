@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+<error id="err" name="Err" errorCode="E1"/>
+  <process id="t34_error" name="t34_error" isExecutable="true">
+    <startEvent id="s"/><serviceTask id="a" activiti:expression="${1}"/><sequenceFlow id="f0" sourceRef="s" targetRef="a"/>
+    <subProcess id="sp"><startEvent id="sp_s"/><endEvent id="sp_e"><errorEventDefinition errorRef="err"/></endEvent><sequenceFlow id="g1" sourceRef="sp_s" targetRef="sp_e"/></subProcess>
+    <sequenceFlow id="f1" sourceRef="a" targetRef="sp"/>
+    <boundaryEvent id="eb" attachedToRef="sp"><errorEventDefinition errorRef="err"/></boundaryEvent>
+    <userTask id="handled"/><endEvent id="e"/>
+    <sequenceFlow id="f2" sourceRef="eb" targetRef="handled"/>
+    <sequenceFlow id="f3" sourceRef="handled" targetRef="e"/>
+    <sequenceFlow id="f4" sourceRef="sp" targetRef="e"/>
+
+  </process>
+</definitions>

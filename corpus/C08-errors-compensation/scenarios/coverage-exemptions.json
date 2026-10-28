@@ -1,0 +1,12 @@
+{
+  "$schema": "../../../schemas/coverage-exemptions.schema.json",
+  "exemptions": [
+    { "process": "compensationFlow", "element": "onFlightCompensate", "reason": "engine records no history for compensation boundary events: they are created in AbstractBpmnActivityBehavior.leave, outside ContinueProcessOperation; the handler running proves the subscription exists" },
+    { "process": "compensationFlow", "element": "onHotelCompensate", "reason": "engine records no history for compensation boundary events: they are created in AbstractBpmnActivityBehavior.leave, outside ContinueProcessOperation; the handler running proves the subscription exists" },
+    { "process": "compensationTargets", "element": "onFlightCompensate", "reason": "engine records no history for compensation boundary events: they are created in AbstractBpmnActivityBehavior.leave, outside ContinueProcessOperation; the handler running proves the subscription exists" },
+    { "process": "compensationTargets", "element": "onHotelCompensate", "reason": "engine records no history for compensation boundary events: they are created in AbstractBpmnActivityBehavior.leave, outside ContinueProcessOperation; the handler running proves the subscription exists" },
+    { "process": "compensationScopes", "element": "onPickCompensate", "reason": "engine records no history for compensation boundary events: they are created in AbstractBpmnActivityBehavior.leave, outside ContinueProcessOperation; the handler running proves the subscription exists" },
+    { "process": "errorEventSubProcess", "element": "onValidationError", "reason": "engine records no history for the event sub process container: ErrorPropagation starts the execution at the error start event inside it, which is visited" },
+    { "process": "errorEventSubProcess", "element": "onAnyError", "reason": "engine records no history for the event sub process container: ErrorPropagation starts the execution at the error start event inside it, which is visited" }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C06 message start event",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the start mapping is an output mapping of the message variables: only the mapped one survives",
+      "start": { "message": "orderPlaced", "businessKey": "B-1", "user": "ann", "variables": { "ref": "A-1", "amount": 5 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "orderRef": "A-1", "registered": true },
+        "absentVariables": ["ref", "amount"],
+        "path": { "contains": ["startOnMessage"], "notContains": ["startPlain"], "sequenceFlows": ["f_startOnMessage_register", "f_register_end"], "notSequenceFlows": ["f_startPlain_register"] }
+      }
+    },
+    {
+      "name": "a start event without a mapping passes the message variables on as they are",
+      "start": { "message": "orderImported", "user": "ann", "variables": { "ref": "I-1", "amount": 7 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "ref": "I-1", "amount": 7, "registered": true },
+        "absentVariables": ["orderRef"],
+        "path": { "contains": ["startPlain"], "notContains": ["startOnMessage"], "sequenceFlows": ["f_startPlain_register", "f_register_end"] }
+      }
+    },
+    {
+      "name": "a message that no start event subscribes to cannot start anything",
+      "start": { "message": "nobodyListens", "user": "ann",
+                 "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "no subscription to message with name 'nobodyListens' found" } }
+    }
+  ]
+}

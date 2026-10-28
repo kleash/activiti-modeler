@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_itemChild"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C11">
+  <process id="itemChild" name="Inspect one item (called)" isExecutable="true">
+    <documentation>Called once per item by the parallel multi-instance call activity of callMultiInstance. A user task keeps every child open until the scenario completes it; the result is the upper-cased item.</documentation>
+    <startEvent id="cStart"/>
+    <sequenceFlow id="f_cStart_inspect" sourceRef="cStart" targetRef="inspect"/>
+    <userTask id="inspect" name="Inspect item" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_inspect_upper" sourceRef="inspect" targetRef="upper"/>
+    <serviceTask id="upper" name="Upper-case the item" activiti:expression="${execution.setVariable('result', item.toUpperCase())}"/>
+    <sequenceFlow id="f_upper_cEnd" sourceRef="upper" targetRef="cEnd"/>
+    <endEvent id="cEnd"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="itemChild">
+      <bpmndi:BPMNShape id="cStart_di" bpmnElement="cStart">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="inspect_di" bpmnElement="inspect">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="upper_di" bpmnElement="upper">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cEnd_di" bpmnElement="cEnd">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_cStart_inspect_di" bpmnElement="f_cStart_inspect">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_inspect_upper_di" bpmnElement="f_inspect_upper">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_upper_cEnd_di" bpmnElement="f_upper_cEnd">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

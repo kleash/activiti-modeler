@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_priceCalculator"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C11">
+  <process id="priceCalculator" name="Price calculator (called)" isExecutable="true">
+    <documentation>Called by callInOut. Multiplies price by quantity into total; a user task keeps the child instance open so that the scenario can look at it while it runs.</documentation>
+    <startEvent id="cStart"/>
+    <sequenceFlow id="f_cStart_review" sourceRef="cStart" targetRef="review"/>
+    <userTask id="review" name="Review price" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_review_compute" sourceRef="review" targetRef="compute"/>
+    <serviceTask id="compute" name="Compute total" activiti:expression="${execution.setVariable('total', price * quantity)}"/>
+    <sequenceFlow id="f_compute_cEnd" sourceRef="compute" targetRef="cEnd"/>
+    <endEvent id="cEnd"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="priceCalculator">
+      <bpmndi:BPMNShape id="cStart_di" bpmnElement="cStart">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="compute_di" bpmnElement="compute">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cEnd_di" bpmnElement="cEnd">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_cStart_review_di" bpmnElement="f_cStart_review">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_review_compute_di" bpmnElement="f_review_compute">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_compute_cEnd_di" bpmnElement="f_compute_cEnd">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

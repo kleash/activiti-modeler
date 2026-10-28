@@ -1,0 +1,13 @@
+{
+ "id": "ext-t17bm",
+ "extensions": {
+  "t17bm": {
+   "properties": {},
+   "mappings": {
+    "u": {
+     "mappingType": "MAP_ALL_OUTPUTS"
+    }
+   }
+  }
+ }
+}

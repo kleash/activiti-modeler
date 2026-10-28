@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t05_complex_gateway" name="t05_complex_gateway" isExecutable="true">
+    <startEvent id="s"/>
+    <complexGateway id="cg" default="fd"/>
+    <userTask id="ua"/><userTask id="ub"/>
+    <endEvent id="e"/>
+    <sequenceFlow id="f0" sourceRef="s" targetRef="cg"/>
+    <sequenceFlow id="fa" sourceRef="cg" targetRef="ua"><conditionExpression xsi:type="tFormalExpression"><![CDATA[${true}]]></conditionExpression></sequenceFlow>
+    <sequenceFlow id="fd" sourceRef="cg" targetRef="ub"/>
+    <sequenceFlow id="fe1" sourceRef="ua" targetRef="e"/>
+    <sequenceFlow id="fe2" sourceRef="ub" targetRef="e"/>
+
+  </process>
+</definitions>

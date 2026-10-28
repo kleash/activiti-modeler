@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="Definitions_creditDecision" name="credit-policy" namespace="http://activiti.org/schema/1.0/dmn/Definitions_creditDecision">
+  <inputData id="InputData_creditScore" name="creditScore">
+    <variable id="InputData_creditScore_variable" name="creditScore" typeRef="number" />
+  </inputData>
+  <inputData id="InputData_amount" name="amount">
+    <variable id="InputData_amount_variable" name="amount" typeRef="number" />
+  </inputData>
+  <decision id="creditDecision" name="creditDecision">
+    <variable id="creditDecision_variable" name="creditDecision" />
+    <informationRequirement id="creditDecision_req_InputData_creditScore">
+      <requiredInput href="#InputData_creditScore" />
+    </informationRequirement>
+    <informationRequirement id="creditDecision_req_InputData_amount">
+      <requiredInput href="#InputData_amount" />
+    </informationRequirement>
+    <decisionTable id="creditDecision_table" hitPolicy="UNIQUE">
+      <input id="creditDecision_input1" label="Credit score">
+        <inputExpression id="creditDecision_inputExpression1" typeRef="number">
+          <text>creditScore</text>
+        </inputExpression>
+      </input>
+      <input id="creditDecision_input2" label="Amount">
+        <inputExpression id="creditDecision_inputExpression2" typeRef="number">
+          <text>amount</text>
+        </inputExpression>
+      </input>
+      <output id="creditDecision_output1" name="riskClass" typeRef="string" />
+      <output id="creditDecision_output2" name="route" typeRef="string" />
+      <rule id="creditDecision_decline">
+        <inputEntry id="creditDecision_decline_in1"><text>&lt; 500</text></inputEntry>
+        <inputEntry id="creditDecision_decline_in2"><text>-</text></inputEntry>
+        <outputEntry id="creditDecision_decline_out1"><text>"HIGH"</text></outputEntry>
+        <outputEntry id="creditDecision_decline_out2"><text>"DECLINE"</text></outputEntry>
+      </rule>
+      <rule id="creditDecision_manualMedium">
+        <inputEntry id="creditDecision_manualMedium_in1"><text>[500..700)</text></inputEntry>
+        <inputEntry id="creditDecision_manualMedium_in2"><text>-</text></inputEntry>
+        <outputEntry id="creditDecision_manualMedium_out1"><text>"MEDIUM"</text></outputEntry>
+        <outputEntry id="creditDecision_manualMedium_out2"><text>"MANUAL"</text></outputEntry>
+      </rule>
+      <rule id="creditDecision_autoLow">
+        <inputEntry id="creditDecision_autoLow_in1"><text>&gt;= 700</text></inputEntry>
+        <inputEntry id="creditDecision_autoLow_in2"><text>&lt;= 20000</text></inputEntry>
+        <outputEntry id="creditDecision_autoLow_out1"><text>"LOW"</text></outputEntry>
+        <outputEntry id="creditDecision_autoLow_out2"><text>"AUTO"</text></outputEntry>
+      </rule>
+      <rule id="creditDecision_manualLarge">
+        <inputEntry id="creditDecision_manualLarge_in1"><text>&gt;= 700</text></inputEntry>
+        <inputEntry id="creditDecision_manualLarge_in2"><text>&gt; 20000</text></inputEntry>
+        <outputEntry id="creditDecision_manualLarge_out1"><text>"LOW"</text></outputEntry>
+        <outputEntry id="creditDecision_manualLarge_out2"><text>"MANUAL"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_creditDecision" dmnElementRef="creditDecision">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_creditScore" dmnElementRef="InputData_creditScore">
+        <dc:Bounds height="45" width="125" x="140" y="300" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_amount" dmnElementRef="InputData_amount">
+        <dc:Bounds height="45" width="125" x="300" y="300" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_creditDecision_req_InputData_creditScore" dmnElementRef="creditDecision_req_InputData_creditScore">
+        <di:waypoint x="202" y="300" />
+        <di:waypoint x="230" y="180" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_creditDecision_req_InputData_amount" dmnElementRef="creditDecision_req_InputData_amount">
+        <di:waypoint x="362" y="300" />
+        <di:waypoint x="270" y="180" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/harness-fixture">
+  <message id="supportDoneMessage" name="supportDone"/>
+  <error id="e42" errorCode="E42"/>
+  <error id="d1" errorCode="D1"/>
+
+  <!-- connectors, class delegates, a delegate bean, a throw-message delegate and every listener kind -->
+  <process id="support" name="Support" isExecutable="true">
+    <extensionElements>
+      <activiti:executionListener event="start" delegateExpression="${recordingExecutionListener}"/>
+      <activiti:executionListener event="end" delegateExpression="${recordingExecutionListener}"/>
+      <activiti:eventListener events="TASK_CREATED,TASK_COMPLETED" delegateExpression="${recordingEventListener}"/>
+    </extensionElements>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_crm" sourceRef="start" targetRef="crm"/>
+    <serviceTask id="crm" name="Look up" implementation="crm.LOOKUP"/>
+    <sequenceFlow id="f_crm_echo" sourceRef="crm" targetRef="echo"/>
+    <serviceTask id="echo" name="Echo" implementation="echo.EXECUTE"/>
+    <sequenceFlow id="f_echo_setGreeting" sourceRef="echo" targetRef="setGreeting"/>
+    <serviceTask id="setGreeting" name="Set greeting" activiti:class="io.github.kleash.activiti.harness.support.SetVariableDelegate">
+      <extensionElements>
+        <activiti:field name="variable"><activiti:string>greeting</activiti:string></activiti:field>
+        <activiti:field name="value"><activiti:expression>${customerName}</activiti:expression></activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_setGreeting_inc1" sourceRef="setGreeting" targetRef="inc1"/>
+    <serviceTask id="inc1" name="Increment" activiti:class="io.github.kleash.activiti.harness.support.IncrementDelegate">
+      <extensionElements>
+        <activiti:field name="variable"><activiti:string>counter</activiti:string></activiti:field>
+        <activiti:executionListener event="start" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+        <activiti:executionListener event="end" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_inc1_inc2" sourceRef="inc1" targetRef="inc2">
+      <extensionElements>
+        <activiti:executionListener event="take" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+      </extensionElements>
+    </sequenceFlow>
+    <serviceTask id="inc2" name="Increment again" activiti:class="io.github.kleash.activiti.harness.support.IncrementDelegate">
+      <extensionElements>
+        <activiti:field name="variable"><activiti:string>counter</activiti:string></activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_inc2_recDel" sourceRef="inc2" targetRef="recDel"/>
+    <serviceTask id="recDel" name="Record" activiti:delegateExpression="${recordingDelegate}"/>
+    <sequenceFlow id="f_recDel_announce" sourceRef="recDel" targetRef="announce"/>
+    <intermediateThrowEvent id="announce">
+      <messageEventDefinition messageRef="supportDoneMessage" activiti:delegateExpression="${recordingThrowMessageDelegate}"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="f_announce_review" sourceRef="announce" targetRef="review"/>
+    <userTask id="review" name="Review" activiti:candidateGroups="reviewers">
+      <extensionElements>
+        <activiti:taskListener event="create" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+        <activiti:taskListener event="assignment" delegateExpression="${recordingTaskListener}"/>
+        <activiti:taskListener event="complete" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="f_review_end" sourceRef="review" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+
+  <!-- the failing connector rolls the start back -->
+  <process id="failingConnector" name="Failing connector" isExecutable="true">
+    <startEvent id="fcStart"/>
+    <sequenceFlow id="f_fcStart_fail" sourceRef="fcStart" targetRef="fail"/>
+    <serviceTask id="fail" name="Fail" implementation="failing.EXECUTE"/>
+    <sequenceFlow id="f_fail_fcEnd" sourceRef="fail" targetRef="fcEnd"/>
+    <endEvent id="fcEnd"/>
+  </process>
+
+  <!-- a BpmnError from a connector is caught by a boundary error event -->
+  <process id="bpmnErrorConnector" name="BPMN error from a connector" isExecutable="true">
+    <startEvent id="beStart"/>
+    <sequenceFlow id="f_beStart_err" sourceRef="beStart" targetRef="err"/>
+    <serviceTask id="err" name="Raise" implementation="bpmnerror.EXECUTE"/>
+    <sequenceFlow id="f_err_okEnd" sourceRef="err" targetRef="okEnd"/>
+    <boundaryEvent id="caught" attachedToRef="err">
+      <errorEventDefinition errorRef="e42"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_caught_handledEnd" sourceRef="caught" targetRef="handledEnd"/>
+    <endEvent id="okEnd"/>
+    <endEvent id="handledEnd"/>
+  </process>
+
+  <!-- class delegates that throw -->
+  <process id="throwingDelegates" name="Throwing delegates" isExecutable="true">
+    <startEvent id="tdStart"/>
+    <sequenceFlow id="f_tdStart_throwing" sourceRef="tdStart" targetRef="throwing"/>
+    <serviceTask id="throwing" name="Throw" activiti:class="io.github.kleash.activiti.harness.support.ThrowingDelegate">
+      <extensionElements>
+        <activiti:field name="message"><activiti:string>kaboom</activiti:string></activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_throwing_tdEnd" sourceRef="throwing" targetRef="tdEnd"/>
+    <endEvent id="tdEnd"/>
+  </process>
+  <process id="bpmnErrorDelegate" name="BPMN error from a delegate" isExecutable="true">
+    <startEvent id="bdStart"/>
+    <sequenceFlow id="f_bdStart_raise" sourceRef="bdStart" targetRef="raise"/>
+    <serviceTask id="raise" name="Raise" activiti:class="io.github.kleash.activiti.harness.support.BpmnErrorDelegate">
+      <extensionElements>
+        <activiti:field name="errorCode"><activiti:string>D1</activiti:string></activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_raise_bdOkEnd" sourceRef="raise" targetRef="bdOkEnd"/>
+    <boundaryEvent id="delegateCaught" attachedToRef="raise">
+      <errorEventDefinition errorRef="d1"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_delegateCaught_bdHandledEnd" sourceRef="delegateCaught" targetRef="bdHandledEnd"/>
+    <endEvent id="bdOkEnd"/>
+    <endEvent id="bdHandledEnd"/>
+  </process>
+  <!-- flags connector (ephemeral and not), a delegate bean with fields, bean expressions and a task listener with fields -->
+  <process id="supportExtras" name="Support extras" isExecutable="true">
+    <startEvent id="xStart"/>
+    <sequenceFlow id="f_xStart_flags" sourceRef="xStart" targetRef="flags"/>
+    <serviceTask id="flags" name="Flags" implementation="flags.EXECUTE"/>
+    <sequenceFlow id="f_flags_flagsEph" sourceRef="flags" targetRef="flagsEph"/>
+    <serviceTask id="flagsEph" name="Flags (ephemeral)" implementation="flags.EXECUTE"/>
+    <sequenceFlow id="f_flagsEph_viaBean" sourceRef="flagsEph" targetRef="viaBean"/>
+    <serviceTask id="viaBean" name="Set through the bean" activiti:delegateExpression="${setVariableDelegate}">
+      <extensionElements>
+        <activiti:field name="variable"><activiti:string>viaBean</activiti:string></activiti:field>
+        <activiti:field name="value"><activiti:expression>${customerName}!</activiti:expression></activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_viaBean_greet" sourceRef="viaBean" targetRef="greet"/>
+    <serviceTask id="greet" name="Greet" activiti:expression="${greeter.greet(customerName)}" activiti:resultVariableName="greeting"/>
+    <sequenceFlow id="f_greet_add" sourceRef="greet" targetRef="add"/>
+    <serviceTask id="add" name="Add" activiti:expression="${greeter.add(2, 3)}" activiti:resultVariableName="sum"/>
+    <sequenceFlow id="f_add_fielded" sourceRef="add" targetRef="fielded"/>
+    <userTask id="fielded" name="Fielded" activiti:assignee="ann">
+      <extensionElements>
+        <activiti:taskListener event="create" class="io.github.kleash.activiti.harness.support.FieldTaskListener">
+          <activiti:field name="tag"><activiti:string>tagged</activiti:string></activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="f_fielded_xEnd" sourceRef="fielded" targetRef="xEnd"/>
+    <endEvent id="xEnd"/>
+  </process>
+</definitions>

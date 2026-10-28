@@ -1,0 +1,38 @@
+{
+  "name": "activiti-modeler-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Web modeler for BPMN and DMN that runs natively on Activiti 9",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*",
+    "app"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w app",
+    "build": "npm run build -w app",
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc -p e2e/tsconfig.json",
+    "lint": "eslint .",
+    "test": "npm run test --workspaces --if-present",
+    "e2e": "playwright test && playwright test -c playwright.server.config.ts",
+    "e2e:ui": "playwright test",
+    "e2e:server": "playwright test -c playwright.server.config.ts",
+    "corpus:build": "node scripts/corpus-build.mjs",
+    "lint:corpus": "npm run lint:corpus -w @activiti-modeler/bpmnlint-plugin-activiti",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run lint:corpus && npm run build && npm run e2e && npm run corpus:build"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.20.5",
+    "eslint": "10.13.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "jsdom": "30.1.3",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.0",
+    "vitest": "5.0.5"
+  }
+}

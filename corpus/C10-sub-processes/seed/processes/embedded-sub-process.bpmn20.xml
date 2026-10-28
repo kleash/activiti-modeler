@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C10">
+  <process id="embeddedSubProcess" name="Embedded sub process" isExecutable="true">
+    <documentation>An embedded sub process with its own start and end, and local data objects: the sub process variable subScore exists only inside it, the process variable region everywhere.</documentation>
+    <dataObject id="regionObject" name="region" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>EU</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_review" sourceRef="start" targetRef="review"/>
+    <subProcess id="review" name="Review">
+      <dataObject id="scoreObject" name="subScore" itemSubjectRef="xsd:int">
+        <extensionElements>
+          <activiti:value>7</activiti:value>
+        </extensionElements>
+      </dataObject>
+      <startEvent id="reviewStart"/>
+      <sequenceFlow id="f_reviewStart_check" sourceRef="reviewStart" targetRef="check"/>
+      <userTask id="check" name="Check" activiti:candidateUsers="ann"/>
+      <sequenceFlow id="f_check_reviewEnd" sourceRef="check" targetRef="reviewEnd"/>
+      <endEvent id="reviewEnd"/>
+    </subProcess>
+    <sequenceFlow id="f_review_afterReview" sourceRef="review" targetRef="afterReview"/>
+    <userTask id="afterReview" name="After the review" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_afterReview_end" sourceRef="afterReview" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="embeddedSubProcess">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewStart_di" bpmnElement="reviewStart">
+        <dc:Bounds x="252" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="check_di" bpmnElement="check">
+        <dc:Bounds x="370" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewEnd_di" bpmnElement="reviewEnd">
+        <dc:Bounds x="552" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review" isExpanded="true">
+        <dc:Bounds x="212" y="140" width="416" height="160"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="afterReview_di" bpmnElement="afterReview">
+        <dc:Bounds x="820" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1002" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_review_di" bpmnElement="f_start_review">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="212" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reviewStart_check_di" bpmnElement="f_reviewStart_check">
+        <di:waypoint x="288" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_check_reviewEnd_di" bpmnElement="f_check_reviewEnd">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="552" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_review_afterReview_di" bpmnElement="f_review_afterReview">
+        <di:waypoint x="628" y="220"/>
+        <di:waypoint x="820" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_afterReview_end_di" bpmnElement="f_afterReview_end">
+        <di:waypoint x="920" y="220"/>
+        <di:waypoint x="1002" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

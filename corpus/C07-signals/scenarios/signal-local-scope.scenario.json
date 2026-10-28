@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C07 signal with scope processInstance",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a broadcast from outside does not reach it, a throw in the same instance does",
+      "start": { "process": "signalLocalScope", "user": "ann" },
+      "steps": [
+        { "expectActive": { "exactly": ["waitLocal", "work"] } },
+        { "signal": { "name": "localPing" } },
+        { "expectActive": { "exactly": ["waitLocal", "work"] } },
+        { "completeTask": { "activity": "work", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": {
+          "order": [["work", "raiseLocal"], ["waitLocal", "join"], ["raiseLocal", "join"], ["join", "end"]],
+          "sequenceFlows": ["f_start_fork", "f_fork_waitLocal", "f_fork_work", "f_work_raiseLocal", "f_raiseLocal_join", "f_waitLocal_join", "f_join_end"]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 multi-instance expression service tasks",
+  "description": "MultiInstanceActivityBehavior: every instance has its own execution; setVariableLocal keeps a value local to it and outputDataItem / loopDataOutputRef collect it (without outputDataItem every local variable except the built-in ones is collected, as a map). The loop variables nrOf* live on the multi-instance root only.",
+  "scenarios": [
+    {
+      "name": "a parallel loop collects one value per instance, a sequential loop sees how many instances are done",
+      "start": { "process": "miExpressionTasks", "variables": { "prices": [10, 20, 30], "labels": ["a", "b", "c"], "limit": 9 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "doubledPrices": [20, 40, 60],
+          "tags": [ { "label": "a", "seenCompleted": 0 }, { "label": "b", "seenCompleted": 1 }, { "label": "c", "seenCompleted": 2 } ],
+          "prices": [10, 20, 30], "labels": ["a", "b", "c"]
+        },
+        "absentVariables": ["price", "slot", "doubled", "label", "turn", "seenCompleted", "nrOfInstances", "nrOfCompletedInstances", "nrOfActiveInstances"],
+        "path": {
+          "order": [["doubleEach", "tagEach"], ["tagEach", "end"]],
+          "sequenceFlows": ["f_start_doubleEach", "f_doubleEach_tagEach", "f_tagEach_end"]
+        }
+      }
+    },
+    {
+      "name": "the completion condition stops the sequential loop after two of three instances",
+      "start": { "process": "miExpressionTasks", "variables": { "prices": [1], "labels": ["a", "b", "c"], "limit": 2 } },
+      "expect": {
+        "state": "COMPLETED",
+        "variables": {
+          "doubledPrices": [2],
+          "tags": [ { "label": "a", "seenCompleted": 0 }, { "label": "b", "seenCompleted": 1 } ]
+        }
+      }
+    },
+    {
+      "name": "empty collections run no instance and leave empty result lists",
+      "start": { "process": "miExpressionTasks", "variables": { "prices": [], "labels": [], "limit": 1 } },
+      "expect": {
+        "state": "COMPLETED",
+        "variables": { "doubledPrices": [], "tags": [] },
+        "path": { "notContains": ["doubleEach", "tagEach"], "contains": ["end"], "sequenceFlows": ["f_start_doubleEach", "f_doubleEach_tagEach", "f_tagEach_end"] }
+      }
+    },
+    {
+      "name": "a collection variable that does not exist rejects the start",
+      "start": { "process": "miExpressionTasks", "variables": { "labels": ["a"], "limit": 1 },
+                 "expectFailure": { "exception": "ActivitiIllegalArgumentException", "messageContains": "Variable prices is not found" } }
+    },
+    {
+      "name": "a collection variable that is not a collection rejects the start",
+      "start": { "process": "miExpressionTasks", "variables": { "prices": "ten", "labels": ["a"], "limit": 1 },
+                 "expectFailure": { "exception": "ActivitiIllegalArgumentException", "messageContains": "is not a Collection" } }
+    }
+  ]
+}

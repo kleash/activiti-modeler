@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C04">
+  <message id="approveMessage" name="approveOrder"/>
+  <process id="eventBased" name="Event-based gateway" isExecutable="true">
+    <documentation>Event-based gateway: the first event wins, the other subscription or timer is removed.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_race" sourceRef="start" targetRef="race"/>
+    <eventBasedGateway id="race" name="Timer or approval"/>
+    <sequenceFlow id="f_race_timerCatch" sourceRef="race" targetRef="timerCatch"/>
+    <sequenceFlow id="f_race_messageCatch" sourceRef="race" targetRef="messageCatch"/>
+    <intermediateCatchEvent id="timerCatch" name="One hour passes">
+      <timerEventDefinition>
+        <timeDuration>PT1H</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <intermediateCatchEvent id="messageCatch" name="Approval arrives">
+      <messageEventDefinition messageRef="approveMessage" activiti:correlationKey="${orderId}"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_timerCatch_endTimeout" sourceRef="timerCatch" targetRef="endTimeout"/>
+    <sequenceFlow id="f_messageCatch_endApproved" sourceRef="messageCatch" targetRef="endApproved"/>
+    <endEvent id="endTimeout" name="Timed out"/>
+    <endEvent id="endApproved" name="Approved"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="eventBased">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="race_di" bpmnElement="race">
+        <dc:Bounds x="245" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="timerCatch_di" bpmnElement="timerCatch">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="messageCatch_di" bpmnElement="messageCatch">
+        <dc:Bounds x="402" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endTimeout_di" bpmnElement="endTimeout">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endApproved_di" bpmnElement="endApproved">
+        <dc:Bounds x="552" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_race_di" bpmnElement="f_start_race">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="245" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_race_timerCatch_di" bpmnElement="f_race_timerCatch">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="348" y="220"/>
+        <di:waypoint x="348" y="110"/>
+        <di:waypoint x="402" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_race_messageCatch_di" bpmnElement="f_race_messageCatch">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="348" y="220"/>
+        <di:waypoint x="348" y="330"/>
+        <di:waypoint x="402" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_timerCatch_endTimeout_di" bpmnElement="f_timerCatch_endTimeout">
+        <di:waypoint x="438" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_messageCatch_endApproved_di" bpmnElement="f_messageCatch_endApproved">
+        <di:waypoint x="438" y="330"/>
+        <di:waypoint x="552" y="330"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,49 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 mapException limits: no default entry, and a delegate expression task (negative case)",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "mapExceptionUnmatched: no exception completes normally",
+      "start": { "process": "mapExceptionUnmatched", "user": "ann", "variables": { "exceptionClass": "" } },
+      "expect": { "state": "COMPLETED", "endEvents": ["strictOk"], "path": { "notContains": ["onStrictState"] } }
+    },
+    {
+      "name": "mapExceptionUnmatched: the exact class is mapped and caught",
+      "start": { "process": "mapExceptionUnmatched", "user": "ann", "variables": { "exceptionClass": "java.lang.IllegalStateException" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["strictHandled"],
+        "path": { "contains": ["onStrictState"], "sequenceFlows": ["f_onStrictState_strictHandled"] }
+      }
+    },
+    {
+      "name": "mapExceptionUnmatched: an exception that no entry matches propagates and rolls the start back",
+      "start": { "process": "mapExceptionUnmatched", "user": "ann", "variables": { "exceptionClass": "java.lang.IllegalArgumentException" },
+                 "expectFailure": { "exception": "IllegalArgumentException", "messageContains": "failure requested" } }
+    },
+    {
+      "name": "mapExceptionDelegateExpression: no failure completes normally",
+      "start": { "process": "mapExceptionDelegateExpression", "user": "ann", "variables": { "errorCode": "", "exceptionClass": "" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["beanOk"],
+        "variables": { "failureDelegateCalls": ["callBean:passed"] }
+      }
+    },
+    {
+      "name": "mapExceptionDelegateExpression: the mapException entry is not wired, the Java exception is not mapped and rolls the start back",
+      "start": { "process": "mapExceptionDelegateExpression", "user": "ann", "variables": { "errorCode": "", "exceptionClass": "java.lang.IllegalStateException" },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "failure requested" } }
+    },
+    {
+      "name": "mapExceptionDelegateExpression: a BpmnError thrown by the same bean is routed to the boundary event",
+      "start": { "process": "mapExceptionDelegateExpression", "user": "ann", "variables": { "errorCode": "BEAN_ILLEGAL_STATE", "exceptionClass": "" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["beanHandled"],
+        "path": { "contains": ["onBeanState"], "sequenceFlows": ["f_onBeanState_beanHandled"] }
+      }
+    }
+  ]
+}

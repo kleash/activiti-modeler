@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_compensationScopes"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C08">
+  <process id="compensationScopes" name="Compensating a completed sub process" isExecutable="true">
+    <documentation>The compensable task and its handler live inside an embedded sub process. After the sub process has completed, a throw compensate event with activityRef set to the sub process id compensates it as a whole: the engine descends into the sub process scope and runs the handler (for a sub process the subscription is keyed by the sub process id).</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_packing" sourceRef="start" targetRef="packing"/>
+    <subProcess id="packing" name="Pack order">
+      <startEvent id="pStart"/>
+      <sequenceFlow id="f_pStart_pickItems" sourceRef="pStart" targetRef="pickItems"/>
+      <serviceTask id="pickItems" name="Pick items" activiti:expression="${execution.setVariable('picked', true)}"/>
+      <boundaryEvent id="onPickCompensate" name="Compensate picking" attachedToRef="pickItems">
+        <compensateEventDefinition/>
+      </boundaryEvent>
+      <sequenceFlow id="f_pickItems_pEnd" sourceRef="pickItems" targetRef="pEnd"/>
+      <endEvent id="pEnd"/>
+      <serviceTask id="restockItems" name="Restock items" isForCompensation="true" activiti:delegateExpression="${recordingDelegate}"/>
+      <association id="a_onPickCompensate_restockItems" associationDirection="One" sourceRef="onPickCompensate" targetRef="restockItems"/>
+    </subProcess>
+    <sequenceFlow id="f_packing_orderCheck" sourceRef="packing" targetRef="orderCheck"/>
+    <exclusiveGateway id="orderCheck" name="Order cancelled?" default="f_orderCheck_completed"/>
+    <sequenceFlow id="f_orderCheck_cancelOrder" name="yes" sourceRef="orderCheck" targetRef="cancelOrder">
+      <conditionExpression xsi:type="tFormalExpression">${cancelled == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_orderCheck_completed" name="no" sourceRef="orderCheck" targetRef="completed"/>
+    <intermediateThrowEvent id="cancelOrder" name="Compensate packing">
+      <compensateEventDefinition activityRef="packing"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="f_cancelOrder_cancelledEnd" sourceRef="cancelOrder" targetRef="cancelledEnd"/>
+    <endEvent id="cancelledEnd" name="Order cancelled"/>
+    <endEvent id="completed" name="Order completed"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="compensationScopes">
+      <bpmndi:BPMNShape id="packing_di" bpmnElement="packing" isExpanded="true">
+        <dc:Bounds x="362" y="120" width="416" height="380"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pStart_di" bpmnElement="pStart">
+        <dc:Bounds x="402" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pickItems_di" bpmnElement="pickItems">
+        <dc:Bounds x="520" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pEnd_di" bpmnElement="pEnd">
+        <dc:Bounds x="702" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="restockItems_di" bpmnElement="restockItems">
+        <dc:Bounds x="520" y="380" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="orderCheck_di" bpmnElement="orderCheck" isMarkerVisible="true">
+        <dc:Bounds x="1145" y="175" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelOrder_di" bpmnElement="cancelOrder">
+        <dc:Bounds x="1302" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelledEnd_di" bpmnElement="cancelledEnd">
+        <dc:Bounds x="1452" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="completed_di" bpmnElement="completed">
+        <dc:Bounds x="1302" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onPickCompensate_di" bpmnElement="onPickCompensate">
+        <dc:Bounds x="540" y="222" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_packing_di" bpmnElement="f_start_packing">
+        <di:waypoint x="138" y="200"/>
+        <di:waypoint x="250" y="200"/>
+        <di:waypoint x="250" y="310"/>
+        <di:waypoint x="362" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_pStart_pickItems_di" bpmnElement="f_pStart_pickItems">
+        <di:waypoint x="438" y="200"/>
+        <di:waypoint x="520" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_pickItems_pEnd_di" bpmnElement="f_pickItems_pEnd">
+        <di:waypoint x="620" y="200"/>
+        <di:waypoint x="702" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_packing_orderCheck_di" bpmnElement="f_packing_orderCheck">
+        <di:waypoint x="778" y="310"/>
+        <di:waypoint x="962" y="310"/>
+        <di:waypoint x="962" y="200"/>
+        <di:waypoint x="1145" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_orderCheck_cancelOrder_di" bpmnElement="f_orderCheck_cancelOrder">
+        <di:waypoint x="1195" y="200"/>
+        <di:waypoint x="1302" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_orderCheck_completed_di" bpmnElement="f_orderCheck_completed">
+        <di:waypoint x="1195" y="200"/>
+        <di:waypoint x="1248" y="200"/>
+        <di:waypoint x="1248" y="90"/>
+        <di:waypoint x="1302" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_cancelOrder_cancelledEnd_di" bpmnElement="f_cancelOrder_cancelledEnd">
+        <di:waypoint x="1338" y="200"/>
+        <di:waypoint x="1452" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="a_onPickCompensate_restockItems_di" bpmnElement="a_onPickCompensate_restockItems">
+        <di:waypoint x="558" y="258"/>
+        <di:waypoint x="558" y="420"/>
+        <di:waypoint x="520" y="420"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

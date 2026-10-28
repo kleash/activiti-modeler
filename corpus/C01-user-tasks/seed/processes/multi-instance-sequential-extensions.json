@@ -1,0 +1,17 @@
+{
+  "id": "multi-instance-sequential-extensions",
+  "extensions": {
+    "reviewSequential": {
+      "properties": {
+        "p1": { "id": "p1", "name": "limit", "type": "integer" }
+      },
+      "mappings": {
+        "approveInTurn": {
+          "inputs": {
+            "turn": { "type": "VARIABLE", "value": "position" }
+          }
+        }
+      }
+    }
+  }
+}

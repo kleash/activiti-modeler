@@ -1,0 +1,27 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C04 exclusive gateway with skipExpression enabled",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a true skipExpression takes the flow although its condition is false",
+      "start": { "process": "exclusiveSkip", "user": "ann", "variables": { "forceSkip": true, "amount": 5 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["endForced"],
+        "path": { "sequenceFlows": ["f_route_forced"], "notSequenceFlows": ["f_route_default", "f_route_conditional"] },
+        "variables": { "_ACTIVITI_SKIP_EXPRESSION_ENABLED": true }
+      }
+    },
+    {
+      "name": "a false skipExpression leaves the flow out; the next flow whose condition is true is taken",
+      "start": { "process": "exclusiveSkip", "user": "ann", "variables": { "forceSkip": false, "amount": 500 } },
+      "expect": { "state": "COMPLETED", "endEvents": ["endConditional"], "path": { "sequenceFlows": ["f_route_conditional"], "notSequenceFlows": ["f_route_forced"] } }
+    },
+    {
+      "name": "a false skipExpression and no true condition leave the default flow",
+      "start": { "process": "exclusiveSkip", "user": "ann", "variables": { "forceSkip": false, "amount": 5 } },
+      "expect": { "state": "COMPLETED", "endEvents": ["endDefault"], "path": { "sequenceFlows": ["f_route_default"] } }
+    }
+  ]
+}

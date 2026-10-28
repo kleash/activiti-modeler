@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_eventListeners"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C13">
+  <signal id="taskDoneSignal" name="taskDone"/>
+  <signal id="taskDoneGlobalSignal" name="taskDoneGlobal"/>
+  <message id="taskDoneMsg" name="taskDoneMessage"/>
+  <process id="eventListeners" name="Process event listeners" isExecutable="true">
+    <documentation>Engine event listeners of the process: a class and a delegate expression that record the events they are registered for (events and entityType filter them), and three listeners that throw a process-instance signal, a global signal and a message when a task completes. Completing the task trigger wakes the three catch events.</documentation>
+    <extensionElements>
+      <activiti:eventListener events="PROCESS_STARTED,PROCESS_COMPLETED" class="io.github.kleash.activiti.harness.support.RecordingEventListener"/>
+      <activiti:eventListener events="TASK_CREATED,TASK_COMPLETED" entityType="task" delegateExpression="${recordingEventListener}"/>
+      <activiti:eventListener events="TASK_COMPLETED" entityType="task" throwEvent="signal" signalName="taskDone"/>
+      <activiti:eventListener events="TASK_COMPLETED" entityType="task" throwEvent="globalSignal" signalName="taskDoneGlobal"/>
+      <activiti:eventListener events="TASK_COMPLETED" entityType="task" throwEvent="message" messageName="taskDoneMessage"/>
+    </extensionElements>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_fork" sourceRef="start" targetRef="fork"/>
+    <parallelGateway id="fork"/>
+    <sequenceFlow id="f_fork_waitSignal" sourceRef="fork" targetRef="waitSignal"/>
+    <sequenceFlow id="f_fork_waitGlobal" sourceRef="fork" targetRef="waitGlobal"/>
+    <sequenceFlow id="f_fork_waitMessage" sourceRef="fork" targetRef="waitMessage"/>
+    <sequenceFlow id="f_fork_trigger" sourceRef="fork" targetRef="trigger"/>
+    <intermediateCatchEvent id="waitSignal" name="Process signal">
+      <signalEventDefinition signalRef="taskDoneSignal"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_waitSignal_signalSeen" sourceRef="waitSignal" targetRef="signalSeen"/>
+    <endEvent id="signalSeen" name="Signal seen"/>
+    <intermediateCatchEvent id="waitGlobal" name="Global signal">
+      <signalEventDefinition signalRef="taskDoneGlobalSignal"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_waitGlobal_globalSeen" sourceRef="waitGlobal" targetRef="globalSeen"/>
+    <endEvent id="globalSeen" name="Global signal seen"/>
+    <intermediateCatchEvent id="waitMessage" name="Message">
+      <messageEventDefinition messageRef="taskDoneMsg"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_waitMessage_messageSeen" sourceRef="waitMessage" targetRef="messageSeen"/>
+    <endEvent id="messageSeen" name="Message seen"/>
+    <userTask id="trigger" name="Trigger" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_trigger_triggered" sourceRef="trigger" targetRef="triggered"/>
+    <endEvent id="triggered" name="Triggered"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="eventListeners">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fork_di" bpmnElement="fork">
+        <dc:Bounds x="245" y="175" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitSignal_di" bpmnElement="waitSignal">
+        <dc:Bounds x="402" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="signalSeen_di" bpmnElement="signalSeen">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitGlobal_di" bpmnElement="waitGlobal">
+        <dc:Bounds x="402" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="globalSeen_di" bpmnElement="globalSeen">
+        <dc:Bounds x="552" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitMessage_di" bpmnElement="waitMessage">
+        <dc:Bounds x="402" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="messageSeen_di" bpmnElement="messageSeen">
+        <dc:Bounds x="552" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="trigger_di" bpmnElement="trigger">
+        <dc:Bounds x="370" y="380" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="triggered_di" bpmnElement="triggered">
+        <dc:Bounds x="552" y="402" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_fork_di" bpmnElement="f_start_fork">
+        <di:waypoint x="138" y="200"/>
+        <di:waypoint x="245" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_waitSignal_di" bpmnElement="f_fork_waitSignal">
+        <di:waypoint x="295" y="200"/>
+        <di:waypoint x="348" y="200"/>
+        <di:waypoint x="348" y="90"/>
+        <di:waypoint x="402" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_waitGlobal_di" bpmnElement="f_fork_waitGlobal">
+        <di:waypoint x="295" y="200"/>
+        <di:waypoint x="402" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_waitMessage_di" bpmnElement="f_fork_waitMessage">
+        <di:waypoint x="295" y="200"/>
+        <di:waypoint x="348" y="200"/>
+        <di:waypoint x="348" y="310"/>
+        <di:waypoint x="402" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_trigger_di" bpmnElement="f_fork_trigger">
+        <di:waypoint x="295" y="200"/>
+        <di:waypoint x="332" y="200"/>
+        <di:waypoint x="332" y="420"/>
+        <di:waypoint x="370" y="420"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitSignal_signalSeen_di" bpmnElement="f_waitSignal_signalSeen">
+        <di:waypoint x="438" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitGlobal_globalSeen_di" bpmnElement="f_waitGlobal_globalSeen">
+        <di:waypoint x="438" y="200"/>
+        <di:waypoint x="552" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitMessage_messageSeen_di" bpmnElement="f_waitMessage_messageSeen">
+        <di:waypoint x="438" y="310"/>
+        <di:waypoint x="552" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_trigger_triggered_di" bpmnElement="f_trigger_triggered">
+        <di:waypoint x="470" y="420"/>
+        <di:waypoint x="552" y="420"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

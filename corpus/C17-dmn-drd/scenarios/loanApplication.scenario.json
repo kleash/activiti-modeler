@@ -1,0 +1,566 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "Loan decision DRD, referenced as loanOffer",
+  "users": {
+    "alice": []
+  },
+  "scenarios": [
+    {
+      "name": "low risk country and age, amount within the limit",
+      "start": {
+        "process": "loanApplication",
+        "user": "alice",
+        "variables": {
+          "age": 30,
+          "country": "DE",
+          "income": 5000,
+          "amount": 15000
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "approvedEnd"
+        ],
+        "path": {
+          "contains": [
+            "decideOffer",
+            "routeOffer",
+            "approvedEnd"
+          ],
+          "notContains": [
+            "reviewEnd",
+            "declinedEnd"
+          ],
+          "order": [
+            [
+              "start",
+              "decideOffer"
+            ],
+            [
+              "decideOffer",
+              "routeOffer"
+            ],
+            [
+              "routeOffer",
+              "approvedEnd"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideOffer",
+            "flow_decideOffer_routeOffer",
+            "flow_routeOffer_approvedEnd"
+          ]
+        },
+        "variables": {
+          "offer": "APPROVE",
+          "matched": true,
+          "matchedRules": [
+            "loanOffer_approve"
+          ]
+        }
+      }
+    },
+    {
+      "name": "foreign country is medium risk, amount within the limit",
+      "start": {
+        "process": "loanApplication",
+        "user": "alice",
+        "variables": {
+          "age": 30,
+          "country": "US",
+          "income": 5000,
+          "amount": 15000
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "approvedEnd"
+        ],
+        "path": {
+          "contains": [
+            "decideOffer",
+            "routeOffer",
+            "approvedEnd"
+          ],
+          "notContains": [
+            "reviewEnd",
+            "declinedEnd"
+          ],
+          "order": [
+            [
+              "start",
+              "decideOffer"
+            ],
+            [
+              "decideOffer",
+              "routeOffer"
+            ],
+            [
+              "routeOffer",
+              "approvedEnd"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideOffer",
+            "flow_decideOffer_routeOffer",
+            "flow_routeOffer_approvedEnd"
+          ]
+        },
+        "variables": {
+          "offer": "APPROVE",
+          "matched": true,
+          "matchedRules": [
+            "loanOffer_approve"
+          ]
+        }
+      }
+    },
+    {
+      "name": "young applicant is high risk: PRIORITY picks HIGH over LOW, goes to review",
+      "start": {
+        "process": "loanApplication",
+        "user": "alice",
+        "variables": {
+          "age": 19,
+          "country": "DE",
+          "income": 5000,
+          "amount": 15000
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "reviewEnd"
+        ],
+        "path": {
+          "contains": [
+            "decideOffer",
+            "routeOffer",
+            "reviewEnd"
+          ],
+          "notContains": [
+            "approvedEnd",
+            "declinedEnd"
+          ],
+          "order": [
+            [
+              "start",
+              "decideOffer"
+            ],
+            [
+              "decideOffer",
+              "routeOffer"
+            ],
+            [
+              "routeOffer",
+              "reviewEnd"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideOffer",
+            "flow_decideOffer_routeOffer",
+            "flow_routeOffer_reviewEnd"
+          ]
+        },
+        "variables": {
+          "offer": "REVIEW",
+          "matched": true,
+          "matchedRules": [
+            "loanOffer_review"
+          ]
+        }
+      }
+    },
+    {
+      "name": "amount above the limit is declined",
+      "start": {
+        "process": "loanApplication",
+        "user": "alice",
+        "variables": {
+          "age": 40,
+          "country": "DE",
+          "income": 2000,
+          "amount": 15000
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "declinedEnd"
+        ],
+        "path": {
+          "contains": [
+            "decideOffer",
+            "routeOffer",
+            "declinedEnd"
+          ],
+          "notContains": [
+            "approvedEnd",
+            "reviewEnd"
+          ],
+          "order": [
+            [
+              "start",
+              "decideOffer"
+            ],
+            [
+              "decideOffer",
+              "routeOffer"
+            ],
+            [
+              "routeOffer",
+              "declinedEnd"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideOffer",
+            "flow_decideOffer_routeOffer",
+            "flow_routeOffer_declinedEnd"
+          ]
+        },
+        "variables": {
+          "offer": "DECLINE",
+          "matched": true,
+          "matchedRules": [
+            "loanOffer_declineLimit"
+          ]
+        }
+      }
+    },
+    {
+      "name": "young foreign applicant: three rules of riskClass match, HIGH wins, amount above the limit",
+      "start": {
+        "process": "loanApplication",
+        "user": "alice",
+        "variables": {
+          "age": 19,
+          "country": "US",
+          "income": 5000,
+          "amount": 25000
+        }
+      },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": [
+          "declinedEnd"
+        ],
+        "path": {
+          "contains": [
+            "decideOffer",
+            "routeOffer",
+            "declinedEnd"
+          ],
+          "notContains": [
+            "approvedEnd",
+            "reviewEnd"
+          ],
+          "order": [
+            [
+              "start",
+              "decideOffer"
+            ],
+            [
+              "decideOffer",
+              "routeOffer"
+            ],
+            [
+              "routeOffer",
+              "declinedEnd"
+            ]
+          ],
+          "sequenceFlows": [
+            "flow_start_decideOffer",
+            "flow_decideOffer_routeOffer",
+            "flow_routeOffer_declinedEnd"
+          ]
+        },
+        "variables": {
+          "offer": "DECLINE",
+          "matched": true,
+          "matchedRules": [
+            "loanOffer_declineLimit"
+          ]
+        }
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "loanOffer",
+      "inputs": {
+        "age": 30,
+        "country": "DE",
+        "income": 5000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "offer": "APPROVE"
+          }
+        ],
+        "matchedRules": [
+          "loanOffer_approve"
+        ]
+      }
+    },
+    {
+      "decision": "riskClass",
+      "inputs": {
+        "age": 30,
+        "country": "DE",
+        "income": 5000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "riskClass": "LOW"
+          }
+        ],
+        "matchedRules": [
+          "riskClass_lowDefault"
+        ]
+      }
+    },
+    {
+      "decision": "maxLoan",
+      "inputs": {
+        "age": 30,
+        "country": "DE",
+        "income": 5000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "maxLoan": 20000
+          }
+        ],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "loan-decision",
+      "inputs": {
+        "age": 30,
+        "country": "US",
+        "income": 5000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "offer": "APPROVE"
+          }
+        ],
+        "matchedRules": [
+          "loanOffer_approve"
+        ]
+      }
+    },
+    {
+      "decision": "riskClass",
+      "inputs": {
+        "age": 30,
+        "country": "US",
+        "income": 5000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "riskClass": "MEDIUM"
+          }
+        ],
+        "matchedRules": [
+          "riskClass_mediumAbroad"
+        ]
+      }
+    },
+    {
+      "decision": "maxLoan",
+      "inputs": {
+        "age": 30,
+        "country": "US",
+        "income": 5000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "maxLoan": 20000
+          }
+        ],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "Loan decision",
+      "inputs": {
+        "age": 19,
+        "country": "DE",
+        "income": 5000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "offer": "REVIEW"
+          }
+        ],
+        "matchedRules": [
+          "loanOffer_review"
+        ]
+      }
+    },
+    {
+      "decision": "riskClass",
+      "inputs": {
+        "age": 19,
+        "country": "DE",
+        "income": 5000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "riskClass": "HIGH"
+          }
+        ],
+        "matchedRules": [
+          "riskClass_highYoung"
+        ]
+      }
+    },
+    {
+      "decision": "maxLoan",
+      "inputs": {
+        "age": 19,
+        "country": "DE",
+        "income": 5000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "maxLoan": 20000
+          }
+        ],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "loanOffer",
+      "inputs": {
+        "age": 40,
+        "country": "DE",
+        "income": 2000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "offer": "DECLINE"
+          }
+        ],
+        "matchedRules": [
+          "loanOffer_declineLimit"
+        ]
+      }
+    },
+    {
+      "decision": "riskClass",
+      "inputs": {
+        "age": 40,
+        "country": "DE",
+        "income": 2000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "riskClass": "LOW"
+          }
+        ],
+        "matchedRules": [
+          "riskClass_lowDefault"
+        ]
+      }
+    },
+    {
+      "decision": "maxLoan",
+      "inputs": {
+        "age": 40,
+        "country": "DE",
+        "income": 2000,
+        "amount": 15000
+      },
+      "expect": {
+        "result": [
+          {
+            "maxLoan": 8000
+          }
+        ],
+        "matchedRules": []
+      }
+    },
+    {
+      "decision": "loan-decision",
+      "inputs": {
+        "age": 19,
+        "country": "US",
+        "income": 5000,
+        "amount": 25000
+      },
+      "expect": {
+        "result": [
+          {
+            "offer": "DECLINE"
+          }
+        ],
+        "matchedRules": [
+          "loanOffer_declineLimit"
+        ]
+      }
+    },
+    {
+      "decision": "riskClass",
+      "inputs": {
+        "age": 19,
+        "country": "US",
+        "income": 5000,
+        "amount": 25000
+      },
+      "expect": {
+        "result": [
+          {
+            "riskClass": "HIGH"
+          }
+        ],
+        "matchedRules": [
+          "riskClass_highYoung"
+        ]
+      }
+    },
+    {
+      "decision": "maxLoan",
+      "inputs": {
+        "age": 19,
+        "country": "US",
+        "income": 5000,
+        "amount": 25000
+      },
+      "expect": {
+        "result": [
+          {
+            "maxLoan": 20000
+          }
+        ],
+        "matchedRules": []
+      }
+    }
+  ]
+}

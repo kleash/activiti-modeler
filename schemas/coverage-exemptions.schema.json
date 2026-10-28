@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kleash/activiti-modeler/schemas/coverage-exemptions.schema.json",
+  "title": "Path coverage exemptions",
+  "description": "Flow nodes and sequence flows that the scenarios of a project need not visit, each with a reason (docs/adr/0005-scenario-format.md, 'Path coverage'). Everything not listed here must be visited by some scenario of the project.",
+  "type": "object",
+  "required": ["exemptions"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "exemptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["element", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "process": { "type": "string", "minLength": 1, "description": "Process id; omit when the element id is unique in the project." },
+          "element": { "type": "string", "minLength": 1, "description": "Id of the flow node or sequence flow." },
+          "reason": { "type": "string", "minLength": 10, "description": "Why the element cannot or need not be visited." }
+        }
+      }
+    }
+  }
+}

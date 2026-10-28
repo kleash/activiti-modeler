@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C07 intermediate catch signal",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "signals are delivered with their variables only while the instance waits for them",
+      "start": { "process": "signalCatch", "user": "ann" },
+      "steps": [
+        { "expectActive": ["waitApproval"] },
+        { "signal": { "name": "audited", "variables": { "auditor": "too early" } } },
+        { "expectActive": ["waitApproval"] },
+        { "signal": { "name": "approved", "variables": { "approver": "ann", "level": 2 } } },
+        { "expectActive": ["waitAudit"] },
+        { "signal": { "name": "audited", "variables": { "auditor": "ben" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "approver": "ann", "level": 2, "auditor": "ben" },
+        "path": { "order": [["waitApproval", "waitAudit"], ["waitAudit", "end"]], "sequenceFlows": ["f_start_waitApproval", "f_waitApproval_waitAudit", "f_waitAudit_end"] }
+      }
+    }
+  ]
+}

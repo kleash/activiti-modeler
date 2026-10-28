@@ -1,0 +1,15 @@
+{
+  "name": "sample connectors",
+  "scenarios": [
+    {
+      "name": "echo, http mock and crm lookup",
+      "start": { "process": "sampleConnectors", "variables": { "greeting": "hi", "customerId": "G-17" } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "echo", "inbound": { "greeting": "hi" }, "outbound": { "greeting": "hi", "echoCount": 1 } } },
+        { "expectConnectorCall": { "activity": "fetch", "inbound": { "url": "https://example.org/api/orders" }, "outbound": { "statusCode": 200, "body": { "$ignore": true }, "headers": { "$ignore": true } } } },
+        { "expectConnectorCall": { "activity": "lookup", "inbound": { "customerId": "G-17" }, "outbound": { "customerName": "Customer G-17", "tier": "gold", "found": true } } }
+      ],
+      "expect": { "state": "COMPLETED", "variables": { "echoed": 1, "status": 200, "tier": "gold" } }
+    }
+  ]
+}

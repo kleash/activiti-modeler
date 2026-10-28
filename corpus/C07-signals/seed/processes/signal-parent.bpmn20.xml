@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C07">
+  <signal id="childDoneSignal" name="childDone" activiti:scope="global"/>
+  <process id="signalParent" name="Signal from a child instance" isExecutable="true">
+    <documentation>The parent waits for the global signal childDone while a call activity runs the child process named by the variable childProcess; the child throws childDone.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_fork" sourceRef="start" targetRef="fork"/>
+    <parallelGateway id="fork"/>
+    <sequenceFlow id="f_fork_waitChild" sourceRef="fork" targetRef="waitChild"/>
+    <sequenceFlow id="f_fork_callChild" sourceRef="fork" targetRef="callChild"/>
+    <intermediateCatchEvent id="waitChild" name="Child is done">
+      <signalEventDefinition signalRef="childDoneSignal"/>
+    </intermediateCatchEvent>
+    <callActivity id="callChild" name="Run the child" calledElement="${childProcess}"/>
+    <sequenceFlow id="f_waitChild_join" sourceRef="waitChild" targetRef="join"/>
+    <sequenceFlow id="f_callChild_join" sourceRef="callChild" targetRef="join"/>
+    <parallelGateway id="join"/>
+    <sequenceFlow id="f_join_end" sourceRef="join" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="signalParent">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fork_di" bpmnElement="fork">
+        <dc:Bounds x="245" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitChild_di" bpmnElement="waitChild">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="callChild_di" bpmnElement="callChild">
+        <dc:Bounds x="370" y="290" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="join_di" bpmnElement="join">
+        <dc:Bounds x="545" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="702" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_fork_di" bpmnElement="f_start_fork">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="245" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_waitChild_di" bpmnElement="f_fork_waitChild">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="348" y="220"/>
+        <di:waypoint x="348" y="110"/>
+        <di:waypoint x="402" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_callChild_di" bpmnElement="f_fork_callChild">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="332" y="220"/>
+        <di:waypoint x="332" y="330"/>
+        <di:waypoint x="370" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitChild_join_di" bpmnElement="f_waitChild_join">
+        <di:waypoint x="438" y="110"/>
+        <di:waypoint x="492" y="110"/>
+        <di:waypoint x="492" y="220"/>
+        <di:waypoint x="545" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_callChild_join_di" bpmnElement="f_callChild_join">
+        <di:waypoint x="470" y="330"/>
+        <di:waypoint x="508" y="330"/>
+        <di:waypoint x="508" y="220"/>
+        <di:waypoint x="545" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_join_end_di" bpmnElement="f_join_end">
+        <di:waypoint x="595" y="220"/>
+        <di:waypoint x="702" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,78 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C09 transaction sub process, cancel end event and cancel boundary event",
+  "users": { "ann": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "paid: the transaction completes normally and no handler runs",
+      "start": { "process": "bookingTransaction", "user": "ann", "variables": { "reserve": true, "paid": true } },
+      "steps": [
+        { "completeTask": { "activity": "reserveSeat", "user": "ann" } },
+        { "advanceClock": "PT1M" },
+        { "completeTask": { "activity": "reserveMeal", "user": "ann" } },
+        { "completeTask": { "activity": "pay", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["tEnd", "confirmed"],
+        "absentVariables": ["delegateCalls", "status"],
+        "path": {
+          "contains": ["booking", "reserveSeat", "reserveMeal", "pay", "paymentCheck", "tEnd", "confirmed"],
+          "notContains": ["cancelEnd", "onCancel", "refund", "cancelled", "releaseSeat", "releaseMeal"],
+          "sequenceFlows": ["f_reserveGate_reserveSeat", "f_paymentCheck_tEnd", "f_booking_confirmed"],
+          "notSequenceFlows": ["f_paymentCheck_cancelEnd", "f_onCancel_refund"]
+        }
+      }
+    },
+    {
+      "name": "payment fails: the cancel end event compensates the completed work in reverse order and the cancel boundary event takes over",
+      "start": { "process": "bookingTransaction", "user": "ann", "variables": { "reserve": true, "paid": false } },
+      "steps": [
+        { "completeTask": { "activity": "reserveSeat", "user": "ann" } },
+        { "advanceClock": "PT1M" },
+        { "completeTask": { "activity": "reserveMeal", "user": "ann" } },
+        { "completeTask": { "activity": "pay", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["cancelEnd", "cancelled"],
+        "variables": { "delegateCalls": ["releaseMeal", "releaseSeat"], "status": "refunded" },
+        "path": {
+          "contains": ["paymentCheck", "cancelEnd", "releaseMeal", "releaseSeat", "onCancel", "refund", "cancelled"],
+          "notContains": ["tEnd", "confirmed"],
+          "order": [["cancelEnd", "releaseMeal"], ["releaseMeal", "releaseSeat"], ["releaseSeat", "refund"], ["refund", "cancelled"]],
+          "sequenceFlows": ["f_paymentCheck_cancelEnd", "f_onCancel_refund", "f_refund_cancelled"],
+          "notSequenceFlows": ["f_paymentCheck_tEnd", "f_booking_confirmed"]
+        }
+      }
+    },
+    {
+      "name": "nothing reserved and no payment: the cancel end event has no completed compensable work and the engine fails the completion",
+      "start": { "process": "bookingTransaction", "user": "ann", "variables": { "reserve": false, "paid": false } },
+      "steps": [
+        { "expectActive": { "exactly": ["booking", "onCancel", "pay"] } },
+        { "completeTask": { "activity": "pay", "user": "ann",
+                            "expectFailure": { "exception": "ActivitiException", "messageContains": "No execution found for sub process of boundary cancel event onCancel" } } },
+        { "expectTask": { "activity": "pay", "count": 1 } }
+      ],
+      "expect": {
+        "state": "ACTIVE",
+        "absentVariables": ["delegateCalls", "status"],
+        "path": { "contains": ["reserveGate", "pay"], "notContains": ["paymentCheck", "cancelEnd", "refund"], "sequenceFlows": ["f_reserveGate_pay"], "notSequenceFlows": ["f_pay_paymentCheck"] }
+      }
+    },
+    {
+      "name": "nothing reserved but paid: the transaction completes without compensable work",
+      "start": { "process": "bookingTransaction", "user": "ann", "variables": { "reserve": false, "paid": true } },
+      "steps": [
+        { "completeTask": { "activity": "pay", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["tEnd", "confirmed"],
+        "path": { "notContains": ["reserveSeat", "cancelEnd", "refund"], "sequenceFlows": ["f_reserveGate_pay", "f_paymentCheck_tEnd"] }
+      }
+    }
+  ]
+}

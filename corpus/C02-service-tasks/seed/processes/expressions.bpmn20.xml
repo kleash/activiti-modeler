@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C02">
+  <process id="expressions" name="Expressions" isExecutable="true">
+    <documentation>Service tasks with activiti:expression. The value of the expression is stored in the process variable named by activiti:resultVariableName; without a result variable only the side effect of the expression remains.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_computeTotal" sourceRef="start" targetRef="computeTotal"/>
+    <serviceTask id="computeTotal" name="Compute the total" activiti:expression="${price * quantity}" activiti:resultVariableName="total"/>
+    <sequenceFlow id="f_computeTotal_greet" sourceRef="computeTotal" targetRef="greet"/>
+    <serviceTask id="greet" name="Greet" activiti:expression="${greeter.greet(customerName)}" activiti:resultVariableName="greeting"/>
+    <sequenceFlow id="f_greet_sum" sourceRef="greet" targetRef="sum"/>
+    <serviceTask id="sum" name="Add" activiti:expression="${greeter.add(price, quantity)}" activiti:resultVariableName="sum"/>
+    <sequenceFlow id="f_sum_sideEffect" sourceRef="sum" targetRef="sideEffect"/>
+    <serviceTask id="sideEffect" name="Set a marker" activiti:expression="${execution.setVariable('marker', 'done')}"/>
+    <sequenceFlow id="f_sideEffect_end" sourceRef="sideEffect" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="expressions">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="computeTotal_di" bpmnElement="computeTotal">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="greet_di" bpmnElement="greet">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sum_di" bpmnElement="sum">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sideEffect_di" bpmnElement="sideEffect">
+        <dc:Bounds x="670" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="852" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_computeTotal_di" bpmnElement="f_start_computeTotal">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_computeTotal_greet_di" bpmnElement="f_computeTotal_greet">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_greet_sum_di" bpmnElement="f_greet_sum">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sum_sideEffect_di" bpmnElement="f_sum_sideEffect">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="670" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_sideEffect_end_di" bpmnElement="f_sideEffect_end">
+        <di:waypoint x="770" y="110"/>
+        <di:waypoint x="852" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C01 candidate starters",
+  "users": { "ann": [], "bob": [], "carl": ["clerks"], "dave": ["managers"] },
+  "scenarios": [
+    {
+      "name": "a candidate starter user starts the process and is the initiator",
+      "start": { "process": "candidateStarters", "user": "ann" },
+      "steps": [
+        { "expectTask": { "activity": "work", "name": "Work for ann", "assignee": "ann" } },
+        { "completeTask": { "activity": "work", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "variables": { "starter": "ann" } }
+    },
+    {
+      "name": "a member of a candidate starter group starts the process",
+      "start": { "process": "candidateStarters", "user": "carl" },
+      "steps": [
+        { "expectTask": { "activity": "work", "assignee": "carl" } }
+      ],
+      "expect": { "state": "ACTIVE", "variables": { "starter": "carl" } }
+    },
+    {
+      "name": "any other user cannot see the process definition",
+      "start": { "process": "candidateStarters", "user": "dave",
+                 "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "Unable to find process definition" } }
+    }
+  ]
+}

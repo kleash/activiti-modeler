@@ -1,0 +1,14 @@
+{
+  "id": "retryUser-extensions",
+  "extensions": {
+    "retryUser": {
+      "properties": {},
+      "mappings": {
+        "review": {
+          "mappingType": "MAP_ALL_INPUTS"
+        }
+      },
+      "constants": {}
+    }
+  }
+}

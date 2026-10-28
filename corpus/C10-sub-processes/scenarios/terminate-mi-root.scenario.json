@@ -1,0 +1,33 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C10 terminate end event with terminateMultiInstance",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "one abort deletes every instance and the process continues after the multi-instance sub process",
+      "start": { "process": "terminateMiRoot", "user": "ann", "variables": { "items": ["a", "b", "c"] } },
+      "steps": [
+        { "expectTask": { "activity": "choose", "count": 3 } },
+        { "completeTask": { "activity": "choose", "match": { "name": "Choose b" }, "user": "ann", "variables": { "abort": true } } },
+        { "expectTask": { "activity": "choose", "count": 0 } },
+        { "expectTask": { "activity": "afterBatch", "count": 1 } },
+        { "completeTask": { "activity": "afterBatch", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "path": { "contains": ["terminateItem", "afterBatch"], "notContains": ["itemDone"], "sequenceFlows": ["f_batchGate_terminate", "f_batch_afterBatch"] }
+      }
+    },
+    {
+      "name": "without abort all instances finish normally",
+      "start": { "process": "terminateMiRoot", "user": "ann", "variables": { "items": ["a", "b"] } },
+      "steps": [
+        { "completeTask": { "activity": "choose", "match": { "name": "Choose a" }, "user": "ann", "variables": { "abort": false } } },
+        { "completeTask": { "activity": "choose", "match": { "name": "Choose b" }, "user": "ann", "variables": { "abort": false } } },
+        { "expectTask": { "activity": "afterBatch", "count": 1 } },
+        { "completeTask": { "activity": "afterBatch", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "path": { "contains": ["itemDone"], "sequenceFlows": ["f_batchGate_itemDone"] } }
+    }
+  ]
+}

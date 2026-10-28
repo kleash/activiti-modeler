@@ -1,0 +1,23 @@
+{
+  "id": "multi-instance-parallel-extensions",
+  "extensions": {
+    "reviewParallel": {
+      "properties": {
+        "p1": { "id": "p1", "name": "quorum", "type": "integer" }
+      },
+      "mappings": {
+        "reviewEach": {
+          "inputs": {
+            "assignedTo": { "type": "VARIABLE", "value": "reviewer" },
+            "rule": { "type": "VALUE", "value": "four-eyes" }
+          }
+        },
+        "summarize": {
+          "inputs": {
+            "verdicts": { "type": "VARIABLE", "value": "verdicts" }
+          }
+        }
+      }
+    }
+  }
+}

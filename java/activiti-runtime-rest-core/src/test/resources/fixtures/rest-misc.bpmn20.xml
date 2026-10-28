@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             targetNamespace="http://example.org/rest-core-test">
+  <process id="restTerminate" name="Terminate" isExecutable="true">
+    <startEvent id="tStart"/>
+    <sequenceFlow id="f_tStart_tEnd" sourceRef="tStart" targetRef="tEnd"/>
+    <endEvent id="tEnd"><terminateEventDefinition/></endEvent>
+  </process>
+  <process id="restAssign" name="Assign" isExecutable="true">
+    <startEvent id="aStart"/>
+    <sequenceFlow id="f_aStart_aTask" sourceRef="aStart" targetRef="aTask"/>
+    <userTask id="aTask" name="Shared task" activiti:candidateUsers="alice,bob"/>
+    <sequenceFlow id="f_aTask_aEnd" sourceRef="aTask" targetRef="aEnd"/>
+    <endEvent id="aEnd"/>
+  </process>
+</definitions>

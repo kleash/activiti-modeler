@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_shellTasks"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C14">
+  <process id="shellTasks" name="Shell tasks" isExecutable="true">
+    <documentation>Shell tasks (activiti:type="shell") with every field: command, arg1 to arg5, outputVariable (standard output), errorCodeVariable (the exit code as text; a non-zero code does not fail the task), redirectError, directory, cleanEnv and wait. The commands exist on Linux and macOS.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_echoArgs" sourceRef="start" targetRef="echoArgs"/>
+    <serviceTask id="echoArgs" name="Echo five arguments" activiti:type="shell">
+      <extensionElements>
+        <activiti:field name="command">
+          <activiti:string>echo</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg1">
+          <activiti:string>a</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg2">
+          <activiti:string>b</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg3">
+          <activiti:string>c</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg4">
+          <activiti:string>d</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg5">
+          <activiti:expression>${who}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="outputVariable">
+          <activiti:string>echoOut</activiti:string>
+        </activiti:field>
+        <activiti:field name="errorCodeVariable">
+          <activiti:string>echoCode</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_echoArgs_exitThree" sourceRef="echoArgs" targetRef="exitThree"/>
+    <serviceTask id="exitThree" name="Exit with code 3" activiti:type="shell">
+      <extensionElements>
+        <activiti:field name="command">
+          <activiti:string>sh</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg1">
+          <activiti:string>-c</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg2">
+          <activiti:string>exit 3</activiti:string>
+        </activiti:field>
+        <activiti:field name="errorCodeVariable">
+          <activiti:string>exitCode</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_exitThree_streamsRedirected" sourceRef="exitThree" targetRef="streamsRedirected"/>
+    <serviceTask id="streamsRedirected" name="Standard error redirected" activiti:type="shell">
+      <extensionElements>
+        <activiti:field name="command">
+          <activiti:string>sh</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg1">
+          <activiti:string>-c</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg2">
+          <activiti:string>echo out; echo err 1&gt;&amp;2</activiti:string>
+        </activiti:field>
+        <activiti:field name="redirectError">
+          <activiti:string>true</activiti:string>
+        </activiti:field>
+        <activiti:field name="outputVariable">
+          <activiti:string>mergedOut</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_streamsRedirected_streamsSeparate" sourceRef="streamsRedirected" targetRef="streamsSeparate"/>
+    <serviceTask id="streamsSeparate" name="Standard error not redirected" activiti:type="shell">
+      <extensionElements>
+        <activiti:field name="command">
+          <activiti:string>sh</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg1">
+          <activiti:string>-c</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg2">
+          <activiti:string>echo out; echo err 1&gt;&amp;2</activiti:string>
+        </activiti:field>
+        <activiti:field name="redirectError">
+          <activiti:string>false</activiti:string>
+        </activiti:field>
+        <activiti:field name="outputVariable">
+          <activiti:string>stdoutOnly</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_streamsSeparate_inDirectory" sourceRef="streamsSeparate" targetRef="inDirectory"/>
+    <serviceTask id="inDirectory" name="Run in a directory" activiti:type="shell">
+      <extensionElements>
+        <activiti:field name="command">
+          <activiti:string>pwd</activiti:string>
+        </activiti:field>
+        <activiti:field name="directory">
+          <activiti:string>/</activiti:string>
+        </activiti:field>
+        <activiti:field name="outputVariable">
+          <activiti:string>cwd</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_inDirectory_cleanEnvironment" sourceRef="inDirectory" targetRef="cleanEnvironment"/>
+    <serviceTask id="cleanEnvironment" name="Run with a clean environment" activiti:type="shell">
+      <extensionElements>
+        <activiti:field name="command">
+          <activiti:string>/usr/bin/env</activiti:string>
+        </activiti:field>
+        <activiti:field name="cleanEnv">
+          <activiti:string>true</activiti:string>
+        </activiti:field>
+        <activiti:field name="outputVariable">
+          <activiti:string>envClean</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_cleanEnvironment_fullEnvironment" sourceRef="cleanEnvironment" targetRef="fullEnvironment"/>
+    <serviceTask id="fullEnvironment" name="Run with the inherited environment" activiti:type="shell">
+      <extensionElements>
+        <activiti:field name="command">
+          <activiti:string>/usr/bin/env</activiti:string>
+        </activiti:field>
+        <activiti:field name="outputVariable">
+          <activiti:string>envFull</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_fullEnvironment_noWait" sourceRef="fullEnvironment" targetRef="noWait"/>
+    <serviceTask id="noWait" name="Do not wait" activiti:type="shell">
+      <extensionElements>
+        <activiti:field name="command">
+          <activiti:string>echo</activiti:string>
+        </activiti:field>
+        <activiti:field name="arg1">
+          <activiti:string>ignored</activiti:string>
+        </activiti:field>
+        <activiti:field name="wait">
+          <activiti:string>false</activiti:string>
+        </activiti:field>
+        <activiti:field name="outputVariable">
+          <activiti:string>noWaitOut</activiti:string>
+        </activiti:field>
+        <activiti:field name="errorCodeVariable">
+          <activiti:string>noWaitCode</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_noWait_end" sourceRef="noWait" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="shellTasks">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="echoArgs_di" bpmnElement="echoArgs">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="exitThree_di" bpmnElement="exitThree">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="streamsRedirected_di" bpmnElement="streamsRedirected">
+        <dc:Bounds x="520" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="streamsSeparate_di" bpmnElement="streamsSeparate">
+        <dc:Bounds x="670" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="inDirectory_di" bpmnElement="inDirectory">
+        <dc:Bounds x="820" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cleanEnvironment_di" bpmnElement="cleanEnvironment">
+        <dc:Bounds x="970" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fullEnvironment_di" bpmnElement="fullEnvironment">
+        <dc:Bounds x="1120" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="noWait_di" bpmnElement="noWait">
+        <dc:Bounds x="1270" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1452" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_echoArgs_di" bpmnElement="f_start_echoArgs">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_echoArgs_exitThree_di" bpmnElement="f_echoArgs_exitThree">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_exitThree_streamsRedirected_di" bpmnElement="f_exitThree_streamsRedirected">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="520" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_streamsRedirected_streamsSeparate_di" bpmnElement="f_streamsRedirected_streamsSeparate">
+        <di:waypoint x="620" y="90"/>
+        <di:waypoint x="670" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_streamsSeparate_inDirectory_di" bpmnElement="f_streamsSeparate_inDirectory">
+        <di:waypoint x="770" y="90"/>
+        <di:waypoint x="820" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_inDirectory_cleanEnvironment_di" bpmnElement="f_inDirectory_cleanEnvironment">
+        <di:waypoint x="920" y="90"/>
+        <di:waypoint x="970" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_cleanEnvironment_fullEnvironment_di" bpmnElement="f_cleanEnvironment_fullEnvironment">
+        <di:waypoint x="1070" y="90"/>
+        <di:waypoint x="1120" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fullEnvironment_noWait_di" bpmnElement="f_fullEnvironment_noWait">
+        <di:waypoint x="1220" y="90"/>
+        <di:waypoint x="1270" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_noWait_end_di" bpmnElement="f_noWait_end">
+        <di:waypoint x="1370" y="90"/>
+        <di:waypoint x="1452" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" targetNamespace="http://example.org/fields">
+  <message id="taggedMsg" name="tagged"/>
+  <process id="fieldsAsDirectChildren" isExecutable="true">
+    <startEvent id="s"/>
+    <intermediateThrowEvent id="throwTagged">
+      <messageEventDefinition messageRef="taggedMsg" activiti:class="org.acme.TagDelegate">
+        <activiti:field name="tag">
+          <activiti:string>T1</activiti:string>
+        </activiti:field>
+        <activiti:field name="note" expression="${note}"/>
+      </messageEventDefinition>
+    </intermediateThrowEvent>
+    <serviceTask id="svc" activiti:class="org.acme.Delegate">
+      <activiti:field name="tag"><activiti:string>S1</activiti:string></activiti:field>
+    </serviceTask>
+    <sendTask id="mail" activiti:type="mail">
+      <activiti:field name="to" stringValue="a@b.c"/>
+    </sendTask>
+    <endEvent id="e"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="throwTagged"/>
+    <sequenceFlow id="f2" sourceRef="throwTagged" targetRef="svc"/>
+    <sequenceFlow id="f3" sourceRef="svc" targetRef="mail"/>
+    <sequenceFlow id="f4" sourceRef="mail" targetRef="e"/>
+  </process>
+</definitions>

@@ -1,0 +1,15 @@
+{
+  "id": "dmnCaller-extensions",
+  "extensions": {
+    "dmnCaller": {
+      "properties": {},
+      "mappings": {
+        "decide": {
+          "inputs": { "customer": { "type": "VARIABLE", "value": "customer" } },
+          "mappingType": "MAP_ALL_OUTPUTS"
+        }
+      },
+      "constants": { "decide": { "_activiti_dmn_table_": { "value": "discount" } } }
+    }
+  }
+}

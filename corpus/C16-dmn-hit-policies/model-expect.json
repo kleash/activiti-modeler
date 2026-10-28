@@ -1,0 +1,120 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "hitPolicies": {
+      "definition": { "name": "DMN hit policies", "category": "http://kleash.github.io/corpus/C16" },
+      "extensions": {
+        "properties": {
+          "score": { "type": "integer" },
+          "amount": { "type": "integer" },
+          "country": { "type": "string" },
+          "delay": { "type": "integer" },
+          "grade": { "type": "string" },
+          "tier": { "type": "string" },
+          "region": { "type": "string" },
+          "risk": { "type": "string" },
+          "riskLevel": { "type": "string" },
+          "action": { "type": "string" },
+          "badgesInRuleOrder": { "type": "array" },
+          "badgesByPriority": { "type": "array" },
+          "flags": { "type": "array" },
+          "points": { "type": "integer" },
+          "unitPrice": { "type": "integer" },
+          "penalty": { "type": "integer" },
+          "alerts": { "type": "integer" },
+          "rulesUnique": { "type": "array" },
+          "rulesFirst": { "type": "array" },
+          "rulesAny": { "type": "array" },
+          "rulesPriority": { "type": "array" },
+          "rulesRuleOrder": { "type": "array" },
+          "rulesPriorityTwo": { "type": "array" },
+          "rulesOutputOrder": { "type": "array" },
+          "rulesCollect": { "type": "array" },
+          "rulesSum": { "type": "array" },
+          "rulesMin": { "type": "array" },
+          "rulesMax": { "type": "array" },
+          "rulesCount": { "type": "array" }
+        },
+        "mappings": {
+          "decideUnique": { "mappingType": null, "inputs": { "score": { "type": "VARIABLE", "value": "score" } }, "outputs": { "grade": { "type": "VARIABLE", "value": "grade" }, "rulesUnique": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decideFirst": { "mappingType": null, "inputs": { "score": { "type": "VARIABLE", "value": "score" } }, "outputs": { "tier": { "type": "VARIABLE", "value": "tier" }, "rulesFirst": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decideAny": { "mappingType": null, "inputs": { "country": { "type": "VARIABLE", "value": "country" } }, "outputs": { "region": { "type": "VARIABLE", "value": "region" }, "rulesAny": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decidePriority": { "mappingType": null, "inputs": { "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": { "risk": { "type": "VARIABLE", "value": "risk" }, "rulesPriority": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decideRuleOrder": { "mappingType": null, "inputs": { "score": { "type": "VARIABLE", "value": "score" } }, "outputs": { "badgesInRuleOrder": { "type": "VARIABLE", "value": "ruleOrderBadges" }, "rulesRuleOrder": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decidePriorityTwo": { "mappingType": null, "inputs": { "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": { "riskLevel": { "type": "VARIABLE", "value": "risk" }, "action": { "type": "VARIABLE", "value": "action" }, "rulesPriorityTwo": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decideOutputOrder": { "mappingType": null, "inputs": { "score": { "type": "VARIABLE", "value": "score" } }, "outputs": { "badgesByPriority": { "type": "VARIABLE", "value": "outputOrderBadges" }, "rulesOutputOrder": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decideCollect": { "mappingType": null, "inputs": { "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": { "flags": { "type": "VARIABLE", "value": "collectFlags" }, "rulesCollect": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decideSum": { "mappingType": null, "inputs": { "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": { "points": { "type": "VARIABLE", "value": "points" }, "rulesSum": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decideMin": { "mappingType": null, "inputs": { "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": { "unitPrice": { "type": "VARIABLE", "value": "unitPrice" }, "rulesMin": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decideMax": { "mappingType": null, "inputs": { "delay": { "type": "VARIABLE", "value": "delay" } }, "outputs": { "penalty": { "type": "VARIABLE", "value": "penalty" }, "rulesMax": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } },
+          "decideCount": { "mappingType": null, "inputs": { "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": { "alerts": { "type": "VARIABLE", "value": "alerts" }, "rulesCount": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } }
+        },
+        "constants": {
+          "decideUnique": { "_activiti_dmn_table_": "uniqueGrade" },
+          "decideFirst": { "_activiti_dmn_table_": "firstTier" },
+          "decideAny": { "_activiti_dmn_table_": "anyRegion" },
+          "decidePriority": { "_activiti_dmn_table_": "priorityRisk" },
+          "decideRuleOrder": { "_activiti_dmn_table_": "ruleOrderBadges" },
+          "decidePriorityTwo": { "_activiti_dmn_table_": "priorityTwoOutputs" },
+          "decideOutputOrder": { "_activiti_dmn_table_": "outputOrderBadges" },
+          "decideCollect": { "_activiti_dmn_table_": "collectFlags" },
+          "decideSum": { "_activiti_dmn_table_": "collectSumPoints" },
+          "decideMin": { "_activiti_dmn_table_": "collectMinPrice" },
+          "decideMax": { "_activiti_dmn_table_": "collectMaxPenalty" },
+          "decideCount": { "_activiti_dmn_table_": "collectCountAlerts" }
+        }
+      },
+      "elements": {
+        "decideUnique": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decideFirst": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decideAny": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decidePriority": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decideRuleOrder": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decidePriorityTwo": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decideOutputOrder": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decideCollect": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decideSum": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decideMin": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decideMax": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "decideCount": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } }
+      }
+    },
+    "mapAllOutputs": {
+      "definition": { "name": "Decision task with MAP_ALL_OUTPUTS", "category": "http://kleash.github.io/corpus/C16" },
+      "extensions": {
+        "properties": {
+          "amount": { "type": "integer" }
+        },
+        "mappings": {
+          "decideAlerts": { "mappingType": "MAP_ALL_OUTPUTS", "inputs": { "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": {} }
+        },
+        "constants": {
+          "decideAlerts": { "_activiti_dmn_table_": "collect-count-alerts" }
+        }
+      },
+      "elements": {
+        "decideAlerts": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } }
+      }
+    },
+    "noMatchRouting": {
+      "definition": { "name": "Route by amount (reacts to no match)", "category": "http://kleash.github.io/corpus/C16" },
+      "extensions": {
+        "properties": {
+          "amount": { "type": "integer" },
+          "route": { "type": "string" },
+          "matched": { "type": "boolean" },
+          "matchedRules": { "type": "array" }
+        },
+        "mappings": {
+          "decideRoute": { "mappingType": null, "inputs": { "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": { "route": { "type": "VARIABLE", "value": "route" }, "matched": { "type": "VARIABLE", "value": "_activiti_dmn_matched_" }, "matchedRules": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } }
+        },
+        "constants": {
+          "decideRoute": { "_activiti_dmn_table_": "routeByAmount" }
+        }
+      },
+      "elements": {
+        "decideRoute": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } }
+      }
+    }
+  }
+}

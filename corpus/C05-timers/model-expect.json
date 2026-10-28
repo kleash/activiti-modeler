@@ -1,0 +1,56 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "timerStarts": {
+      "definition": { "name": "Timer start events", "category": "http://activiti.org/bpmn/corpus/C05" },
+      "elements": {
+        "startDate": { "type": "startEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeDate": "2035-01-01T09:00:00Z", "timeCycle": null, "timeDuration": null, "endDate": null } ] } },
+        "startCycle": { "type": "startEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeCycle": "R3/PT1H", "endDate": "2099-12-31T23:59:59Z", "timeDate": null } ] } },
+        "startCron": { "type": "startEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeCycle": "0 0 12 * * ?", "calendarName": "cycle", "endDate": null } ] } },
+        "startExpired": { "type": "startEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeCycle": "R3/PT1H", "endDate": "2000-01-01T00:00:00Z" } ] } }
+      }
+    },
+    "intermediateTimers": {
+      "elements": {
+        "waitDuration": { "type": "intermediateCatchEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeDuration": "PT30M", "calendarName": "duration" } ] } },
+        "waitDate": { "type": "intermediateCatchEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeDate": "2030-01-01T12:00:00Z", "calendarName": null } ] } },
+        "waitCycle": { "type": "intermediateCatchEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeCycle": "R3/PT1H" } ] } }
+      }
+    },
+    "interruptingTimers": {
+      "elements": {
+        "reviewTimeout": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "review", "cancelActivity": true, "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeDuration": "PT2H" } ] } },
+        "approveDeadline": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "approve", "cancelActivity": true, "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeDate": "2030-01-01T17:00:00Z" } ] } },
+        "publishCycle": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "publish", "cancelActivity": true, "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeCycle": "R3/PT1H" } ] } }
+      }
+    },
+    "repeatingTimer": {
+      "elements": {
+        "draftTimer": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "draft", "cancelActivity": false, "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeCycle": "R3/PT1H", "endDate": null } ] } }
+      }
+    },
+    "endDateTimer": {
+      "elements": {
+        "reviewTimer": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "review", "cancelActivity": false, "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeCycle": "R/PT1H", "endDate": "2030-01-01T11:30:00Z" } ] } }
+      }
+    },
+    "cronTimer": {
+      "elements": {
+        "watchTimer": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "watch", "cancelActivity": false, "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeCycle": "0 0/30 * * * ?" } ] } }
+      }
+    }
+  }
+}

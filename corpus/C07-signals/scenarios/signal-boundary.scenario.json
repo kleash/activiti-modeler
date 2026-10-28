@@ -1,0 +1,49 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C07 boundary signal events",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the interrupting signal cancels the task; its variables are set",
+      "start": { "process": "signalBoundary", "user": "ann" },
+      "steps": [
+        { "expectTask": { "activity": "work", "assignee": "ann" } },
+        { "signal": { "name": "cancelOrder", "variables": { "cancelReason": "customer" } } },
+        { "expectTask": { "activity": "work", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["cancelledEnd"],
+        "variables": { "cancelReason": "customer" },
+        "path": { "contains": ["cancelBoundary"], "notContains": ["takeNote", "completedEnd"], "sequenceFlows": ["f_cancelBoundary_cancelledEnd"], "notSequenceFlows": ["f_work_completedEnd"] }
+      }
+    },
+    {
+      "name": "the non-interrupting signal can be received repeatedly while the task stays open",
+      "start": { "process": "signalBoundary", "user": "ann" },
+      "steps": [
+        { "signal": { "name": "orderNote", "variables": { "note": "first" } } },
+        { "expectTask": { "activity": "work", "assignee": "ann" } },
+        { "signal": { "name": "orderNote", "variables": { "note": "second" } } },
+        { "expectTask": { "activity": "work", "assignee": "ann" } },
+        { "completeTask": { "activity": "work", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["completedEnd", "noteEnd"],
+        "variables": { "notes": 2, "note": "second" },
+        "path": { "contains": ["noteBoundary", "takeNote"], "sequenceFlows": ["f_noteBoundary_takeNote", "f_takeNote_noteEnd", "f_work_completedEnd"] }
+      }
+    },
+    {
+      "name": "a signal that arrives after the task was completed finds no subscription",
+      "start": { "process": "signalBoundary", "user": "ann" },
+      "steps": [
+        { "completeTask": { "activity": "work", "user": "ann" } },
+        { "signal": { "name": "cancelOrder" } },
+        { "signal": { "name": "orderNote" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["completedEnd"], "absentVariables": ["notes"], "path": { "notContains": ["takeNote", "cancelledEnd"] } }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C10 asynchronous sub process",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the content of an async sub process runs only when its job is executed",
+      "start": { "process": "asyncSubProcess", "user": "ann" },
+      "steps": [
+        { "expectActive": ["prepare"] },
+        { "expectTask": { "activity": "inTask", "count": 0 } },
+        { "executeJobs": {} },
+        { "expectActive": { "contains": ["inTask"] } },
+        { "expectTask": { "activity": "inTask", "candidateUsers": ["ann"] } },
+        { "completeTask": { "activity": "inTask", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end", "prepareEnd"],
+        "path": { "contains": ["prepare", "prepareStart", "inTask", "prepareEnd", "end"], "sequenceFlows": ["f_start_prepare", "f_prepareStart_inTask", "f_inTask_prepareEnd", "f_prepare_end"] }
+      }
+    }
+  ]
+}

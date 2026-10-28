@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" targetNamespace="http://example.org/server-test">
+  <process id="shellProcess" name="Shell" isExecutable="true">
+    <startEvent id="s"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="run"/>
+    <serviceTask id="run" name="Run a command" activiti:type="shell">
+      <extensionElements>
+        <activiti:field name="command"><activiti:string>echo</activiti:string></activiti:field>
+        <activiti:field name="arg1"><activiti:string>hello from the shell</activiti:string></activiti:field>
+        <activiti:field name="outputVariable"><activiti:string>shellOutput</activiti:string></activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f2" sourceRef="run" targetRef="e"/>
+    <endEvent id="e"/>
+  </process>
+</definitions>

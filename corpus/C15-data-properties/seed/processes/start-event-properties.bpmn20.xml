@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_startEventProperties"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C15">
+  <process id="startEventProperties" name="Start event properties" isExecutable="true">
+    <documentation>The none start event with activiti:initiator (the starting user lands in the variable starter), activiti:formKey and legacy form properties (parsed and kept, never enforced: there is no form engine in Activiti 9), and an extensions mapping on the start event that works as an output mapping on the start payload: only the mapped variables reach the process, the rest of the payload is dropped.</documentation>
+    <startEvent id="begin" name="Order received" activiti:initiator="starter" activiti:formKey="orderStartForm">
+      <extensionElements>
+        <activiti:formProperty id="customer" name="Customer" type="string" required="true"/>
+        <activiti:formProperty id="priority" name="Priority" type="enum" default="low">
+          <activiti:value id="low" name="Low"/>
+          <activiti:value id="high" name="High"/>
+        </activiti:formProperty>
+      </extensionElements>
+    </startEvent>
+    <sequenceFlow id="f_begin_greet" sourceRef="begin" targetRef="greet"/>
+    <serviceTask id="greet" name="Greet" activiti:expression="${execution.setVariable('greeting', greeter.greet(execution.getVariable('customerName')))}"/>
+    <sequenceFlow id="f_greet_end" sourceRef="greet" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="startEventProperties">
+      <bpmndi:BPMNShape id="begin_di" bpmnElement="begin">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="greet_di" bpmnElement="greet">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_begin_greet_di" bpmnElement="f_begin_greet">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_greet_end_di" bpmnElement="f_greet_end">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

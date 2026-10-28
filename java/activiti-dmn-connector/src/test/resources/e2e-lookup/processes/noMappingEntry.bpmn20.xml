@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_noMappingEntry"
+             targetNamespace="http://kleash.github.io/test/lookup">
+  <process id="noMappingEntry" name="noMappingEntry" isExecutable="true">
+    <startEvent id="start" />
+    <serviceTask id="decide" name="Decide" implementation="dmn-connector.EXECUTE_TABLE" />
+    <endEvent id="end" />
+    <sequenceFlow id="flow_start_decide" sourceRef="start" targetRef="decide" />
+    <sequenceFlow id="flow_decide_end" sourceRef="decide" targetRef="end" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_noMappingEntry">
+    <bpmndi:BPMNPlane id="BPMNPlane_noMappingEntry" bpmnElement="noMappingEntry">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="40" y="120" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decide_di" bpmnElement="decide">
+        <dc:Bounds x="130" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="330" y="120" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_start_decide_di" bpmnElement="flow_start_decide">
+        <di:waypoint x="76" y="138" />
+        <di:waypoint x="130" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decide_end_di" bpmnElement="flow_decide_end">
+        <di:waypoint x="260" y="138" />
+        <di:waypoint x="330" y="138" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

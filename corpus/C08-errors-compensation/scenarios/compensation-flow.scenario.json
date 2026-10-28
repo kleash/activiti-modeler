@@ -1,0 +1,62 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 compensation: boundary compensate events, handlers and the throw compensate event",
+  "users": { "ann": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "payment succeeds: the booking is confirmed and no handler runs",
+      "start": { "process": "compensationFlow", "user": "ann", "variables": { "paymentFailed": false } },
+      "steps": [
+        { "completeTask": { "activity": "reserveFlight", "user": "ann" } },
+        { "advanceClock": "PT1M" },
+        { "completeTask": { "activity": "reserveHotel", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["confirmed"],
+        "absentVariables": ["delegateCalls"],
+        "path": {
+          "contains": ["reserveFlight", "reserveHotel", "paymentCheck", "confirmed"],
+          "notContains": ["rollback", "cancelFlight", "cancelHotel"],
+          "sequenceFlows": ["f_paymentCheck_confirmed"],
+          "notSequenceFlows": ["f_paymentCheck_rollback"]
+        }
+      }
+    },
+    {
+      "name": "payment fails: the throw compensate event runs the handlers in reverse order of completion, then the process continues",
+      "start": { "process": "compensationFlow", "user": "ann", "variables": { "paymentFailed": true } },
+      "steps": [
+        { "completeTask": { "activity": "reserveFlight", "user": "ann" } },
+        { "advanceClock": "PT1M" },
+        { "completeTask": { "activity": "reserveHotel", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["rolledBack"],
+        "variables": { "delegateCalls": ["cancelHotel", "cancelFlight"], "lastDelegate": "cancelFlight" },
+        "path": {
+          "contains": ["reserveFlight", "reserveHotel", "rollback", "cancelHotel", "cancelFlight", "rolledBack"],
+          "notContains": ["confirmed"],
+          "order": [["reserveHotel", "rollback"], ["rollback", "cancelHotel"], ["cancelHotel", "cancelFlight"], ["cancelFlight", "rolledBack"]],
+          "sequenceFlows": ["f_paymentCheck_rollback", "f_rollback_rolledBack"],
+          "notSequenceFlows": ["f_paymentCheck_confirmed"]
+        }
+      }
+    },
+    {
+      "name": "completing the activities in one clock tick still compensates both (order is then not asserted)",
+      "start": { "process": "compensationFlow", "user": "ann", "variables": { "paymentFailed": true } },
+      "steps": [
+        { "completeTask": { "activity": "reserveFlight", "user": "ann" } },
+        { "completeTask": { "activity": "reserveHotel", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["rolledBack"],
+        "variables": { "delegateCalls": { "$size": 2, "$contains": "cancelHotel" } }
+      }
+    }
+  ]
+}

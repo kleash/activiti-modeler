@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="Definitions_collectMaxPenalty" name="collect-max-penalty" namespace="http://activiti.org/schema/1.0/dmn/Definitions_collectMaxPenalty">
+  <inputData id="InputData_delay" name="delay">
+    <variable id="InputData_delay_variable" name="delay" typeRef="number" />
+  </inputData>
+  <decision id="collectMaxPenalty" name="collectMaxPenalty">
+    <variable id="collectMaxPenalty_variable" name="collectMaxPenalty" typeRef="number" />
+    <informationRequirement id="collectMaxPenalty_req_InputData_delay">
+      <requiredInput href="#InputData_delay" />
+    </informationRequirement>
+    <decisionTable id="collectMaxPenalty_table" hitPolicy="COLLECT" aggregation="MAX">
+      <input id="collectMaxPenalty_input1" label="Delay in days">
+        <inputExpression id="collectMaxPenalty_inputExpression1" typeRef="number">
+          <text>delay</text>
+        </inputExpression>
+      </input>
+      <output id="collectMaxPenalty_output1" name="penalty" typeRef="number" />
+      <rule id="collectMaxPenalty_late">
+        <inputEntry id="collectMaxPenalty_late_in1"><text>&gt; 0</text></inputEntry>
+        <outputEntry id="collectMaxPenalty_late_out1"><text>5</text></outputEntry>
+      </rule>
+      <rule id="collectMaxPenalty_weekLate">
+        <inputEntry id="collectMaxPenalty_weekLate_in1"><text>&gt; 7</text></inputEntry>
+        <outputEntry id="collectMaxPenalty_weekLate_out1"><text>50</text></outputEntry>
+      </rule>
+      <rule id="collectMaxPenalty_monthLate">
+        <inputEntry id="collectMaxPenalty_monthLate_in1"><text>&gt; 30</text></inputEntry>
+        <outputEntry id="collectMaxPenalty_monthLate_out1"><text>500</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_collectMaxPenalty" dmnElementRef="collectMaxPenalty">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_delay" dmnElementRef="InputData_delay">
+        <dc:Bounds height="45" width="150" x="160" y="300" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_collectMaxPenalty_req_InputData_delay" dmnElementRef="collectMaxPenalty_req_InputData_delay">
+        <di:waypoint x="235" y="300" />
+        <di:waypoint x="250" y="180" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

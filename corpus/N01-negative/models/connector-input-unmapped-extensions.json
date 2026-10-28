@@ -1,0 +1,14 @@
+{
+  "id": "connectorInput-extensions",
+  "extensions": {
+    "connectorInput": {
+      "properties": {},
+      "mappings": {
+        "lookup": {
+          "inputs": {}
+        }
+      },
+      "constants": {}
+    }
+  }
+}

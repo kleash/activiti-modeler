@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t44_manual_task_plain_task" name="t44_manual_task_plain_task" isExecutable="true">
+    <startEvent id="s"/>
+    <manualTask id="m"/>
+    <task id="t"/>
+    <userTask id="u"/>
+    <endEvent id="e"/>
+    <sequenceFlow id="f_s_m" sourceRef="s" targetRef="m"/>
+    <sequenceFlow id="f_m_t" sourceRef="m" targetRef="t"/>
+    <sequenceFlow id="f_t_u" sourceRef="t" targetRef="u"/>
+    <sequenceFlow id="f_u_e" sourceRef="u" targetRef="e"/>
+
+  </process>
+</definitions>

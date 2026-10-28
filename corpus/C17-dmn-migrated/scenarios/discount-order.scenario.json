@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C17 migrated DMN: a decision task evaluates the table the modeler migrated from DMN 1.1",
+  "description": "legacy-discount.dmn was a DMN 1.1 file (Camunda's namespace, an output column without a name, the type integer). The modeler's migration and the portable-DMN normalizer made it a DMN 1.3 file: the output column is named Discount, the type is number, the input data customer is declared. These scenarios run the process with the decision task on Activiti 9.0.0.",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a gold customer gets the discount of the migrated rule",
+      "start": { "process": "discountOrder", "businessKey": "D-1", "user": "ann", "variables": { "customer": "gold" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["discountedEnd"],
+        "path": {
+          "contains": ["decideDiscount", "discountGateway", "discountedEnd"],
+          "notContains": ["noDiscountEnd"],
+          "sequenceFlows": ["f_start_decideDiscount", "f_decideDiscount_discountGateway", "f_discountGateway_discountedEnd"],
+          "notSequenceFlows": ["f_discountGateway_noDiscountEnd"]
+        },
+        "variables": { "customer": "gold", "Discount": 10, "matched": true, "matchedRules": ["rule1"] }
+      }
+    },
+    {
+      "name": "any other customer matches no rule: no discount is set",
+      "start": { "process": "discountOrder", "businessKey": "D-2", "user": "ann", "variables": { "customer": "silver" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["noDiscountEnd"],
+        "path": {
+          "contains": ["decideDiscount", "discountGateway", "noDiscountEnd"],
+          "notContains": ["discountedEnd"],
+          "sequenceFlows": ["f_discountGateway_noDiscountEnd"],
+          "notSequenceFlows": ["f_discountGateway_discountedEnd"]
+        },
+        "variables": { "customer": "silver", "matched": false },
+        "absentVariables": ["Discount"]
+      }
+    }
+  ]
+}

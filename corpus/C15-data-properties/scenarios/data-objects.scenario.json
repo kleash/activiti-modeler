@@ -1,0 +1,35 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C15 data objects of every xsd type",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "data objects become typed process variables at start; the data object of the sub process is local to it",
+      "start": { "process": "dataObjects", "user": "ann" },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["iEnd", "end"],
+        "variables": {
+          "dStr": "hello",
+          "dInt": 5,
+          "dLong": 9000000000,
+          "dDouble": 2.5,
+          "dBool": true,
+          "dDate": { "$type": "date" },
+          "dUntyped": "plain",
+          "dEmpty": { "$exists": true },
+          "dOverridden": 1,
+          "total": 9000000005,
+          "localPlusOne": 11
+        },
+        "absentVariables": ["dLocal"],
+        "path": { "order": [["sumUp", "inner"], ["readLocal", "end"]], "sequenceFlows": ["f_start_sumUp", "f_sumUp_inner", "f_iStart_readLocal", "f_readLocal_iEnd", "f_inner_end"] }
+      }
+    },
+    {
+      "name": "a start variable replaces the data object's value",
+      "start": { "process": "dataObjects", "user": "ann", "variables": { "dOverridden": 99 } },
+      "expect": { "state": "COMPLETED", "endEvents": ["iEnd", "end"], "variables": { "dOverridden": 99, "dStr": "hello" } }
+    }
+  ]
+}

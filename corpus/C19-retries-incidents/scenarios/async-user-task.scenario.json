@@ -1,0 +1,36 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C19 a retry cycle on a non-service element is ignored: the default of 3 retries applies",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the job of the asynchronous user task fails 3 times although its cycle says R1",
+      "start": { "process": "asyncUserTask", "user": "ann", "variables": { "failing": true } },
+      "steps": [
+        { "expectActive": ["asyncReview"] },
+        { "expectTask": { "activity": "asyncReview", "count": 0 } },
+        { "failJobUntilDeadLetter": { "activity": "asyncReview", "maxAttempts": 10 } },
+        { "expectTask": { "activity": "asyncReview", "count": 0 } }
+      ],
+      "expect": {
+        "state": "DEADLETTER",
+        "deadLetterJobs": [ { "activity": "asyncReview", "exceptionMessageContains": "listener down (attempt 3)" } ],
+        "path": { "notContains": ["asyncReview", "done"] }
+      }
+    },
+    {
+      "name": "without a failure the job creates the task, which is then completed",
+      "start": { "process": "asyncUserTask", "user": "ann", "variables": { "failing": false } },
+      "steps": [
+        { "executeJobs": {} },
+        { "expectTask": { "activity": "asyncReview", "name": "Review", "candidateUsers": ["ann"] } },
+        { "completeTask": { "activity": "asyncReview", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["done"],
+        "path": { "order": [["asyncReview", "done"]], "sequenceFlows": ["f_start_asyncReview", "f_asyncReview_done"] }
+      }
+    }
+  ]
+}

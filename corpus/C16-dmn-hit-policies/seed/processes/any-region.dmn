@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="Definitions_anyRegion" name="any-region" namespace="http://activiti.org/schema/1.0/dmn/Definitions_anyRegion">
+  <inputData id="InputData_country" name="country">
+    <variable id="InputData_country_variable" name="country" typeRef="string" />
+  </inputData>
+  <decision id="anyRegion" name="anyRegion">
+    <variable id="anyRegion_variable" name="anyRegion" typeRef="string" />
+    <informationRequirement id="anyRegion_req_InputData_country">
+      <requiredInput href="#InputData_country" />
+    </informationRequirement>
+    <decisionTable id="anyRegion_table" hitPolicy="ANY">
+      <input id="anyRegion_input1" label="Country">
+        <inputExpression id="anyRegion_inputExpression1" typeRef="string">
+          <text>country</text>
+        </inputExpression>
+      </input>
+      <output id="anyRegion_output1" name="region" typeRef="string" />
+      <rule id="anyRegion_dach1">
+        <inputEntry id="anyRegion_dach1_in1"><text>"DE","AT"</text></inputEntry>
+        <outputEntry id="anyRegion_dach1_out1"><text>"DACH"</text></outputEntry>
+      </rule>
+      <rule id="anyRegion_dach2">
+        <inputEntry id="anyRegion_dach2_in1"><text>"DE","CH"</text></inputEntry>
+        <outputEntry id="anyRegion_dach2_out1"><text>"DACH"</text></outputEntry>
+      </rule>
+      <rule id="anyRegion_us">
+        <inputEntry id="anyRegion_us_in1"><text>"US"</text></inputEntry>
+        <outputEntry id="anyRegion_us_out1"><text>"NA"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_anyRegion" dmnElementRef="anyRegion">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_country" dmnElementRef="InputData_country">
+        <dc:Bounds height="45" width="150" x="160" y="300" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_anyRegion_req_InputData_country" dmnElementRef="anyRegion_req_InputData_country">
+        <di:waypoint x="235" y="300" />
+        <di:waypoint x="250" y="180" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 activiti:potentialStarter",
+  "description": "user(carl), user( dora ), group(auditors) and a bare reviewers become candidate starters of the process definition (asserted in model-expect.json), but nothing is restricted: the element does not mark the starters as defined, so the Spring Boot deployment also adds the group * (everyone) and every user can start (engine finding C21.1). The restricting case is starter-sources.",
+  "users": { "carl": [], "eve": ["auditors"], "gina": [], "hank": ["clerks"] },
+  "scenarios": [
+    {
+      "name": "a listed user starts the process and is the initiator",
+      "start": { "process": "potentialStarters", "user": "carl" },
+      "steps": [
+        { "expectTask": { "activity": "work", "name": "Work for carl", "assignee": "carl" } },
+        { "completeTask": { "activity": "work", "user": "carl" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "starter": "carl" },
+        "path": { "order": [["start", "work"], ["work", "end"]], "sequenceFlows": ["f_start_work", "f_work_end"] }
+      }
+    },
+    {
+      "name": "a member of a listed group starts the process",
+      "start": { "process": "potentialStarters", "user": "eve" },
+      "steps": [ { "expectTask": { "activity": "work", "assignee": "eve" } } ],
+      "expect": { "state": "ACTIVE", "variables": { "starter": "eve" } }
+    },
+    {
+      "name": "a user who is in no list starts it too, through the everyone group",
+      "start": { "process": "potentialStarters", "user": "gina" },
+      "steps": [ { "expectTask": { "activity": "work", "assignee": "gina" } } ],
+      "expect": { "state": "ACTIVE", "variables": { "starter": "gina" } }
+    },
+    {
+      "name": "so does a member of an unrelated group",
+      "start": { "process": "potentialStarters", "user": "hank" },
+      "steps": [ { "expectTask": { "activity": "work", "assignee": "hank" } } ],
+      "expect": { "state": "ACTIVE", "variables": { "starter": "hank" } }
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_mapExceptionClass"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C08">
+  <error id="illegalStateError" name="Illegal state" errorCode="ILLEGAL_STATE"/>
+  <error id="badArgumentError" name="Bad argument" errorCode="BAD_ARGUMENT"/>
+  <error id="unexpectedError" name="Unexpected failure" errorCode="UNEXPECTED"/>
+  <process id="mapExceptionClass" name="Exception mapping on a class delegate" isExecutable="true">
+    <documentation>mapException on an activiti:class service task turns a Java exception into a BPMN error. The first matching entry in document order wins: IllegalStateException matches only that exact class (includeChildExceptions false), IllegalArgumentException also its subclasses (true), and the entry without an exception class is the default for everything else.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_callPartner" sourceRef="start" targetRef="callPartner"/>
+    <serviceTask id="callPartner" name="Call partner" activiti:class="io.github.kleash.activiti.harness.support.FailureDelegate">
+      <extensionElements>
+        <activiti:field name="exceptionClass">
+          <activiti:expression>${execution.getVariable('exceptionClass')}</activiti:expression>
+        </activiti:field>
+        <activiti:mapException errorCode="ILLEGAL_STATE">java.lang.IllegalStateException</activiti:mapException>
+        <activiti:mapException errorCode="BAD_ARGUMENT" includeChildExceptions="true">java.lang.IllegalArgumentException</activiti:mapException>
+        <activiti:mapException errorCode="UNEXPECTED"/>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_callPartner_partnerOk" sourceRef="callPartner" targetRef="partnerOk"/>
+    <endEvent id="partnerOk" name="Partner ok"/>
+    <boundaryEvent id="onIllegalState" name="Illegal state" attachedToRef="callPartner">
+      <errorEventDefinition errorRef="illegalStateError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onIllegalState_illegalState" sourceRef="onIllegalState" targetRef="illegalState"/>
+    <endEvent id="illegalState" name="Illegal state"/>
+    <boundaryEvent id="onBadArgument" name="Bad argument" attachedToRef="callPartner">
+      <errorEventDefinition errorRef="badArgumentError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onBadArgument_badArgument" sourceRef="onBadArgument" targetRef="badArgument"/>
+    <endEvent id="badArgument" name="Bad argument"/>
+    <boundaryEvent id="onUnexpected" name="Unexpected" attachedToRef="callPartner">
+      <errorEventDefinition errorRef="unexpectedError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onUnexpected_unexpected" sourceRef="onUnexpected" targetRef="unexpected"/>
+    <endEvent id="unexpected" name="Unexpected"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="mapExceptionClass">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="callPartner_di" bpmnElement="callPartner">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="partnerOk_di" bpmnElement="partnerOk">
+        <dc:Bounds x="702" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="illegalState_di" bpmnElement="illegalState">
+        <dc:Bounds x="402" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="badArgument_di" bpmnElement="badArgument">
+        <dc:Bounds x="552" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="unexpected_di" bpmnElement="unexpected">
+        <dc:Bounds x="702" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onIllegalState_di" bpmnElement="onIllegalState">
+        <dc:Bounds x="240" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onBadArgument_di" bpmnElement="onBadArgument">
+        <dc:Bounds x="288" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onUnexpected_di" bpmnElement="onUnexpected">
+        <dc:Bounds x="336" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_callPartner_di" bpmnElement="f_start_callPartner">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_callPartner_partnerOk_di" bpmnElement="f_callPartner_partnerOk">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="702" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onIllegalState_illegalState_di" bpmnElement="f_onIllegalState_illegalState">
+        <di:waypoint x="258" y="148"/>
+        <di:waypoint x="258" y="310"/>
+        <di:waypoint x="402" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onBadArgument_badArgument_di" bpmnElement="f_onBadArgument_badArgument">
+        <di:waypoint x="306" y="148"/>
+        <di:waypoint x="306" y="310"/>
+        <di:waypoint x="552" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onUnexpected_unexpected_di" bpmnElement="f_onUnexpected_unexpected">
+        <di:waypoint x="354" y="148"/>
+        <di:waypoint x="354" y="310"/>
+        <di:waypoint x="702" y="310"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

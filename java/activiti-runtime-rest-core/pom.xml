@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.github.kleash.activiti</groupId>
+    <artifactId>activiti-modeler-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>activiti-runtime-rest-core</artifactId>
+  <name>Activiti runtime REST (core)</name>
+  <description>Production-safe REST API over ProcessRuntime/TaskRuntime: definitions, instances, tasks, events, jobs. Owns no security.</description>
+
+  <dependencies>
+    <!--
+      Everything the host application brings is "provided": the library adds controllers and nothing else to the
+      host's dependency tree (docs/integration-guide.md, "Embedding the runtime REST core").
+    -->
+    <dependency>
+      <groupId>org.activiti</groupId>
+      <artifactId>activiti-spring-boot-starter</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jdbc</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!-- OpenAPI annotations on the controllers; the host adds springdoc itself if it wants to publish the description. -->
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Optional: with the DMN connector on the class path the engine info names the DMN engine and the decisions of a definition are listed. -->
+    <dependency>
+      <groupId>io.github.kleash.activiti</groupId>
+      <artifactId>activiti-dmn-connector</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

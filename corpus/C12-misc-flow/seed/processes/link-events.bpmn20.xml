@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C12">
+  <process id="linkEvents" name="Link events" isExecutable="true">
+    <documentation>Two paths leave through link throw events and re-enter at the one link catch event with the same target; there is no sequence flow between a throw and its catch. An intermediate throw none event follows.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_route" sourceRef="start" targetRef="route"/>
+    <exclusiveGateway id="route" name="Direct?" default="f_route_review"/>
+    <sequenceFlow id="f_route_direct" name="direct" sourceRef="route" targetRef="jumpDirect">
+      <conditionExpression xsi:type="tFormalExpression">${direct == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_route_review" name="needs review" sourceRef="route" targetRef="review"/>
+    <intermediateThrowEvent id="jumpDirect" name="Jump to payment">
+      <linkEventDefinition id="linkThrowDirect" name="Pay">
+        <target>linkCatchPay</target>
+      </linkEventDefinition>
+    </intermediateThrowEvent>
+    <userTask id="review" name="Review" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_review_jumpReview" sourceRef="review" targetRef="jumpReview"/>
+    <intermediateThrowEvent id="jumpReview" name="Jump to payment">
+      <linkEventDefinition id="linkThrowReview" name="Pay">
+        <target>linkCatchPay</target>
+      </linkEventDefinition>
+    </intermediateThrowEvent>
+    <intermediateCatchEvent id="payEntry" name="Payment">
+      <linkEventDefinition id="linkCatchPay" name="Pay">
+        <source>linkThrowDirect</source>
+        <source>linkThrowReview</source>
+      </linkEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_payEntry_milestone" sourceRef="payEntry" targetRef="milestone"/>
+    <intermediateThrowEvent id="milestone" name="Payment reached"/>
+    <sequenceFlow id="f_milestone_pay" sourceRef="milestone" targetRef="pay"/>
+    <userTask id="pay" name="Pay" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_pay_end" sourceRef="pay" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="linkEvents">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="route_di" bpmnElement="route" isMarkerVisible="true">
+        <dc:Bounds x="245" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="jumpDirect_di" bpmnElement="jumpDirect">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review">
+        <dc:Bounds x="370" y="290" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="jumpReview_di" bpmnElement="jumpReview">
+        <dc:Bounds x="552" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="payEntry_di" bpmnElement="payEntry">
+        <dc:Bounds x="702" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="milestone_di" bpmnElement="milestone">
+        <dc:Bounds x="852" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pay_di" bpmnElement="pay">
+        <dc:Bounds x="970" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1152" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_route_di" bpmnElement="f_start_route">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="245" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_route_direct_di" bpmnElement="f_route_direct">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="348" y="220"/>
+        <di:waypoint x="348" y="110"/>
+        <di:waypoint x="402" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_route_review_di" bpmnElement="f_route_review">
+        <di:waypoint x="295" y="220"/>
+        <di:waypoint x="332" y="220"/>
+        <di:waypoint x="332" y="330"/>
+        <di:waypoint x="370" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_review_jumpReview_di" bpmnElement="f_review_jumpReview">
+        <di:waypoint x="470" y="330"/>
+        <di:waypoint x="552" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_payEntry_milestone_di" bpmnElement="f_payEntry_milestone">
+        <di:waypoint x="738" y="220"/>
+        <di:waypoint x="852" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_milestone_pay_di" bpmnElement="f_milestone_pay">
+        <di:waypoint x="888" y="220"/>
+        <di:waypoint x="970" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_pay_end_di" bpmnElement="f_pay_end">
+        <di:waypoint x="1070" y="220"/>
+        <di:waypoint x="1152" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,76 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C05 interrupting boundary timers",
+  "users": { "ann": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "the duration timer cancels the review task",
+      "start": { "process": "interruptingTimers", "user": "ann" },
+      "steps": [
+        { "expectTask": { "activity": "review", "assignee": "ann" } },
+        { "expectTimer": { "activity": "reviewTimeout", "count": 1, "dueDate": "2030-01-01T11:00:00Z" } },
+        { "expectTimer": { "activity": "approveDeadline", "count": 0 } },
+        { "advanceClock": "PT2H" },
+        { "executeJobs": {} },
+        { "expectTask": { "activity": "review", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["reviewTimedOutEnd"],
+        "path": { "contains": ["reviewTimeout"], "notContains": ["approve", "doneEnd"], "sequenceFlows": ["f_reviewTimeout_reviewTimedOutEnd"], "notSequenceFlows": ["f_review_approve"] }
+      }
+    },
+    {
+      "name": "the date timer cancels the approval at 17:00 and not before",
+      "start": { "process": "interruptingTimers", "user": "ann" },
+      "steps": [
+        { "completeTask": { "activity": "review", "user": "ann" } },
+        { "expectTimer": { "activity": "reviewTimeout", "count": 0 } },
+        { "expectTimer": { "activity": "approveDeadline", "count": 1, "dueDate": "2030-01-01T17:00:00Z" } },
+        { "advanceClock": "PT7H59M" },
+        { "executeJobs": {} },
+        { "expectActive": { "contains": ["approve"] } },
+        { "advanceClock": "PT1M" },
+        { "executeJobs": {} }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["approveTimedOutEnd"],
+        "path": { "contains": ["review", "approve", "approveDeadline"], "notContains": ["publish"], "sequenceFlows": ["f_review_approve", "f_approveDeadline_approveTimedOutEnd"] }
+      }
+    },
+    {
+      "name": "the cycle timer on an interrupting boundary fires once and cancels the task",
+      "start": { "process": "interruptingTimers", "user": "ann" },
+      "steps": [
+        { "completeTask": { "activity": "review", "user": "ann" } },
+        { "completeTask": { "activity": "approve", "user": "ann" } },
+        { "expectTimer": { "activity": "approveDeadline", "count": 0 } },
+        { "expectTimer": { "activity": "publishCycle", "count": 1, "dueDate": "2030-01-01T10:00:00Z" } },
+        { "advanceClock": "PT1H" },
+        { "executeJobs": {} }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["publishTimedOutEnd"],
+        "path": { "contains": ["publish", "publishCycle"], "notContains": ["doneEnd"], "sequenceFlows": ["f_approve_publish", "f_publishCycle_publishTimedOutEnd"] }
+      }
+    },
+    {
+      "name": "all three tasks completed in time: no timer is left",
+      "start": { "process": "interruptingTimers", "user": "ann" },
+      "steps": [
+        { "completeTask": { "activity": "review", "user": "ann" } },
+        { "completeTask": { "activity": "approve", "user": "ann" } },
+        { "completeTask": { "activity": "publish", "user": "ann" } },
+        { "expectTimer": { "activity": "publishCycle", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["doneEnd"],
+        "path": { "notContains": ["reviewTimeout", "approveDeadline", "publishCycle"], "sequenceFlows": ["f_start_review", "f_review_approve", "f_approve_publish", "f_publish_doneEnd"] }
+      }
+    }
+  ]
+}

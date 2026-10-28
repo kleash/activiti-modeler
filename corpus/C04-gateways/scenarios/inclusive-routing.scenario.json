@@ -1,0 +1,74 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C04 inclusive gateway split and join",
+  "users": { "ann": [], "ben": [], "cy": [] },
+  "scenarios": [
+    {
+      "name": "only branch A is started and the join does not wait for the others",
+      "start": { "process": "inclusiveRouting", "user": "ann", "variables": { "a": true, "b": false, "c": false } },
+      "steps": [
+        { "expectActive": { "exactly": ["taskA"] } },
+        { "completeTask": { "activity": "taskA", "user": "ann" } },
+        { "expectActive": { "exactly": ["afterJoin"] } },
+        { "completeTask": { "activity": "afterJoin", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": { "contains": ["split", "taskA", "join", "afterJoin"], "notContains": ["taskB", "taskC", "endNone"],
+                  "sequenceFlows": ["f_start_split", "f_split_taskA", "f_taskA_join", "f_join_afterJoin", "f_afterJoin_end"],
+                  "notSequenceFlows": ["f_split_taskB", "f_split_taskC", "f_split_none"] }
+      }
+    },
+    {
+      "name": "A and B are started and the join waits for both",
+      "start": { "process": "inclusiveRouting", "user": "ann", "variables": { "a": true, "b": true, "c": false } },
+      "steps": [
+        { "expectActive": { "exactly": ["taskA", "taskB"] } },
+        { "completeTask": { "activity": "taskA", "user": "ann" } },
+        { "expectActive": { "exactly": ["taskB"] } },
+        { "expectTask": { "activity": "afterJoin", "count": 0 } },
+        { "completeTask": { "activity": "taskB", "user": "ben" } },
+        { "expectActive": { "exactly": ["afterJoin"] } },
+        { "completeTask": { "activity": "afterJoin", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "path": { "notContains": ["taskC"], "sequenceFlows": ["f_split_taskA", "f_split_taskB", "f_taskB_join"], "notSequenceFlows": ["f_split_taskC"] } }
+    },
+    {
+      "name": "B and C are started and completed in the order C, B",
+      "start": { "process": "inclusiveRouting", "user": "ann", "variables": { "a": false, "b": true, "c": true } },
+      "steps": [
+        { "expectActive": { "exactly": ["taskB", "taskC"] } },
+        { "completeTask": { "activity": "taskC", "user": "cy" } },
+        { "expectActive": { "exactly": ["taskB"] } },
+        { "completeTask": { "activity": "taskB", "user": "ben" } },
+        { "expectActive": { "exactly": ["afterJoin"] } },
+        { "completeTask": { "activity": "afterJoin", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "path": { "notContains": ["taskA"], "sequenceFlows": ["f_split_taskB", "f_split_taskC", "f_taskC_join"] } }
+    },
+    {
+      "name": "all three branches are started",
+      "start": { "process": "inclusiveRouting", "user": "ann", "variables": { "a": true, "b": true, "c": true } },
+      "steps": [
+        { "expectActive": { "exactly": ["taskA", "taskB", "taskC"] } },
+        { "completeTask": { "activity": "taskA", "user": "ann" } },
+        { "completeTask": { "activity": "taskB", "user": "ben" } },
+        { "expectTask": { "activity": "afterJoin", "count": 0 } },
+        { "completeTask": { "activity": "taskC", "user": "cy" } },
+        { "expectActive": { "exactly": ["afterJoin"] } },
+        { "completeTask": { "activity": "afterJoin", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "path": { "contains": ["taskA", "taskB", "taskC", "join"] } }
+    },
+    {
+      "name": "no condition is true, so the default flow ends the process without the join",
+      "start": { "process": "inclusiveRouting", "user": "ann", "variables": { "a": false, "b": false, "c": false } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["endNone"],
+        "path": { "notContains": ["taskA", "taskB", "taskC", "join", "afterJoin"], "sequenceFlows": ["f_split_none"] }
+      }
+    }
+  ]
+}

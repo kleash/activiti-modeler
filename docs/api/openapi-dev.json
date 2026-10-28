@@ -1,0 +1,801 @@
+{
+  "components" : {
+    "schemas" : {
+      "DecisionInfo" : {
+        "properties" : {
+          "aggregation" : {
+            "type" : "string"
+          },
+          "hitPolicy" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "inputCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "outputs" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "requires" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "ruleIds" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "id", "inputCount", "kind", "outputs", "requires", "ruleIds" ],
+        "type" : "object"
+      },
+      "DecisionOutcome" : {
+        "properties" : {
+          "decisionId" : {
+            "type" : "string"
+          },
+          "decisions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DecisionStep"
+            },
+            "type" : "array"
+          },
+          "engine" : {
+            "type" : "string"
+          },
+          "matched" : {
+            "type" : "boolean"
+          },
+          "matchedRules" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "rows" : {
+            "items" : {
+              "additionalProperties" : { },
+              "type" : "object"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "decisionId", "decisions", "engine", "matched", "matchedRules", "rows" ],
+        "type" : "object"
+      },
+      "DecisionReport" : {
+        "properties" : {
+          "durationMs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "failures" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "PASSED", "FAILED", "SKIPPED" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "DecisionRequest" : {
+        "properties" : {
+          "decisionRef" : {
+            "type" : "string"
+          },
+          "deploymentId" : {
+            "type" : "string"
+          },
+          "dmn" : {
+            "type" : "string"
+          },
+          "inputs" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "DecisionResource" : {
+        "properties" : {
+          "decisions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DecisionInfo"
+            },
+            "type" : "array"
+          },
+          "definitionsName" : {
+            "type" : "string"
+          },
+          "error" : {
+            "type" : "string"
+          },
+          "resourceName" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "decisions", "resourceName" ],
+        "type" : "object"
+      },
+      "DecisionStep" : {
+        "properties" : {
+          "aggregation" : {
+            "type" : "string"
+          },
+          "decisionId" : {
+            "type" : "string"
+          },
+          "decisionName" : {
+            "type" : "string"
+          },
+          "hitPolicy" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "matchedRules" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "multiResult" : {
+            "type" : "boolean"
+          },
+          "rows" : {
+            "items" : {
+              "additionalProperties" : { },
+              "type" : "object"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "decisionId", "kind", "matchedRules", "multiResult", "rows" ],
+        "type" : "object"
+      },
+      "DeployRequest" : {
+        "properties" : {
+          "files" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FileEntry"
+            },
+            "type" : "array"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "files" ],
+        "type" : "object"
+      },
+      "DeployResponse" : {
+        "properties" : {
+          "decisions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DecisionResource"
+            },
+            "type" : "array"
+          },
+          "definitions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DeployedDefinition"
+            },
+            "type" : "array"
+          },
+          "deploymentId" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "problems" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Problem"
+            },
+            "type" : "array"
+          },
+          "resources" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "decisions", "definitions", "deploymentId", "problems", "resources" ],
+        "type" : "object"
+      },
+      "DeployedDefinition" : {
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "resourceName" : {
+            "type" : "string"
+          },
+          "version" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "id", "key", "resourceName", "version" ],
+        "type" : "object"
+      },
+      "FileEntry" : {
+        "properties" : {
+          "content" : {
+            "type" : "string"
+          },
+          "path" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "content", "path" ],
+        "type" : "object"
+      },
+      "FileReport" : {
+        "properties" : {
+          "decisions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/DecisionReport"
+            },
+            "type" : "array"
+          },
+          "durationMs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "scenarios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ScenarioReport"
+            },
+            "type" : "array"
+          },
+          "source" : {
+            "type" : "string"
+          },
+          "visited" : {
+            "$ref" : "#/components/schemas/VisitedElements"
+          }
+        },
+        "type" : "object"
+      },
+      "JsonNode" : { },
+      "Problem" : {
+        "properties" : {
+          "column" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "elementId" : {
+            "type" : "string"
+          },
+          "key" : {
+            "type" : "string"
+          },
+          "line" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "path" : {
+            "type" : "string"
+          },
+          "severity" : {
+            "type" : "string"
+          },
+          "source" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "key", "message", "severity", "source" ],
+        "type" : "object"
+      },
+      "ScenarioReport" : {
+        "properties" : {
+          "durationMs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "failures" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "rootProcessInstanceId" : {
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "PASSED", "FAILED", "SKIPPED" ],
+            "type" : "string"
+          },
+          "steps" : {
+            "items" : {
+              "$ref" : "#/components/schemas/StepReport"
+            },
+            "type" : "array"
+          },
+          "visited" : {
+            "$ref" : "#/components/schemas/VisitedElements"
+          }
+        },
+        "type" : "object"
+      },
+      "ScenarioRunRequest" : {
+        "properties" : {
+          "files" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FileEntry"
+            },
+            "type" : "array"
+          },
+          "scenario" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          }
+        },
+        "required" : [ "files", "scenario" ],
+        "type" : "object"
+      },
+      "ScenarioRunResponse" : {
+        "properties" : {
+          "durationMillis" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "passed" : {
+            "type" : "boolean"
+          },
+          "rendered" : {
+            "type" : "string"
+          },
+          "report" : {
+            "$ref" : "#/components/schemas/FileReport"
+          }
+        },
+        "required" : [ "durationMillis", "passed", "rendered", "report" ],
+        "type" : "object"
+      },
+      "StepReport" : {
+        "properties" : {
+          "description" : {
+            "type" : "string"
+          },
+          "durationMs" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "index" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "PASSED", "FAILED", "SKIPPED" ],
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ValidateRequest" : {
+        "properties" : {
+          "files" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FileEntry"
+            },
+            "type" : "array"
+          }
+        },
+        "required" : [ "files" ],
+        "type" : "object"
+      },
+      "ValidateResponse" : {
+        "properties" : {
+          "asyncExecutorActive" : {
+            "type" : "boolean"
+          },
+          "checked" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "problems" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Problem"
+            },
+            "type" : "array"
+          },
+          "valid" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "asyncExecutorActive", "checked", "problems", "valid" ],
+        "type" : "object"
+      },
+      "VisitedElements" : {
+        "properties" : {
+          "byProcess" : {
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/Visits"
+            },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      },
+      "Visits" : {
+        "properties" : {
+          "flows" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "nodes" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          }
+        },
+        "type" : "object"
+      },
+      "WorkspaceEntry" : {
+        "properties" : {
+          "modified" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "path" : {
+            "type" : "string"
+          },
+          "size" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "path", "type" ],
+        "type" : "object"
+      },
+      "WorkspaceListing" : {
+        "properties" : {
+          "entries" : {
+            "items" : {
+              "$ref" : "#/components/schemas/WorkspaceEntry"
+            },
+            "type" : "array"
+          },
+          "path" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "entries", "path" ],
+        "type" : "object"
+      }
+    }
+  },
+  "info" : {
+    "description" : "Development-only endpoints, registered with activiti.rest.dev.enabled=true and open to the admin access level only: validate a project (with a trial deployment into a scratch engine), deploy it, run scenarios against it on the running engine, evaluate decisions, and read and write the project files of the workspace folder.",
+    "title" : "Activiti runtime REST (dev)",
+    "version" : "0.1.0"
+  },
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/api/dev/decisions/evaluate" : {
+      "post" : {
+        "operationId" : "devEvaluateDecision",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DecisionOutcome"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Evaluate a decision of an uploaded DMN document or of a deployment: result rows and matched rule ids",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/deployments" : {
+      "post" : {
+        "operationId" : "devDeploy",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeployRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeployResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Deploy the files as one deployment, with their names as given; refused with 422 and the findings when the project has errors",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/deployments/{id}" : {
+      "delete" : {
+        "operationId" : "devDeleteDeployment",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "cascade",
+          "required" : false,
+          "schema" : {
+            "default" : true,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Delete a deployment with its instances, jobs and history",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/scenarios/run" : {
+      "post" : {
+        "operationId" : "devRunScenario",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ScenarioRunRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ScenarioRunResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Run a scenario file against the files, on the running engine in EXECUTOR mode; the files are deployed for the run and removed afterwards",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/validate" : {
+      "post" : {
+        "operationId" : "devValidate",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ValidateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidateResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Check a project: BPMN XSD, RepositoryService.validateProcess, a trial deployment into a scratch engine, a dry load of the extensions JSON, a DMN parse",
+        "tags" : [ "Dev" ]
+      }
+    },
+    "/api/dev/workspace" : {
+      "get" : {
+        "operationId" : "devWorkspaceRoot",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "recursive",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WorkspaceListing"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The root of the workspace: JSON listing (recursive=true for the whole tree)",
+        "tags" : [ "Workspace" ]
+      }
+    },
+    "/api/dev/workspace/{path}" : {
+      "delete" : {
+        "operationId" : "devWorkspaceDelete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "recursive",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "summary" : "Delete a file, or a directory (empty, or with recursive=true)",
+        "tags" : [ "Workspace" ]
+      },
+      "get" : {
+        "operationId" : "devWorkspaceGet",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "recursive",
+          "required" : false,
+          "schema" : {
+            "default" : false,
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "A directory (JSON listing; recursive=true for the whole tree) or the content of a file",
+        "tags" : [ "Workspace" ]
+      },
+      "put" : {
+        "operationId" : "devWorkspacePut",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "format" : "byte",
+                "type" : "string"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        },
+        "summary" : "Create or replace a file with the request body (atomically); parent directories are created",
+        "tags" : [ "Workspace" ]
+      }
+    }
+  },
+  "tags" : [ {
+    "description" : "Project files on disk (modeler.workspace.dir): list, read, write, delete",
+    "name" : "Workspace"
+  }, {
+    "description" : "Development-only endpoints (activiti.rest.dev.enabled=true): validate, deploy, run scenarios, evaluate decisions, workspace files",
+    "name" : "Dev"
+  } ]
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C19 synchronous failures roll back instead of creating a job",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "no failure: both service tasks pass",
+      "start": { "process": "syncFailure", "user": "ann", "variables": { "startFailure": "", "chargeFailure": "" } },
+      "steps": [
+        { "expectTask": { "activity": "approve", "candidateUsers": ["ann"] } },
+        { "completeTask": { "activity": "approve", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "failureDelegateCalls": ["prepare:passed", "charge:passed"] },
+        "path": { "sequenceFlows": ["f_start_prepare", "f_prepare_approve", "f_approve_charge", "f_charge_end"] }
+      }
+    },
+    {
+      "name": "the first task fails: the start is rejected and no instance exists",
+      "start": { "process": "syncFailure", "user": "ann", "variables": { "startFailure": "java.lang.IllegalStateException", "chargeFailure": "" },
+                 "expectFailure": { "exception": "IllegalStateException", "messageContains": "failure requested" } }
+    },
+    {
+      "name": "the second task fails: completing the user task is rolled back, the task stays open and there is no dead-letter job",
+      "start": { "process": "syncFailure", "user": "ann", "variables": { "startFailure": "", "chargeFailure": "java.lang.IllegalStateException" } },
+      "steps": [
+        { "completeTask": { "activity": "approve", "user": "ann",
+                            "expectFailure": { "exception": "IllegalStateException", "messageContains": "failure requested" } } },
+        { "expectTask": { "activity": "approve", "count": 1 } },
+        { "expectActive": ["approve"] }
+      ],
+      "expect": {
+        "state": "ACTIVE",
+        "deadLetterJobs": [],
+        "variables": { "failureDelegateCalls": ["prepare:passed"] },
+        "path": { "contains": ["prepare", "approve"], "notContains": ["charge", "end"], "notSequenceFlows": ["f_approve_charge", "f_charge_end"] }
+      }
+    }
+  ]
+}

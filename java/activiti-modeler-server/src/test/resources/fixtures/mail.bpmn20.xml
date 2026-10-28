@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" targetNamespace="http://example.org/server-test">
+  <process id="mailProcess" name="Mail" isExecutable="true">
+    <startEvent id="s"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="send"/>
+    <serviceTask id="send" name="Send a mail" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to"><activiti:string>customer@example.org</activiti:string></activiti:field>
+        <activiti:field name="subject"><activiti:string>Your order</activiti:string></activiti:field>
+        <activiti:field name="text"><activiti:string>Thank you for your order.</activiti:string></activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f2" sourceRef="send" targetRef="e"/>
+    <endEvent id="e"/>
+  </process>
+</definitions>

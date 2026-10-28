@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C08 targeted compensation: broadcast, activityRef by handler id and by task id, waitForCompletion",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "no compensation requested: both bookings stay",
+      "start": { "process": "compensationTargets", "user": "ann", "variables": { "compensateWhat": "none" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["nothing"],
+        "variables": { "flightBooked": true, "hotelBooked": true },
+        "absentVariables": ["delegateCalls"],
+        "path": { "notContains": ["throwAll", "throwHandler", "throwTask", "cancelFlight", "cancelHotel"], "sequenceFlows": ["f_target_nothing"] }
+      }
+    },
+    {
+      "name": "broadcast without activityRef compensates both activities, although waitForCompletion is false, before the process moves on",
+      "start": { "process": "compensationTargets", "user": "ann", "variables": { "compensateWhat": "all" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["allDone"],
+        "variables": { "delegateCalls": { "$size": 2, "$contains": "cancelFlight" } },
+        "path": {
+          "contains": ["throwAll", "cancelFlight", "cancelHotel", "allDone"],
+          "order": [["throwAll", "cancelFlight"], ["cancelFlight", "allDone"], ["cancelHotel", "allDone"]],
+          "sequenceFlows": ["f_target_throwAll", "f_throwAll_allDone"]
+        }
+      }
+    },
+    {
+      "name": "activityRef naming the compensation handler compensates only that activity",
+      "start": { "process": "compensationTargets", "user": "ann", "variables": { "compensateWhat": "handler" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["handlerDone"],
+        "variables": { "delegateCalls": ["cancelFlight"] },
+        "path": { "contains": ["throwHandler", "cancelFlight", "handlerDone"], "notContains": ["cancelHotel"], "sequenceFlows": ["f_target_throwHandler", "f_throwHandler_handlerDone"] }
+      }
+    },
+    {
+      "name": "activityRef naming the compensated task finds no subscription: nothing is compensated and the process passes the event silently",
+      "start": { "process": "compensationTargets", "user": "ann", "variables": { "compensateWhat": "task" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["taskDone"],
+        "absentVariables": ["delegateCalls"],
+        "path": { "contains": ["throwTask", "taskDone"], "notContains": ["cancelFlight", "cancelHotel"], "sequenceFlows": ["f_target_throwTask", "f_throwTask_taskDone"] }
+      }
+    }
+  ]
+}

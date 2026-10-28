@@ -1,0 +1,31 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C01 task listeners",
+  "users": { "ann": ["reviewers"] },
+  "scenarios": [
+    {
+      "name": "listeners of every type and event fire in the documented order",
+      "start": { "process": "taskListeners", "user": "ann", "variables": { "customerId": "C-7" } },
+      "steps": [
+        { "expectTask": { "activity": "listened", "assignee": "ann", "name": "Assigned task" } },
+        { "completeTask": { "activity": "listened", "user": "ann" } },
+        { "expectTask": { "activity": "claimed", "assignee": null, "candidateGroups": ["reviewers"] } },
+        { "completeTask": { "activity": "claimed", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "taskListenerCalls": [
+            "assignment:listened:ann", "create:listened", "complete:listened", "delete:listened",
+            "create:claimed", "assignment:claimed:ann", "complete:claimed", "delete:claimed"
+          ],
+          "fieldListenerCalls": [
+            "any:assignment:listened", "any:create:listened", "C-7:create:listened", "any:complete:listened", "any:delete:listened"
+          ],
+          "completedBy": "ann"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 multi-instance connector service tasks",
+  "description": "VariablesPropagator: when the parent execution is a multi-instance root the connector's outbound variables are set local to the instance and the output mapping is not applied; the aggregation reads them. MAP_ALL_INPUTS inside a multi-instance also sends the loop variables of the instance and of the root.",
+  "scenarios": [
+    {
+      "name": "a sequential connector loop calls the connector per element and a parallel one with every visible variable",
+      "start": { "process": "miConnectorTasks", "variables": { "customerIds": ["G-1", "A-2", "G-3"] } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "lookupEach", "connector": "crm.LOOKUP", "count": 3 } },
+        { "expectConnectorCall": { "activity": "lookupEach", "call": 1, "inbound": { "customerId": "G-1" },
+            "outbound": { "customerName": "Customer G-1", "tier": "gold", "found": true } } },
+        { "expectConnectorCall": { "activity": "lookupEach", "call": 2, "inbound": { "customerId": "A-2" },
+            "outbound": { "customerName": "Customer A-2", "tier": "standard", "found": true } } },
+        { "expectConnectorCall": { "activity": "lookupEach", "call": 3, "inbound": { "customerId": "G-3" },
+            "outbound": { "customerName": "Customer G-3", "tier": "gold", "found": true } } },
+        { "expectConnectorCall": { "activity": "echoEach", "connector": "echo.EXECUTE", "count": 3 } },
+        { "expectConnectorCall": { "activity": "echoEach", "call": 1,
+            "inbound": { "customerIds": ["G-1", "A-2", "G-3"], "customerNames": ["Customer G-1", "Customer A-2", "Customer G-3"], "echoCounts": [],
+                         "who": "G-1", "slot": 0, "nrOfInstances": 3, "nrOfCompletedInstances": 0, "nrOfActiveInstances": 3 },
+            "partial": false } },
+        { "expectConnectorCall": { "activity": "echoEach", "call": 2,
+            "inbound": { "who": "A-2", "slot": 1, "nrOfInstances": 3, "nrOfCompletedInstances": 1, "nrOfActiveInstances": 2 }, "partial": true } },
+        { "expectConnectorCall": { "activity": "echoEach", "call": 3,
+            "inbound": { "who": "G-3", "slot": 2, "nrOfInstances": 3, "nrOfCompletedInstances": 2, "nrOfActiveInstances": 1 },
+            "outbound": { "echoCount": 8 }, "partial": true } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "customerNames": ["Customer G-1", "Customer A-2", "Customer G-3"],
+          "echoCounts": [8, 8, 8],
+          "customerIds": ["G-1", "A-2", "G-3"]
+        },
+        "absentVariables": ["customerId", "customerName", "tier", "found", "lastTier", "who", "slot", "position", "echoCount", "nrOfInstances"],
+        "path": {
+          "order": [["lookupEach", "echoEach"], ["echoEach", "end"]],
+          "sequenceFlows": ["f_start_lookupEach", "f_lookupEach_echoEach", "f_echoEach_end"]
+        }
+      }
+    },
+    {
+      "name": "no element means no connector call and empty result lists",
+      "start": { "process": "miConnectorTasks", "variables": { "customerIds": [] } },
+      "steps": [
+        { "expectConnectorCall": { "activity": "lookupEach", "count": 0 } },
+        { "expectConnectorCall": { "activity": "echoEach", "count": 0 } }
+      ],
+      "expect": { "state": "COMPLETED", "variables": { "customerNames": [], "echoCounts": [] }, "path": { "notContains": ["lookupEach", "echoEach"], "contains": ["end"], "sequenceFlows": ["f_start_lookupEach", "f_lookupEach_echoEach", "f_echoEach_end"] } }
+    }
+  ]
+}

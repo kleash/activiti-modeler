@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C01">
+  <process id="taskListeners" name="Task listeners" isExecutable="true">
+    <documentation>Task listeners of every implementation type (class, delegate expression, expression) and every event (create, assignment, complete, delete, all), with fields. A task with an assignee fires assignment before create; a claimed task fires create before assignment; completing fires complete and then delete.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_listened" sourceRef="start" targetRef="listened"/>
+    <userTask id="listened" name="Assigned task" activiti:assignee="ann">
+      <extensionElements>
+        <activiti:taskListener event="create" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+        <activiti:taskListener event="assignment" delegateExpression="${recordingTaskListener}"/>
+        <activiti:taskListener event="complete" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+        <activiti:taskListener event="delete" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+        <activiti:taskListener event="complete" expression="${execution.setVariable('completedBy', task.assignee)}"/>
+        <activiti:taskListener event="all" class="io.github.kleash.activiti.harness.support.FieldTaskListener">
+          <activiti:field name="tag">
+            <activiti:string>any</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="create" class="io.github.kleash.activiti.harness.support.FieldTaskListener">
+          <activiti:field name="tag">
+            <activiti:expression>${customerId}</activiti:expression>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="f_listened_claimed" sourceRef="listened" targetRef="claimed"/>
+    <userTask id="claimed" name="Claimed task" activiti:candidateGroups="reviewers">
+      <extensionElements>
+        <activiti:taskListener event="create" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+        <activiti:taskListener event="assignment" delegateExpression="${recordingTaskListener}"/>
+        <activiti:taskListener event="complete" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+        <activiti:taskListener event="delete" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="f_claimed_end" sourceRef="claimed" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="taskListeners">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="listened_di" bpmnElement="listened">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="claimed_di" bpmnElement="claimed">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_listened_di" bpmnElement="f_start_listened">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_listened_claimed_di" bpmnElement="f_listened_claimed">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_claimed_end_di" bpmnElement="f_claimed_end">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

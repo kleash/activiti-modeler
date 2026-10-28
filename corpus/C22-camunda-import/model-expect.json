@@ -1,0 +1,66 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "description": "What the engine's own BPMN reader and extension reader make of the model the Camunda importer produced: the activiti: attributes the camunda: ones became, the DMN connector call of the business rule task, the mappings that replace the parameters, and the call activity parameters.",
+  "processes": {
+    "fulfilOrder": {
+      "definition": { "category": "http://kleash.github.io/corpus/C22" },
+      "process": { "candidateStarterGroups": ["sales"] },
+      "extensions": {
+        "properties": {
+          "risk": { "type": "string" },
+          "approved": { "type": "json" }
+        },
+        "mappings": {
+          "classifyRisk": {
+            "inputs": { "quantity": { "type": "VARIABLE", "value": "quantity" } },
+            "outputs": { "risk": { "type": "VARIABLE", "value": "riskClass" } }
+          },
+          "reviewOrder": {
+            "inputs": {
+              "maxDiscount": { "type": "VALUE", "value": "20" },
+              "orderValue": { "type": "VALUE", "value": "${quantity * 10}" }
+            },
+            "outputs": { "approved": { "type": "VARIABLE", "value": "decision" } }
+          },
+          "confirmDispatch": { "mappingType": "MAP_ALL" }
+        },
+        "constants": {
+          "classifyRisk": { "_activiti_dmn_table_": "orderRisk" }
+        }
+      },
+      "elements": {
+        "received": { "type": "startEvent", "attributes": { "initiator": "requester", "formKey": "forms/order" } },
+        "greetCustomer": { "type": "serviceTask", "attributes": { "implementationType": "expression", "implementation": "${greeter.greet(customerName)}", "resultVariableName": "greeting" } },
+        "applyDiscount": { "type": "serviceTask", "attributes": {
+          "async": true, "failedJobRetryTimeCycleValue": "R2/PT1S",
+          "implementationType": "class", "implementation": "io.github.kleash.activiti.harness.support.SetVariableDelegate",
+          "fieldExtensions": [ { "fieldName": "variable", "stringValue": "discount" }, { "fieldName": "value", "expression": "${quantity >= 10 ? 15 : 0}" } ] } },
+        "classifyRisk": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "needsReview": { "type": "exclusiveGateway", "attributes": { "defaultFlow": "Flow_noReview" } },
+        "reviewOrder": { "type": "userTask", "attributes": {
+          "candidateGroups": ["managers"], "dueDate": "P2D", "priority": "80", "formKey": "forms/review",
+          "taskListeners": [
+            { "event": "create", "implementationType": "class", "implementation": "io.github.kleash.activiti.harness.support.RecordingTaskListener" },
+            { "event": "assignment", "implementationType": "expression", "implementation": "${listenerRecorder.recordTask(task)}" }
+          ] } },
+        "isApproved": { "type": "exclusiveGateway", "attributes": { "defaultFlow": "Flow_refused" } },
+        "packOrder": { "type": "serviceTask", "attributes": { "implementationType": "delegateExpression", "implementation": "${recordingDelegate}" } },
+        "shipOrder": { "type": "callActivity", "attributes": {
+          "calledElement": "shippingLabel", "inheritBusinessKey": true, "inheritVariables": false,
+          "inParameters": [ { "source": "customerName", "target": "parcelOwner" } ],
+          "outParameters": [ { "source": "labelText", "target": "label" } ] } },
+        "confirmDispatch": { "type": "userTask", "attributes": {
+          "assignee": "${requester}",
+          "formProperties": [
+            { "id": "dispatchNote", "name": "Note", "type": "string", "required": true },
+            { "id": "carrier", "name": "Carrier", "type": "enum", "defaultExpression": "post", "formValues": [ { "id": "post", "name": "Post" }, { "id": "courier", "name": "Courier" } ] }
+          ] } }
+      }
+    },
+    "shippingLabel": {
+      "elements": {
+        "makeLabel": { "type": "serviceTask", "attributes": { "implementationType": "expression", "implementation": "${greeter.greet(parcelOwner)}", "resultVariableName": "labelText" } }
+      }
+    }
+  }
+}

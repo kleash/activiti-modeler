@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" targetNamespace="http://example.org/lab">
+  <process id="t71_unprefixed_assignee" isExecutable="true">
+    <startEvent id="s"/><userTask id="u" assignee="kermit"/><endEvent id="e"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="u"/><sequenceFlow id="f2" sourceRef="u" targetRef="e"/>
+  </process>
+</definitions>

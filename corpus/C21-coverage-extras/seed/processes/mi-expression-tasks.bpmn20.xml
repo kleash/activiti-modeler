@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C21">
+  <process id="miExpressionTasks" name="Multi-instance expression service tasks" isExecutable="true">
+    <documentation>Multi-instance service tasks that run an expression: a parallel one that doubles every price and a sequential one with a completion condition. Each instance writes variables local to itself; outputDataItem / loopDataOutputRef collect them into a process variable.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_doubleEach" sourceRef="start" targetRef="doubleEach"/>
+    <serviceTask id="doubleEach" name="Double each price" activiti:expression="${execution.setVariableLocal('doubled', price * 2)}">
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="prices" activiti:elementVariable="price" activiti:elementIndexVariable="slot">
+        <loopDataOutputRef>doubledPrices</loopDataOutputRef>
+        <outputDataItem name="doubled"/>
+      </multiInstanceLoopCharacteristics>
+    </serviceTask>
+    <sequenceFlow id="f_doubleEach_tagEach" sourceRef="doubleEach" targetRef="tagEach"/>
+    <serviceTask id="tagEach" name="Tag each label" activiti:expression="${execution.setVariableLocal('seenCompleted', nrOfCompletedInstances)}">
+      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="labels" activiti:elementVariable="label" activiti:elementIndexVariable="turn">
+        <loopDataOutputRef>tags</loopDataOutputRef>
+        <completionCondition>${nrOfCompletedInstances &gt;= limit}</completionCondition>
+      </multiInstanceLoopCharacteristics>
+    </serviceTask>
+    <sequenceFlow id="f_tagEach_end" sourceRef="tagEach" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="miExpressionTasks">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="doubleEach_di" bpmnElement="doubleEach">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="tagEach_di" bpmnElement="tagEach">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_doubleEach_di" bpmnElement="f_start_doubleEach">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_doubleEach_tagEach_di" bpmnElement="f_doubleEach_tagEach">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_tagEach_end_di" bpmnElement="f_tagEach_end">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

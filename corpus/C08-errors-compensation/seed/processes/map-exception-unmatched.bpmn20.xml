@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_mapExceptionUnmatched"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C08">
+  <error id="strictStateError" name="Illegal state" errorCode="STRICT_ILLEGAL_STATE"/>
+  <process id="mapExceptionUnmatched" name="Exception mapping without a default" isExecutable="true">
+    <documentation>A single mapException entry for the exact class IllegalStateException and no default entry. An exception that no entry matches is not mapped: it propagates out of the service task and rolls the whole call back.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_strictCall" sourceRef="start" targetRef="strictCall"/>
+    <serviceTask id="strictCall" name="Call partner" activiti:class="io.github.kleash.activiti.harness.support.FailureDelegate">
+      <extensionElements>
+        <activiti:field name="exceptionClass">
+          <activiti:expression>${execution.getVariable('exceptionClass')}</activiti:expression>
+        </activiti:field>
+        <activiti:mapException errorCode="STRICT_ILLEGAL_STATE">java.lang.IllegalStateException</activiti:mapException>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_strictCall_strictOk" sourceRef="strictCall" targetRef="strictOk"/>
+    <endEvent id="strictOk" name="Partner ok"/>
+    <boundaryEvent id="onStrictState" name="Illegal state" attachedToRef="strictCall">
+      <errorEventDefinition errorRef="strictStateError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onStrictState_strictHandled" sourceRef="onStrictState" targetRef="strictHandled"/>
+    <endEvent id="strictHandled" name="Handled"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="mapExceptionUnmatched">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="strictCall_di" bpmnElement="strictCall">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="strictOk_di" bpmnElement="strictOk">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="strictHandled_di" bpmnElement="strictHandled">
+        <dc:Bounds x="402" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onStrictState_di" bpmnElement="onStrictState">
+        <dc:Bounds x="240" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_strictCall_di" bpmnElement="f_start_strictCall">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_strictCall_strictOk_di" bpmnElement="f_strictCall_strictOk">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onStrictState_strictHandled_di" bpmnElement="f_onStrictState_strictHandled">
+        <di:waypoint x="258" y="148"/>
+        <di:waypoint x="258" y="310"/>
+        <di:waypoint x="402" y="310"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

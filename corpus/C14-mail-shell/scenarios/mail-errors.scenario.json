@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C14 mail failures and ignoreException",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a valid recipient: the mail is delivered and no error is recorded",
+      "start": { "process": "mailErrors", "user": "ann", "variables": { "recipient": "ok-1@corpus.test", "ignore": false } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "continued": true,
+          "recipientInbox": [
+            { "subject": "Strict mail", "from": "shop@corpus.test", "to": "ok-1@corpus.test", "cc": null, "contentType": "text/plain", "text": "Mail that may fail.", "html": null, "attachments": [] }
+          ]
+        },
+        "absentVariables": ["mailError"]
+      }
+    },
+    {
+      "name": "an invalid recipient with ignoreException: the message goes to exceptionVariableName and the process continues",
+      "start": { "process": "mailErrors", "user": "ann", "variables": { "recipient": "not an address", "ignore": true } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "continued": true, "mailError": "Could not add not an address as recipient", "recipientInbox": [] },
+        "path": {
+          "order": [["sendStrict", "afterMail"], ["afterMail", "captureRecipient"], ["captureRecipient", "end"]],
+          "sequenceFlows": ["f_start_sendStrict", "f_sendStrict_afterMail", "f_afterMail_captureRecipient", "f_captureRecipient_end"]
+        }
+      }
+    },
+    {
+      "name": "an invalid recipient without ignoreException fails the call",
+      "start": { "process": "mailErrors", "user": "ann", "variables": { "recipient": "not an address", "ignore": false },
+                 "expectFailure": { "exception": "ActivitiException", "messageContains": "Could not add not an address as recipient" } }
+    }
+  ]
+}

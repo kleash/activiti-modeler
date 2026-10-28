@@ -1,0 +1,259 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "description": "What the engine's own reader makes of the project: the sign-off task, the withdrawal boundary event and the message start events of the event sub processes carry MAP_ALL (the modeler's default, ADR 0006), the multi-instance review MAP_ALL_OUTPUTS (its default: MAP_ALL wedges a parallel multi-instance user task, map-all-multi-instance.scenario.json); the process mapAllMultiInstance has MAP_ALL set explicitly on purpose.",
+  "processes": {
+    "insuranceClaim": {
+      "definition": {
+        "name": "Insurance claim",
+        "category": "http://activiti.org/bpmn/corpus/C20"
+      },
+      "extensions": {
+        "properties": {
+          "claimId": {
+            "type": "string"
+          },
+          "claimAmount": {
+            "type": "integer"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "reviewers": {
+            "type": "bigdecimal"
+          },
+          "triageRules": {
+            "type": "array"
+          },
+          "signedOff": {
+            "type": "boolean"
+          },
+          "documentsLogged": {
+            "type": "integer"
+          }
+        },
+        "mappings": {
+          "assessClaim": {
+            "mappingType": "MAP_ALL_OUTPUTS",
+            "inputs": {
+              "$size": 0
+            },
+            "outputs": {
+              "$size": 0
+            }
+          },
+          "managerSignOff": {
+            "mappingType": "MAP_ALL",
+            "inputs": {
+              "$size": 0
+            },
+            "outputs": {
+              "$size": 0
+            }
+          },
+          "onWithdrawal": {
+            "mappingType": "MAP_ALL",
+            "inputs": {
+              "$size": 0
+            },
+            "outputs": {
+              "$size": 0
+            }
+          },
+          "documentStart": {
+            "mappingType": "MAP_ALL",
+            "inputs": {
+              "$size": 0
+            },
+            "outputs": {
+              "$size": 0
+            }
+          },
+          "triage": {
+            "mappingType": null,
+            "inputs": {
+              "claimType": {
+                "type": "VARIABLE",
+                "value": "claimType"
+              },
+              "claimAmount": {
+                "type": "VARIABLE",
+                "value": "claimAmount"
+              }
+            },
+            "outputs": {
+              "severity": {
+                "type": "VARIABLE",
+                "value": "severity"
+              },
+              "reviewers": {
+                "type": "VARIABLE",
+                "value": "reviewers"
+              },
+              "triageRules": {
+                "type": "VARIABLE",
+                "value": "_activiti_dmn_matched_rules_"
+              }
+            }
+          },
+          "payout": {
+            "$exists": false
+          }
+        },
+        "constants": {
+          "triage": {
+            "_activiti_dmn_table_": "claimTriage"
+          },
+          "assessClaim": {
+            "$exists": false
+          }
+        }
+      },
+      "elements": {
+        "assessClaim": {
+          "type": "userTask",
+          "attributes": {
+            "candidateGroups": [
+              "adjusters"
+            ],
+            "loopCharacteristics": {
+              "sequential": false,
+              "loopCardinality": "${reviewers}",
+              "loopDataOutputRef": "verdicts",
+              "outputDataItem": "verdict"
+            }
+          }
+        },
+        "managerSignOff": {
+          "type": "userTask",
+          "attributes": {
+            "candidateGroups": [
+              "claims-managers"
+            ]
+          }
+        },
+        "outcomeGateway": {
+          "type": "exclusiveGateway",
+          "attributes": {
+            "defaultFlow": "f_outcomeGateway_payout"
+          }
+        },
+        "onWithdrawal": {
+          "type": "boundaryEvent",
+          "attributes": {
+            "attachedToRefId": "assessClaim",
+            "eventDefinitions": [
+              {
+                "@class": "MessageEventDefinition",
+                "messageRef": "claimWithdrawn"
+              }
+            ]
+          }
+        },
+        "documentStart": {
+          "type": "startEvent",
+          "attributes": {
+            "interrupting": false,
+            "eventDefinitions": [
+              {
+                "@class": "MessageEventDefinition",
+                "messageRef": "claimDocuments"
+              }
+            ]
+          }
+        },
+        "documentsHandler": {
+          "type": "subProcess"
+        }
+      }
+    },
+    "mapAllMultiInstance": {
+      "definition": {
+        "name": "MAP_ALL on a multi-instance user task",
+        "category": "http://activiti.org/bpmn/corpus/C20"
+      },
+      "extensions": {
+        "mappings": {
+          "reviewEach": {
+            "mappingType": "MAP_ALL",
+            "inputs": {
+              "$size": 0
+            },
+            "outputs": {
+              "$size": 0
+            }
+          }
+        }
+      },
+      "elements": {
+        "reviewEach": {
+          "type": "userTask",
+          "attributes": {
+            "candidateGroups": [
+              "adjusters"
+            ],
+            "loopCharacteristics": {
+              "sequential": false,
+              "loopCardinality": "2",
+              "loopDataOutputRef": "verdicts",
+              "outputDataItem": "verdict"
+            }
+          }
+        }
+      }
+    },
+    "interruptMultiInstance": {
+      "definition": {
+        "name": "Interrupting event sub process and a multi-instance task",
+        "category": "http://activiti.org/bpmn/corpus/C20"
+      },
+      "extensions": {
+        "mappings": {
+          "review": {
+            "mappingType": "MAP_ALL_OUTPUTS",
+            "inputs": {
+              "$size": 0
+            },
+            "outputs": {
+              "$size": 0
+            }
+          },
+          "stopStart": {
+            "mappingType": "MAP_ALL",
+            "inputs": {
+              "$size": 0
+            },
+            "outputs": {
+              "$size": 0
+            }
+          }
+        }
+      },
+      "elements": {
+        "review": {
+          "type": "userTask",
+          "attributes": {
+            "candidateGroups": [
+              "adjusters"
+            ],
+            "loopCharacteristics": {
+              "sequential": false,
+              "loopCardinality": "2"
+            }
+          }
+        },
+        "stopStart": {
+          "type": "startEvent",
+          "attributes": {
+            "interrupting": true,
+            "eventDefinitions": [
+              {
+                "@class": "MessageEventDefinition",
+                "messageRef": "stopReview"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

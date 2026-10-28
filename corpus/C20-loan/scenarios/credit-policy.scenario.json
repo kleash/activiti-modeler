@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C20 credit policy decision table",
+  "decisions": [
+    { "name": "below 500 is declined", "decision": "creditDecision", "inputs": { "creditScore": 499, "amount": 1000 },
+      "expect": { "result": [ { "riskClass": "HIGH", "route": "DECLINE" } ], "matchedRules": ["creditDecision_decline"] } },
+    { "name": "the amount does not matter below 500", "decision": "creditDecision", "inputs": { "creditScore": 100, "amount": 900000 },
+      "expect": { "result": [ { "riskClass": "HIGH", "route": "DECLINE" } ], "matchedRules": ["creditDecision_decline"] } },
+    { "name": "500 is the start of the manual band", "decision": "creditDecision", "inputs": { "creditScore": 500, "amount": 1000 },
+      "expect": { "result": [ { "riskClass": "MEDIUM", "route": "MANUAL" } ], "matchedRules": ["creditDecision_manualMedium"] } },
+    { "name": "699 is the end of the manual band", "decision": "creditDecision", "inputs": { "creditScore": 699, "amount": 30000 },
+      "expect": { "result": [ { "riskClass": "MEDIUM", "route": "MANUAL" } ], "matchedRules": ["creditDecision_manualMedium"] } },
+    { "name": "700 with up to 20000 is automatic", "decision": "creditDecision", "inputs": { "creditScore": 700, "amount": 20000 },
+      "expect": { "result": [ { "riskClass": "LOW", "route": "AUTO" } ], "matchedRules": ["creditDecision_autoLow"] } },
+    { "name": "700 with more than 20000 is manual", "decision": "creditDecision", "inputs": { "creditScore": 700, "amount": 20001 },
+      "expect": { "result": [ { "riskClass": "LOW", "route": "MANUAL" } ], "matchedRules": ["creditDecision_manualLarge"] } },
+    { "name": "a top score with a large amount is still manual", "decision": "creditDecision", "inputs": { "creditScore": 850, "amount": 100000 },
+      "expect": { "result": [ { "riskClass": "LOW", "route": "MANUAL" } ], "matchedRules": ["creditDecision_manualLarge"] } }
+  ]
+}

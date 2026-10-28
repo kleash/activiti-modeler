@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_eventGatewayReceive" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="eventGatewayReceive" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:eventBasedGateway id="wait" name="Wait for it" />
+    <bpmn:receiveTask id="got" name="Receive the answer" />
+    <bpmn:intermediateCatchEvent id="timeout" name="Timeout"><bpmn:timerEventDefinition id="to_def"><bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT1H</bpmn:timeDuration></bpmn:timerEventDefinition></bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="endGot" name="End" />
+    <bpmn:endEvent id="endTimeout" name="End" />
+    <bpmn:sequenceFlow id="f_start_wait" sourceRef="start" targetRef="wait" />
+    <bpmn:sequenceFlow id="f_wait_got" sourceRef="wait" targetRef="got" />
+    <bpmn:sequenceFlow id="f_wait_timeout" sourceRef="wait" targetRef="timeout" />
+    <bpmn:sequenceFlow id="f_got_endGot" sourceRef="got" targetRef="endGot" />
+    <bpmn:sequenceFlow id="f_timeout_endTimeout" sourceRef="timeout" targetRef="endTimeout" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_eventGatewayReceive">
+    <bpmndi:BPMNPlane id="BPMNPlane_eventGatewayReceive" bpmnElement="eventGatewayReceive">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="150" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="wait_di" bpmnElement="wait"><dc:Bounds x="246" y="135" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="got_di" bpmnElement="got"><dc:Bounds x="356" y="120" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="timeout_di" bpmnElement="timeout"><dc:Bounds x="356" y="312" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endGot_di" bpmnElement="endGot"><dc:Bounds x="516" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endTimeout_di" bpmnElement="endTimeout"><dc:Bounds x="516" y="312" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_wait_di" bpmnElement="f_start_wait"><di:waypoint x="186" y="160" /><di:waypoint x="246" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_wait_got_di" bpmnElement="f_wait_got"><di:waypoint x="296" y="160" /><di:waypoint x="356" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_wait_timeout_di" bpmnElement="f_wait_timeout"><di:waypoint x="296" y="160" /><di:waypoint x="356" y="330" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_got_endGot_di" bpmnElement="f_got_endGot"><di:waypoint x="456" y="160" /><di:waypoint x="516" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_timeout_endTimeout_di" bpmnElement="f_timeout_endTimeout"><di:waypoint x="392" y="330" /><di:waypoint x="516" y="330" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,30 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C20 MAP_ALL on a multi-instance user task (engine behaviour pinned: the instance is wedged)",
+  "description": "MAP_ALL, set explicitly on a parallel multi-instance user task, wedges the instance on Activiti 9.0.0 (the modeler's default for a multi-instance user task is MAP_ALL_OUTPUTS, ADR 0006): both tasks can be completed, but the multi-instance bookkeeping never sees them finish, the flow never leaves the task and the output collection stays empty. assessClaim of insuranceClaim is the same task with the modeler's default mapping and completes (insurance-claim.scenario.json). This file pins the engine behaviour; it is not a model to copy.",
+  "users": { "adj1": ["adjusters"], "adj2": ["adjusters"] },
+  "scenarios": [
+    {
+      "name": "both instances are completed, but the instance never leaves the multi-instance task",
+      "start": { "process": "mapAllMultiInstance", "businessKey": "W-1", "user": "adj1" },
+      "steps": [
+        { "expectTask": { "activity": "reviewEach", "count": 2, "candidateGroups": ["adjusters"], "partial": true,
+            "localVariables": { "nrOfInstances": 2, "nrOfActiveInstances": 2, "nrOfCompletedInstances": 0, "loopCounter": { "$exists": true }, "verdicts": { "$size": 0 } } } },
+        { "completeTask": { "activity": "reviewEach", "match": { "index": 1 }, "user": "adj1", "variables": { "verdict": "APPROVE" } } },
+        { "completeTask": { "activity": "reviewEach", "match": { "index": 1 }, "user": "adj2", "variables": { "verdict": "APPROVE" } } },
+        { "expectTask": { "activity": "reviewEach", "count": 0 } },
+        { "expectActive": [] }
+      ],
+      "expect": {
+        "state": "ACTIVE",
+        "path": {
+          "contains": ["start", "reviewEach"],
+          "notContains": ["reviewedEnd"],
+          "sequenceFlows": ["f_start_reviewEach"],
+          "notSequenceFlows": ["f_reviewEach_reviewedEnd"]
+        },
+        "variables": { "verdicts": { "$size": 0 } }
+      }
+    }
+  ]
+}

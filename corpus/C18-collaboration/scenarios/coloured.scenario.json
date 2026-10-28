@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C18 coloured model: bioc / color attributes on pool, lane, shapes and edges do not disturb the engine",
+  "users": { "ann": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "accepted: the conditional flow is taken",
+      "start": { "process": "colouredReview", "user": "ann", "variables": { "accepted": true } },
+      "steps": [
+        { "expectActive": { "exactly": ["review"] } },
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["acceptedEnd"],
+        "path": {
+          "contains": ["reviewStart", "review", "decide", "acceptedEnd"],
+          "notContains": ["rejectedEnd"],
+          "sequenceFlows": ["f_reviewStart_review", "f_review_decide", "f_decide_acceptedEnd"],
+          "notSequenceFlows": ["f_decide_rejectedEnd"]
+        }
+      }
+    },
+    {
+      "name": "rejected: the default flow is taken",
+      "start": { "process": "colouredReview", "user": "ann", "variables": { "accepted": false } },
+      "steps": [
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["rejectedEnd"],
+        "path": {
+          "contains": ["reviewStart", "review", "decide", "rejectedEnd"],
+          "notContains": ["acceptedEnd"],
+          "sequenceFlows": ["f_review_decide", "f_decide_rejectedEnd"],
+          "notSequenceFlows": ["f_decide_acceptedEnd"]
+        }
+      }
+    }
+  ]
+}

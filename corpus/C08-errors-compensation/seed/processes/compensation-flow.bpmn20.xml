@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_compensationFlow"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C08">
+  <process id="compensationFlow" name="Book a trip with compensation" isExecutable="true">
+    <documentation>Two compensable activities, each with a compensation boundary event and a handler (isForCompensation, linked by an association). When the payment check fails, the intermediate throw compensate event without activityRef broadcasts to every completed compensable activity of the process; the handlers run in reverse order of completion and the process continues.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_reserveFlight" sourceRef="start" targetRef="reserveFlight"/>
+    <userTask id="reserveFlight" name="Reserve flight" activiti:assignee="ann"/>
+    <boundaryEvent id="onFlightCompensate" name="Compensate flight" attachedToRef="reserveFlight">
+      <compensateEventDefinition/>
+    </boundaryEvent>
+    <sequenceFlow id="f_reserveFlight_reserveHotel" sourceRef="reserveFlight" targetRef="reserveHotel"/>
+    <userTask id="reserveHotel" name="Reserve hotel" activiti:assignee="ann"/>
+    <boundaryEvent id="onHotelCompensate" name="Compensate hotel" attachedToRef="reserveHotel">
+      <compensateEventDefinition/>
+    </boundaryEvent>
+    <sequenceFlow id="f_reserveHotel_paymentCheck" sourceRef="reserveHotel" targetRef="paymentCheck"/>
+    <exclusiveGateway id="paymentCheck" name="Payment failed?" default="f_paymentCheck_confirmed"/>
+    <sequenceFlow id="f_paymentCheck_rollback" name="yes" sourceRef="paymentCheck" targetRef="rollback">
+      <conditionExpression xsi:type="tFormalExpression">${paymentFailed == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_paymentCheck_confirmed" name="no" sourceRef="paymentCheck" targetRef="confirmed"/>
+    <intermediateThrowEvent id="rollback" name="Roll back the booking">
+      <compensateEventDefinition waitForCompletion="true"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="f_rollback_rolledBack" sourceRef="rollback" targetRef="rolledBack"/>
+    <endEvent id="rolledBack" name="Rolled back"/>
+    <endEvent id="confirmed" name="Confirmed"/>
+    <serviceTask id="cancelFlight" name="Cancel flight" isForCompensation="true" activiti:delegateExpression="${recordingDelegate}"/>
+    <serviceTask id="cancelHotel" name="Cancel hotel" isForCompensation="true" activiti:delegateExpression="${recordingDelegate}"/>
+    <association id="a_onFlightCompensate_cancelFlight" associationDirection="One" sourceRef="onFlightCompensate" targetRef="cancelFlight"/>
+    <association id="a_onHotelCompensate_cancelHotel" associationDirection="One" sourceRef="onHotelCompensate" targetRef="cancelHotel"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="compensationFlow">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reserveFlight_di" bpmnElement="reserveFlight">
+        <dc:Bounds x="220" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reserveHotel_di" bpmnElement="reserveHotel">
+        <dc:Bounds x="370" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="paymentCheck_di" bpmnElement="paymentCheck" isMarkerVisible="true">
+        <dc:Bounds x="545" y="175" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="rollback_di" bpmnElement="rollback">
+        <dc:Bounds x="702" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="rolledBack_di" bpmnElement="rolledBack">
+        <dc:Bounds x="852" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="confirmed_di" bpmnElement="confirmed">
+        <dc:Bounds x="702" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelFlight_di" bpmnElement="cancelFlight">
+        <dc:Bounds x="220" y="380" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancelHotel_di" bpmnElement="cancelHotel">
+        <dc:Bounds x="370" y="380" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onFlightCompensate_di" bpmnElement="onFlightCompensate">
+        <dc:Bounds x="240" y="222" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onHotelCompensate_di" bpmnElement="onHotelCompensate">
+        <dc:Bounds x="390" y="222" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_reserveFlight_di" bpmnElement="f_start_reserveFlight">
+        <di:waypoint x="138" y="200"/>
+        <di:waypoint x="220" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reserveFlight_reserveHotel_di" bpmnElement="f_reserveFlight_reserveHotel">
+        <di:waypoint x="320" y="200"/>
+        <di:waypoint x="370" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reserveHotel_paymentCheck_di" bpmnElement="f_reserveHotel_paymentCheck">
+        <di:waypoint x="470" y="200"/>
+        <di:waypoint x="545" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_paymentCheck_rollback_di" bpmnElement="f_paymentCheck_rollback">
+        <di:waypoint x="595" y="200"/>
+        <di:waypoint x="702" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_paymentCheck_confirmed_di" bpmnElement="f_paymentCheck_confirmed">
+        <di:waypoint x="595" y="200"/>
+        <di:waypoint x="648" y="200"/>
+        <di:waypoint x="648" y="90"/>
+        <di:waypoint x="702" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_rollback_rolledBack_di" bpmnElement="f_rollback_rolledBack">
+        <di:waypoint x="738" y="200"/>
+        <di:waypoint x="852" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="a_onFlightCompensate_cancelFlight_di" bpmnElement="a_onFlightCompensate_cancelFlight">
+        <di:waypoint x="258" y="258"/>
+        <di:waypoint x="258" y="420"/>
+        <di:waypoint x="220" y="420"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="a_onHotelCompensate_cancelHotel_di" bpmnElement="a_onHotelCompensate_cancelHotel">
+        <di:waypoint x="408" y="258"/>
+        <di:waypoint x="408" y="420"/>
+        <di:waypoint x="370" y="420"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

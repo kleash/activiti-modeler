@@ -1,0 +1,17 @@
+{
+  "id": "async-service-tasks-extensions",
+  "extensions": {
+    "asyncServiceTasks": {
+      "properties": {
+        "p1": { "id": "p1", "name": "customerId", "type": "string" },
+        "p2": { "id": "p2", "name": "customerName", "type": "string" }
+      },
+      "mappings": {
+        "asyncConnector": {
+          "inputs": { "customerId": { "type": "VARIABLE", "value": "customerId" } },
+          "outputs": { "customerName": { "type": "VARIABLE", "value": "customerName" } }
+        }
+      }
+    }
+  }
+}

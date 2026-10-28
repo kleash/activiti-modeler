@@ -1,0 +1,42 @@
+{
+ "id": "ext-t17m",
+ "extensions": {
+  "t17m": {
+   "properties": {
+    "p1": {
+     "id": "p1",
+     "name": "result",
+     "type": "string",
+     "required": false,
+     "value": "init"
+    },
+    "p2": {
+     "id": "p2",
+     "name": "inVar",
+     "type": "string",
+     "value": "fromProp"
+    }
+   },
+   "mappings": {
+    "svc": {
+     "inputs": {
+      "in1": {
+       "type": "VALUE",
+       "value": "abc"
+      },
+      "in2": {
+       "type": "VARIABLE",
+       "value": "inVar"
+      }
+     },
+     "outputs": {
+      "result": {
+       "type": "VARIABLE",
+       "value": "result"
+      }
+     }
+    }
+   }
+  }
+ }
+}

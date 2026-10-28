@@ -1,0 +1,32 @@
+{
+  "name": "call activity and multi-instance",
+  "users": { "alice": ["reviewers"], "bob": [], "carol": [] },
+  "scenarios": [
+    {
+      "name": "the parent starts a child that returns a result",
+      "start": { "process": "parent", "businessKey": "P-1", "user": "alice", "variables": { "customerId": "C-9" } },
+      "steps": [
+        { "expectActive": { "contains": ["callKyc", "kycCheck"] } },
+        { "expectChildInstance": { "callActivity": "callKyc", "process": "kyc", "count": 1, "state": "ACTIVE", "businessKey": "P-1",
+            "startVariables": { "cid": "C-9" }, "path": { "contains": ["kycStart", "kycCheck"], "notContains": ["kycDone"] } } },
+        { "completeTask": { "activity": "kycCheck", "user": "alice", "variables": { "result": "clear" } } },
+        { "expectChildInstance": { "callActivity": "callKyc", "state": "COMPLETED", "variables": { "cid": "C-9", "result": "clear" },
+            "path": { "contains": ["kycDone"], "sequenceFlows": ["f_kycCheck_kycDone"] } } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["parentEnd"], "variables": { "kycResult": "clear" }, "path": { "notContains": ["kycCheck"] } }
+    },
+    {
+      "name": "multi-instance tasks are selected by their element variable",
+      "start": { "process": "approvals", "user": "alice", "variables": { "people": ["bob", "carol"] } },
+      "steps": [
+        { "expectTask": { "activity": "approveEach", "count": 2 } },
+        { "expectTask": { "activity": "approveEach", "match": { "localVariables": { "person": "bob" } }, "assignee": "bob", "name": "Approve for bob" } },
+        { "expectTask": { "activity": "approveEach", "match": { "assignee": "carol" }, "name": "Approve for carol" } },
+        { "completeTask": { "activity": "approveEach", "match": { "localVariables": { "person": "carol" } }, "user": "carol" } },
+        { "expectTask": { "activity": "approveEach", "count": 1 } },
+        { "completeTask": { "activity": "approveEach", "match": { "index": 1 }, "user": "bob" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["xEnd"] }
+    }
+  ]
+}

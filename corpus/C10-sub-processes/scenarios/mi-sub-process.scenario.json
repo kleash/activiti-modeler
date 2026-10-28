@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C10 parallel multi-instance sub process with output aggregation and early completion",
+  "users": { "ann": [], "ben": [], "cy": [] },
+  "scenarios": [
+    {
+      "name": "all three instances finish and their verdicts are collected in completion order",
+      "start": { "process": "miSubProcess", "user": "ann", "variables": { "reviewers": ["ann", "ben", "cy"], "quorum": 3 } },
+      "steps": [
+        { "expectTask": { "activity": "rate", "count": 3 } },
+        { "expectTask": { "activity": "rate", "match": { "assignee": "ann" }, "name": "Rate by ann" } },
+        { "expectTask": { "activity": "rate", "match": { "assignee": "ben" }, "name": "Rate by ben" } },
+        { "expectTask": { "activity": "rate", "match": { "localVariables": { "reviewer": "cy" } }, "name": "Rate by cy", "assignee": "cy" } },
+        { "completeTask": { "activity": "rate", "match": { "assignee": "cy" }, "user": "cy", "variables": { "verdict": "approve" } } },
+        { "completeTask": { "activity": "rate", "match": { "assignee": "ann" }, "user": "ann", "variables": { "verdict": "reject" } } },
+        { "expectTask": { "activity": "summarize", "count": 0 } },
+        { "completeTask": { "activity": "rate", "match": { "assignee": "ben" }, "user": "ben", "variables": { "verdict": "approve" } } },
+        { "expectTask": { "activity": "summarize", "localVariables": { "verdicts": ["approve", "reject", "approve"] } } },
+        { "completeTask": { "activity": "summarize", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end", "reviewEnd"],
+        "variables": { "verdicts": ["approve", "reject", "approve"], "quorum": 3 },
+        "absentVariables": ["verdict", "reviewer", "nrOfInstances"],
+        "path": { "contains": ["reviewEach", "reviewStart", "rate", "record", "reviewEnd", "summarize"], "sequenceFlows": ["f_reviewEach_summarize", "f_rate_record", "f_record_reviewEnd"] }
+      }
+    },
+    {
+      "name": "the completion condition ends the loop after two verdicts and cancels the third instance",
+      "start": { "process": "miSubProcess", "user": "ann", "variables": { "reviewers": ["ann", "ben", "cy"], "quorum": 2 } },
+      "steps": [
+        { "completeTask": { "activity": "rate", "match": { "assignee": "ben" }, "user": "ben", "variables": { "verdict": "approve" } } },
+        { "expectTask": { "activity": "rate", "count": 2 } },
+        { "completeTask": { "activity": "rate", "match": { "assignee": "ann" }, "user": "ann", "variables": { "verdict": "approve" } } },
+        { "expectTask": { "activity": "rate", "count": 0 } },
+        { "expectTask": { "activity": "summarize", "localVariables": { "verdicts": ["approve", "approve"] } } },
+        { "completeTask": { "activity": "summarize", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "variables": { "verdicts": { "$size": 2 } } }
+    }
+  ]
+}

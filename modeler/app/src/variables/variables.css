@@ -1,0 +1,72 @@
+/* Variable outline (U14): the panel and the markers on the canvas. */
+.variables {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: auto;
+}
+.variables-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--panel-border);
+}
+.variables-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.variables-table th,
+.variables-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--panel-border);
+}
+.variables-table tbody tr {
+  cursor: pointer;
+}
+.variables-table tbody tr:hover,
+.variables-table tbody tr.selected {
+  background: var(--select);
+}
+.variables-empty {
+  padding: 8px;
+}
+.variable-chip {
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0 8px;
+  margin: 0 4px 2px 0;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+}
+.variable-chip.writer {
+  border-color: #1b8a3c;
+}
+.variable-chip.reader {
+  border-color: #1a73e8;
+}
+.variable-flag.warning {
+  color: #b26a00;
+  font-weight: 600;
+}
+
+/* writers and readers of the chosen variable on the canvas */
+.djs-element.activiti-var-writer .djs-visual > :first-child {
+  stroke: #1b8a3c !important;
+  stroke-width: 4px !important;
+}
+.djs-element.activiti-var-reader .djs-visual > :first-child {
+  stroke: #1a73e8 !important;
+  stroke-width: 4px !important;
+}
+.djs-element.activiti-var-writer.activiti-var-reader .djs-visual > :first-child {
+  stroke: #1b8a3c !important;
+  stroke-dasharray: 6 4 !important;
+}

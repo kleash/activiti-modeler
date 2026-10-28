@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_transactionListeners"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C13">
+  <process id="transactionListeners" name="Transaction-dependent listeners" isExecutable="true">
+    <documentation>Execution and task listeners with onTransaction (before-commit, committed, rolled-back; delegateExpression only) and the three customPropertiesResolver forms (class, expression, delegateExpression). They record into the transactionLog bean; the task hold waits and capture copies the log into transactionCalls. Completing trigger runs the task listeners and, through explode, the execution listeners in one transaction: when explode passes that transaction commits, when it throws it rolls back.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_fork" sourceRef="start" targetRef="fork"/>
+    <parallelGateway id="fork"/>
+    <sequenceFlow id="f_fork_hold" sourceRef="fork" targetRef="hold"/>
+    <sequenceFlow id="f_fork_trigger" sourceRef="fork" targetRef="trigger"/>
+    <userTask id="hold" name="Hold" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_hold_capture" sourceRef="hold" targetRef="capture"/>
+    <serviceTask id="capture" name="Capture the log" activiti:expression="${transactionLog.entries(execution.processInstanceId)}" activiti:resultVariableName="transactionCalls"/>
+    <sequenceFlow id="f_capture_heldDone" sourceRef="capture" targetRef="heldDone"/>
+    <endEvent id="heldDone" name="Hold done"/>
+    <userTask id="trigger" name="Trigger" activiti:candidateUsers="ann">
+      <extensionElements>
+        <activiti:taskListener event="complete" onTransaction="before-commit" delegateExpression="${beforeCommitTaskListener}" customPropertiesResolverClass="io.github.kleash.activiti.harness.support.CorpusPropertiesResolver"/>
+        <activiti:taskListener event="complete" onTransaction="committed" delegateExpression="${committedTaskListener}" customPropertiesResolverExpression="${propertiesFactory.resolved('expression', execution)}"/>
+        <activiti:taskListener event="complete" onTransaction="rolled-back" delegateExpression="${rolledBackTaskListener}" customPropertiesResolverDelegateExpression="${delegatePropertiesResolver}"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="f_trigger_explode" sourceRef="trigger" targetRef="explode"/>
+    <serviceTask id="explode" name="Explode on request" activiti:class="io.github.kleash.activiti.harness.support.FailureDelegate">
+      <extensionElements>
+        <activiti:field name="exceptionClass">
+          <activiti:expression>${execution.getVariable('failureClass')}</activiti:expression>
+        </activiti:field>
+        <activiti:executionListener event="start" onTransaction="before-commit" delegateExpression="${beforeCommitExecutionListener}" customPropertiesResolverExpression="${propertiesFactory.resolved('expression', execution)}"/>
+        <activiti:executionListener event="start" onTransaction="committed" delegateExpression="${committedExecutionListener}" customPropertiesResolverDelegateExpression="${delegatePropertiesResolver}"/>
+        <activiti:executionListener event="start" onTransaction="rolled-back" delegateExpression="${rolledBackExecutionListener}" customPropertiesResolverClass="io.github.kleash.activiti.harness.support.CorpusPropertiesResolver"/>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_explode_explodeDone" sourceRef="explode" targetRef="explodeDone"/>
+    <endEvent id="explodeDone" name="Explode done"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="transactionListeners">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fork_di" bpmnElement="fork">
+        <dc:Bounds x="245" y="175" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="hold_di" bpmnElement="hold">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="capture_di" bpmnElement="capture">
+        <dc:Bounds x="520" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="heldDone_di" bpmnElement="heldDone">
+        <dc:Bounds x="702" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="trigger_di" bpmnElement="trigger">
+        <dc:Bounds x="370" y="270" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="explode_di" bpmnElement="explode">
+        <dc:Bounds x="520" y="270" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="explodeDone_di" bpmnElement="explodeDone">
+        <dc:Bounds x="702" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_fork_di" bpmnElement="f_start_fork">
+        <di:waypoint x="138" y="200"/>
+        <di:waypoint x="245" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_hold_di" bpmnElement="f_fork_hold">
+        <di:waypoint x="295" y="200"/>
+        <di:waypoint x="332" y="200"/>
+        <di:waypoint x="332" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_fork_trigger_di" bpmnElement="f_fork_trigger">
+        <di:waypoint x="295" y="200"/>
+        <di:waypoint x="332" y="200"/>
+        <di:waypoint x="332" y="310"/>
+        <di:waypoint x="370" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_hold_capture_di" bpmnElement="f_hold_capture">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="520" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_capture_heldDone_di" bpmnElement="f_capture_heldDone">
+        <di:waypoint x="620" y="90"/>
+        <di:waypoint x="702" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_trigger_explode_di" bpmnElement="f_trigger_explode">
+        <di:waypoint x="470" y="310"/>
+        <di:waypoint x="520" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_explode_explodeDone_di" bpmnElement="f_explode_explodeDone">
+        <di:waypoint x="620" y="310"/>
+        <di:waypoint x="702" y="310"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

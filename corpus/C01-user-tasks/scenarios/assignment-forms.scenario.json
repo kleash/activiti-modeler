@@ -1,0 +1,66 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C01 assignment forms",
+  "users": { "ann": ["reviewers"], "bob": ["clerks"], "carl": [], "dave": ["managers"], "eve": [] },
+  "scenarios": [
+    {
+      "name": "every way of assigning a user task gives the expected assignee, owner, candidates and visibility",
+      "start": { "process": "assignmentForms", "user": "ann",
+                 "variables": { "reviewer": "bob", "approvers": ["carl", "dave"], "groupNames": "managers, auditors" } },
+      "steps": [
+        { "expectTask": { "activity": "byAssignee", "name": "Assignee and owner", "assignee": "ann", "owner": "bob",
+            "candidateUsers": [], "candidateGroups": [],
+            "identityLinks": [ { "type": "assignee", "user": "ann" }, { "type": "owner", "user": "bob" } ],
+            "visibleTo": ["ann", "bob"], "notVisibleTo": ["carl", "dave", "eve"] } },
+        { "completeTask": { "activity": "byAssignee", "user": "ann" } },
+
+        { "expectTask": { "activity": "byExpression", "name": "Assignee from bob", "assignee": "bob", "owner": null,
+            "visibleTo": ["bob"], "notVisibleTo": ["ann", "carl"] } },
+        { "completeTask": { "activity": "byExpression", "user": "bob" } },
+
+        { "expectTask": { "activity": "byCandidates", "assignee": null, "candidateUsers": ["ann", "bob"], "candidateGroups": ["reviewers", "clerks"],
+            "visibleTo": ["ann", "bob"], "notVisibleTo": ["carl", "dave", "eve"] } },
+        { "completeTask": { "activity": "byCandidates", "user": "bob" } },
+
+        { "expectTask": { "activity": "byCandidateExpressions", "assignee": null, "candidateUsers": ["carl", "dave"], "candidateGroups": ["managers", "auditors"],
+            "visibleTo": ["carl", "dave"], "notVisibleTo": ["ann", "bob", "eve"] } },
+        { "completeTask": { "activity": "byCandidateExpressions", "user": "dave" } },
+
+        { "expectTask": { "activity": "byHumanPerformer", "assignee": "carl", "owner": null, "candidateUsers": [], "candidateGroups": [],
+            "visibleTo": ["carl"], "notVisibleTo": ["ann", "bob", "dave"] } },
+        { "completeTask": { "activity": "byHumanPerformer", "user": "carl" } },
+
+        { "expectTask": { "activity": "byPotentialOwner", "assignee": null, "candidateUsers": ["ann", "carl"], "candidateGroups": ["reviewers"],
+            "visibleTo": ["ann", "carl"], "notVisibleTo": ["bob", "dave", "eve"] } },
+        { "completeTask": { "activity": "byPotentialOwner", "user": "carl" } },
+
+        { "expectTask": { "activity": "byCustomResource", "assignee": null, "candidateUsers": ["ann"], "candidateGroups": [],
+            "identityLinks": [ { "type": "supervisor", "user": "dave" }, { "type": "supervisor", "group": "managers" } ],
+            "visibleTo": ["ann"], "notVisibleTo": ["dave"] } },
+        { "completeTask": { "activity": "byCustomResource", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": {
+          "order": [["byAssignee", "byExpression"], ["byExpression", "byCandidates"], ["byCandidates", "byCandidateExpressions"],
+                    ["byCandidateExpressions", "byHumanPerformer"], ["byHumanPerformer", "byPotentialOwner"], ["byPotentialOwner", "byCustomResource"]],
+          "sequenceFlows": ["f_start_byAssignee", "f_byCustomResource_end"]
+        }
+      }
+    },
+    {
+      "name": "expressions may give candidates as a comma separated string or as a collection",
+      "start": { "process": "assignmentForms", "user": "ann",
+                 "variables": { "reviewer": "carl", "approvers": "ann, eve", "groupNames": ["auditors"] } },
+      "steps": [
+        { "completeTask": { "activity": "byAssignee", "user": "ann" } },
+        { "expectTask": { "activity": "byExpression", "name": "Assignee from carl", "assignee": "carl" } },
+        { "completeTask": { "activity": "byExpression", "user": "carl" } },
+        { "completeTask": { "activity": "byCandidates", "user": "ann" } },
+        { "expectTask": { "activity": "byCandidateExpressions", "candidateUsers": ["ann", "eve"], "candidateGroups": ["auditors"] } }
+      ],
+      "expect": { "state": "ACTIVE", "path": { "contains": ["byCandidateExpressions"], "notContains": ["byHumanPerformer"] } }
+    }
+  ]
+}

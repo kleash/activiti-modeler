@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_executionListeners"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C13">
+  <process id="executionListeners" name="Execution listeners" isExecutable="true">
+    <documentation>Execution listeners of all three implementation types (class, expression, delegateExpression) on the process (start, end), on flow nodes (start, end) and on sequence flows (take), with fields. The recording listeners append "event:element id" to executionListenerCalls, so the list is the order in which the engine called them. The process end listeners run after the process instance execution has been deleted and so cannot write variables (the completion would fail); the guard listeners therefore only throw when the business key asks them to (fail-class, fail-delegateExpression, fail-expression), which makes their call observable. The end listener of the exclusive gateway decide is declared on purpose and is never called: the gateway leaves through the sequence flow without the usual end-of-node processing. An expression listener records through ${listenerRecorder.recordExecution(execution)}.</documentation>
+    <extensionElements>
+      <activiti:executionListener event="start" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+      <activiti:executionListener event="start" class="io.github.kleash.activiti.harness.support.FieldExecutionListener">
+        <activiti:field name="tag">
+          <activiti:string>process</activiti:string>
+        </activiti:field>
+      </activiti:executionListener>
+      <activiti:executionListener event="end" class="io.github.kleash.activiti.harness.support.EndGuardListener">
+        <activiti:field name="type">
+          <activiti:string>class</activiti:string>
+        </activiti:field>
+      </activiti:executionListener>
+      <activiti:executionListener event="end" delegateExpression="${endGuard}">
+        <activiti:field name="type">
+          <activiti:string>delegateExpression</activiti:string>
+        </activiti:field>
+      </activiti:executionListener>
+      <activiti:executionListener event="end" expression="${endGuard.check(execution, 'expression')}"/>
+    </extensionElements>
+    <startEvent id="begin" name="Begin">
+      <extensionElements>
+        <activiti:executionListener event="end" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+      </extensionElements>
+    </startEvent>
+    <sequenceFlow id="f_begin_prepare" sourceRef="begin" targetRef="prepare">
+      <extensionElements>
+        <activiti:executionListener event="take" expression="${listenerRecorder.recordExecution(execution)}"/>
+      </extensionElements>
+    </sequenceFlow>
+    <serviceTask id="prepare" name="Prepare" activiti:expression="${execution.setVariable('prepared', true)}">
+      <extensionElements>
+        <activiti:executionListener event="start" delegateExpression="${recordingExecutionListener}"/>
+        <activiti:executionListener event="start" expression="${execution.setVariable('prepareStartedByExpression', true)}"/>
+        <activiti:executionListener event="end" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+        <activiti:executionListener event="end" class="io.github.kleash.activiti.harness.support.FieldExecutionListener">
+          <activiti:field name="tag">
+            <activiti:string>prepare-end</activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_prepare_decide" sourceRef="prepare" targetRef="decide">
+      <extensionElements>
+        <activiti:executionListener event="take" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+      </extensionElements>
+    </sequenceFlow>
+    <exclusiveGateway id="decide" name="Needs review?" default="f_decide_finish">
+      <extensionElements>
+        <activiti:executionListener event="start" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+        <activiti:executionListener event="end" delegateExpression="${recordingExecutionListener}"/>
+      </extensionElements>
+    </exclusiveGateway>
+    <sequenceFlow id="f_decide_review" name="yes" sourceRef="decide" targetRef="review">
+      <extensionElements>
+        <activiti:executionListener event="take" delegateExpression="${recordingExecutionListener}"/>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression">${needsReview == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_decide_finish" name="no" sourceRef="decide" targetRef="finish">
+      <extensionElements>
+        <activiti:executionListener event="take" class="io.github.kleash.activiti.harness.support.FieldExecutionListener">
+          <activiti:field name="tag">
+            <activiti:expression>${reviewer}</activiti:expression>
+          </activiti:field>
+        </activiti:executionListener>
+      </extensionElements>
+    </sequenceFlow>
+    <userTask id="review" name="Review" activiti:assignee="ann">
+      <extensionElements>
+        <activiti:executionListener event="start" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+        <activiti:executionListener event="start" delegateExpression="${fieldExecutionListener}">
+          <activiti:field name="tag">
+            <activiti:string>review-start</activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+        <activiti:executionListener event="end" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="f_review_finish" sourceRef="review" targetRef="finish">
+      <extensionElements>
+        <activiti:executionListener event="take" expression="${listenerRecorder.recordExecution(execution)}"/>
+      </extensionElements>
+    </sequenceFlow>
+    <serviceTask id="finish" name="Finish" activiti:expression="${execution.setVariable('finished', true)}">
+      <extensionElements>
+        <activiti:executionListener event="start" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="f_finish_done" sourceRef="finish" targetRef="done"/>
+    <endEvent id="done" name="Done">
+      <extensionElements>
+        <activiti:executionListener event="start" class="io.github.kleash.activiti.harness.support.RecordingExecutionListener"/>
+      </extensionElements>
+    </endEvent>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="executionListeners">
+      <bpmndi:BPMNShape id="begin_di" bpmnElement="begin">
+        <dc:Bounds x="102" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepare_di" bpmnElement="prepare">
+        <dc:Bounds x="220" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decide_di" bpmnElement="decide" isMarkerVisible="true">
+        <dc:Bounds x="395" y="175" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review">
+        <dc:Bounds x="520" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="finish_di" bpmnElement="finish">
+        <dc:Bounds x="670" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="done_di" bpmnElement="done">
+        <dc:Bounds x="852" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_begin_prepare_di" bpmnElement="f_begin_prepare">
+        <di:waypoint x="138" y="200"/>
+        <di:waypoint x="220" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_prepare_decide_di" bpmnElement="f_prepare_decide">
+        <di:waypoint x="320" y="200"/>
+        <di:waypoint x="395" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_decide_review_di" bpmnElement="f_decide_review">
+        <di:waypoint x="445" y="200"/>
+        <di:waypoint x="482" y="200"/>
+        <di:waypoint x="482" y="90"/>
+        <di:waypoint x="520" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_decide_finish_di" bpmnElement="f_decide_finish">
+        <di:waypoint x="445" y="200"/>
+        <di:waypoint x="670" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_review_finish_di" bpmnElement="f_review_finish">
+        <di:waypoint x="620" y="90"/>
+        <di:waypoint x="645" y="90"/>
+        <di:waypoint x="645" y="200"/>
+        <di:waypoint x="670" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_finish_done_di" bpmnElement="f_finish_done">
+        <di:waypoint x="770" y="200"/>
+        <di:waypoint x="852" y="200"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

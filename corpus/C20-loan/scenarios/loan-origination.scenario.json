@@ -1,0 +1,284 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C20 loan origination: the default mappings carry the data through the whole process",
+  "description": "No mapping in this project was written by hand: the user tasks, the call activity and the message catch event have the MAP_ALL the modeler gives them by default (ADR 0006). Every scenario asserts that what a user typed into a task, what a called process produced and what a message carried reached the process: as final variables and as gateway decisions that depend on them.",
+  "users": {
+    "ann": [],
+    "kay": ["kyc-analysts"],
+    "uma": ["underwriters"],
+    "sam": ["senior-underwriters"]
+  },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "an automatic offer: KYC outputs, the analyst's score and the message payload all reach the process",
+      "start": {
+        "process": "loanOrigination",
+        "businessKey": "L-100",
+        "user": "ann",
+        "variables": { "applicationId": "L-100", "customerId": "C-1", "amount": 10000 }
+      },
+      "steps": [
+        {
+          "expectTask": {
+            "activity": "verifyIdentity",
+            "name": "Verify identity",
+            "assignee": null,
+            "candidateGroups": ["kyc-analysts"],
+            "visibleTo": ["kay"],
+            "notVisibleTo": ["uma", "sam"],
+            "localVariables": { "applicationId": "L-100", "customerId": "C-1", "amount": 10000 }
+          }
+        },
+        {
+          "expectChildInstance": {
+            "callActivity": "kycCall",
+            "process": "kycCheck",
+            "state": "ACTIVE",
+            "startVariables": { "applicationId": "L-100", "customerId": "C-1", "amount": 10000 }
+          }
+        },
+        { "completeTask": { "activity": "verifyIdentity", "user": "kay", "variables": { "idVerified": true, "creditScore": 750 } } },
+        {
+          "expectChildInstance": {
+            "callActivity": "kycCall",
+            "process": "kycCheck",
+            "state": "COMPLETED",
+            "variables": { "idVerified": true, "creditScore": 750, "kycStatus": "PASSED", "sys_task_assignee": "kay", "customerId": "C-1" },
+            "path": { "contains": ["verifyIdentity", "markPassed", "kycPassedEnd"], "notContains": ["markFailed", "kycFailedEnd"] }
+          }
+        },
+        { "expectActive": ["awaitDocuments"] },
+        { "message": { "name": "documentsReceived", "correlationKey": "L-100", "variables": { "documentCount": 3, "documentsComplete": true } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["fundedEnd"],
+        "path": {
+          "contains": ["kycCall", "kycGateway", "assessRisk", "routeGateway", "prepareOffer", "awaitDocuments", "documentsGateway", "disburse", "fundedEnd"],
+          "notContains": ["underwriting", "seniorReview", "declinedEnd", "rejectedEnd", "incompleteEnd", "kycRejectedEnd"],
+          "order": [["kycCall", "assessRisk"], ["assessRisk", "prepareOffer"], ["prepareOffer", "awaitDocuments"], ["awaitDocuments", "disburse"]],
+          "sequenceFlows": [
+            "f_start_kycCall", "f_kycCall_kycGateway", "f_kycGateway_assessRisk", "f_assessRisk_routeGateway", "f_routeGateway_prepareOffer",
+            "f_prepareOffer_awaitDocuments", "f_awaitDocuments_documentsGateway", "f_documentsGateway_disburse", "f_disburse_fundedEnd"
+          ]
+        },
+        "variables": {
+          "kycStatus": "PASSED",
+          "idVerified": true,
+          "creditScore": 750,
+          "sys_task_assignee": "kay",
+          "riskClass": "LOW",
+          "route": "AUTO",
+          "creditRules": ["creditDecision_autoLow"],
+          "offerAmount": 10000,
+          "documentCount": 3,
+          "documentsComplete": true,
+          "disbursed": true
+        },
+        "absentVariables": ["approved", "approvedAmount"]
+      }
+    },
+    {
+      "name": "a failed identity check ends the application before the credit policy is asked",
+      "start": {
+        "process": "loanOrigination",
+        "businessKey": "L-101",
+        "user": "ann",
+        "variables": { "applicationId": "L-101", "customerId": "C-2", "amount": 8000 }
+      },
+      "steps": [
+        { "completeTask": { "activity": "verifyIdentity", "user": "kay", "variables": { "idVerified": false, "creditScore": 0 } } },
+        {
+          "expectChildInstance": {
+            "callActivity": "kycCall",
+            "process": "kycCheck",
+            "state": "COMPLETED",
+            "variables": { "idVerified": false, "kycStatus": "FAILED" },
+            "path": { "contains": ["markFailed", "kycFailedEnd"], "notContains": ["markPassed", "kycPassedEnd"] }
+          }
+        }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["kycRejectedEnd"],
+        "path": {
+          "contains": ["kycCall", "kycGateway", "kycRejectedEnd"],
+          "notContains": ["assessRisk", "routeGateway", "underwriting"],
+          "sequenceFlows": ["f_start_kycCall", "f_kycCall_kycGateway", "f_kycGateway_kycRejectedEnd"],
+          "notSequenceFlows": ["f_kycGateway_assessRisk"]
+        },
+        "variables": { "kycStatus": "FAILED", "idVerified": false, "creditScore": 0 },
+        "absentVariables": ["riskClass", "route", "creditRules"]
+      }
+    },
+    {
+      "name": "a score below 500 is declined by the credit policy table",
+      "start": {
+        "process": "loanOrigination",
+        "businessKey": "L-102",
+        "user": "ann",
+        "variables": { "applicationId": "L-102", "customerId": "C-3", "amount": 5000 }
+      },
+      "steps": [
+        { "completeTask": { "activity": "verifyIdentity", "user": "kay", "variables": { "idVerified": true, "creditScore": 450 } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["declinedEnd"],
+        "path": {
+          "contains": ["kycCall", "assessRisk", "routeGateway", "declinedEnd"],
+          "notContains": ["underwriting", "prepareOffer", "awaitDocuments"],
+          "sequenceFlows": ["f_kycGateway_assessRisk", "f_assessRisk_routeGateway", "f_routeGateway_declinedEnd"]
+        },
+        "variables": { "kycStatus": "PASSED", "creditScore": 450, "riskClass": "HIGH", "route": "DECLINE", "creditRules": ["creditDecision_decline"] },
+        "absentVariables": ["offerAmount", "approved"]
+      }
+    },
+    {
+      "name": "manual underwriting: the underwriter's completion variables set the offer, the timer is gone once the task is done",
+      "start": {
+        "process": "loanOrigination",
+        "businessKey": "L-103",
+        "user": "ann",
+        "variables": { "applicationId": "L-103", "customerId": "C-4", "amount": 15000 }
+      },
+      "steps": [
+        { "completeTask": { "activity": "verifyIdentity", "user": "kay", "variables": { "idVerified": true, "creditScore": 620 } } },
+        {
+          "expectTask": {
+            "activity": "underwriting",
+            "name": "Underwrite the application",
+            "assignee": null,
+            "candidateGroups": ["underwriters"],
+            "visibleTo": ["uma"],
+            "notVisibleTo": ["kay", "sam"],
+            "localVariables": {
+              "applicationId": "L-103", "customerId": "C-4", "amount": 15000, "idVerified": true, "creditScore": 620, "kycStatus": "PASSED",
+              "sys_task_assignee": "kay", "riskClass": "MEDIUM", "route": "MANUAL", "creditRules": ["creditDecision_manualMedium"]
+            }
+          }
+        },
+        { "expectTimer": { "activity": "underwritingTimeout", "count": 1, "dueDate": "2030-01-03T09:00:00Z" } },
+        { "completeTask": { "activity": "underwriting", "user": "uma", "variables": { "approved": true, "approvedAmount": 12000, "underwriterNote": "reduced to the affordable amount" } } },
+        { "expectTimer": { "activity": "underwritingTimeout", "count": 0 } },
+        { "message": { "name": "documentsReceived", "correlationKey": "L-103", "variables": { "documentCount": 5, "documentsComplete": true } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["fundedEnd"],
+        "path": {
+          "contains": ["routeGateway", "underwriting", "approvedGateway", "prepareOffer", "awaitDocuments", "disburse", "fundedEnd"],
+          "notContains": ["underwritingTimeout", "seniorReview", "rejectedEnd", "incompleteEnd"],
+          "sequenceFlows": ["f_routeGateway_underwriting", "f_underwriting_approvedGateway", "f_approvedGateway_prepareOffer", "f_prepareOffer_awaitDocuments"]
+        },
+        "variables": {
+          "route": "MANUAL",
+          "riskClass": "MEDIUM",
+          "approved": true,
+          "approvedAmount": 12000,
+          "underwriterNote": "reduced to the affordable amount",
+          "sys_task_assignee": "uma",
+          "offerAmount": 12000,
+          "documentCount": 5,
+          "documentsComplete": true,
+          "disbursed": true
+        }
+      }
+    },
+    {
+      "name": "the underwriter rejects the application",
+      "start": {
+        "process": "loanOrigination",
+        "businessKey": "L-104",
+        "user": "ann",
+        "variables": { "applicationId": "L-104", "customerId": "C-5", "amount": 9000 }
+      },
+      "steps": [
+        { "completeTask": { "activity": "verifyIdentity", "user": "kay", "variables": { "idVerified": true, "creditScore": 640 } } },
+        { "completeTask": { "activity": "underwriting", "user": "uma", "variables": { "approved": false, "underwriterNote": "income not proven" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["rejectedEnd"],
+        "path": {
+          "contains": ["underwriting", "approvedGateway", "rejectedEnd"],
+          "notContains": ["prepareOffer", "awaitDocuments", "seniorReview"],
+          "sequenceFlows": ["f_underwriting_approvedGateway", "f_approvedGateway_rejectedEnd"],
+          "notSequenceFlows": ["f_approvedGateway_prepareOffer"]
+        },
+        "variables": { "approved": false, "underwriterNote": "income not proven", "sys_task_assignee": "uma" },
+        "absentVariables": ["offerAmount", "approvedAmount", "disbursed"]
+      }
+    },
+    {
+      "name": "the 48 hour timer escalates to the senior underwriters; an incomplete document message closes the application",
+      "start": {
+        "process": "loanOrigination",
+        "businessKey": "L-105",
+        "user": "ann",
+        "variables": { "applicationId": "L-105", "customerId": "C-6", "amount": 50000 }
+      },
+      "steps": [
+        { "completeTask": { "activity": "verifyIdentity", "user": "kay", "variables": { "idVerified": true, "creditScore": 720 } } },
+        { "expectTask": { "activity": "underwriting", "count": 1, "partial": true, "localVariables": { "riskClass": "LOW", "route": "MANUAL", "creditRules": ["creditDecision_manualLarge"] } } },
+        { "expectTask": { "activity": "seniorReview", "count": 0 } },
+        { "fireTimer": { "activity": "underwritingTimeout" } },
+        { "expectTask": { "activity": "underwriting", "count": 0 } },
+        {
+          "expectTask": {
+            "activity": "seniorReview",
+            "name": "Senior review",
+            "assignee": null,
+            "candidateGroups": ["senior-underwriters"],
+            "visibleTo": ["sam"],
+            "notVisibleTo": ["uma", "kay"],
+            "partial": true,
+            "localVariables": { "applicationId": "L-105", "amount": 50000, "creditScore": 720, "route": "MANUAL" }
+          }
+        },
+        { "completeTask": { "activity": "seniorReview", "user": "sam", "variables": { "approved": true, "approvedAmount": 40000 } } },
+        { "message": { "name": "documentsReceived", "correlationKey": "L-105", "variables": { "documentCount": 1, "documentsComplete": false } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["incompleteEnd"],
+        "path": {
+          "contains": ["underwriting", "underwritingTimeout", "seniorReview", "approvedGateway", "prepareOffer", "documentsGateway", "incompleteEnd"],
+          "notContains": ["disburse", "fundedEnd", "rejectedEnd"],
+          "order": [["underwritingTimeout", "seniorReview"], ["seniorReview", "approvedGateway"]],
+          "sequenceFlows": ["f_underwritingTimeout_seniorReview", "f_seniorReview_approvedGateway", "f_approvedGateway_prepareOffer", "f_documentsGateway_incompleteEnd"],
+          "notSequenceFlows": ["f_underwriting_approvedGateway", "f_documentsGateway_disburse"]
+        },
+        "variables": {
+          "approved": true,
+          "approvedAmount": 40000,
+          "sys_task_assignee": "sam",
+          "offerAmount": 40000,
+          "documentCount": 1,
+          "documentsComplete": false
+        },
+        "absentVariables": ["disbursed"]
+      }
+    },
+    {
+      "name": "a document message for another application is not delivered",
+      "start": {
+        "process": "loanOrigination",
+        "businessKey": "L-106",
+        "user": "ann",
+        "variables": { "applicationId": "L-106", "customerId": "C-7", "amount": 1000 }
+      },
+      "steps": [
+        { "completeTask": { "activity": "verifyIdentity", "user": "kay", "variables": { "idVerified": true, "creditScore": 800 } } },
+        { "expectActive": ["awaitDocuments"] },
+        { "message": { "name": "documentsReceived", "correlationKey": "L-OTHER", "variables": { "documentsComplete": true }, "expectFailure": { "exception": "ActivitiObjectNotFoundException" } } },
+        { "expectActive": ["awaitDocuments"] }
+      ],
+      "expect": {
+        "state": "ACTIVE",
+        "absentVariables": ["documentsComplete", "disbursed"]
+      }
+    }
+  ]
+}

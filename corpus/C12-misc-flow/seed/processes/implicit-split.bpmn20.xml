@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C12">
+  <process id="implicitSplit" name="Implicit split" isExecutable="true">
+    <documentation>Pass-through manual task and abstract task; the abstract task leaves through conditional flows without a gateway: every flow whose condition is true is taken (an implicit parallel split), the default flow of the activity only when none is.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_prepareManual" sourceRef="start" targetRef="prepareManual"/>
+    <manualTask id="prepareManual" name="Prepare by hand"/>
+    <sequenceFlow id="f_prepareManual_classify" sourceRef="prepareManual" targetRef="classify"/>
+    <task id="classify" name="Classify" default="f_classify_other"/>
+    <sequenceFlow id="f_classify_a" name="a" sourceRef="classify" targetRef="taskA">
+      <conditionExpression xsi:type="tFormalExpression">${a == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_classify_b" name="b" sourceRef="classify" targetRef="taskB">
+      <conditionExpression xsi:type="tFormalExpression">${b == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_classify_other" name="otherwise" sourceRef="classify" targetRef="taskOther"/>
+    <userTask id="taskA" name="Branch A" activiti:candidateUsers="ann"/>
+    <userTask id="taskB" name="Branch B" activiti:candidateUsers="ben"/>
+    <userTask id="taskOther" name="Other branch" activiti:candidateUsers="cy"/>
+    <sequenceFlow id="f_taskA_endA" sourceRef="taskA" targetRef="endA"/>
+    <sequenceFlow id="f_taskB_endB" sourceRef="taskB" targetRef="endB"/>
+    <sequenceFlow id="f_taskOther_endOther" sourceRef="taskOther" targetRef="endOther"/>
+    <endEvent id="endA" name="A done"/>
+    <endEvent id="endB" name="B done"/>
+    <endEvent id="endOther" name="Other done"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="implicitSplit">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepareManual_di" bpmnElement="prepareManual">
+        <dc:Bounds x="220" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="classify_di" bpmnElement="classify">
+        <dc:Bounds x="370" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskA_di" bpmnElement="taskA">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskB_di" bpmnElement="taskB">
+        <dc:Bounds x="520" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskOther_di" bpmnElement="taskOther">
+        <dc:Bounds x="520" y="290" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endA_di" bpmnElement="endA">
+        <dc:Bounds x="702" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endB_di" bpmnElement="endB">
+        <dc:Bounds x="702" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="endOther_di" bpmnElement="endOther">
+        <dc:Bounds x="702" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_prepareManual_di" bpmnElement="f_start_prepareManual">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_prepareManual_classify_di" bpmnElement="f_prepareManual_classify">
+        <di:waypoint x="320" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_classify_a_di" bpmnElement="f_classify_a">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="495" y="220"/>
+        <di:waypoint x="495" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_classify_b_di" bpmnElement="f_classify_b">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="520" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_classify_other_di" bpmnElement="f_classify_other">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="495" y="220"/>
+        <di:waypoint x="495" y="330"/>
+        <di:waypoint x="520" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_taskA_endA_di" bpmnElement="f_taskA_endA">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="702" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_taskB_endB_di" bpmnElement="f_taskB_endB">
+        <di:waypoint x="620" y="220"/>
+        <di:waypoint x="702" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_taskOther_endOther_di" bpmnElement="f_taskOther_endOther">
+        <di:waypoint x="620" y="330"/>
+        <di:waypoint x="702" y="330"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

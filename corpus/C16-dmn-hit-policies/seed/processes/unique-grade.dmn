@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="Definitions_uniqueGrade" name="unique-grade" namespace="http://activiti.org/schema/1.0/dmn/Definitions_uniqueGrade">
+  <inputData id="InputData_score" name="score">
+    <variable id="InputData_score_variable" name="score" typeRef="number" />
+  </inputData>
+  <decision id="uniqueGrade" name="uniqueGrade">
+    <variable id="uniqueGrade_variable" name="uniqueGrade" typeRef="string" />
+    <informationRequirement id="uniqueGrade_req_InputData_score">
+      <requiredInput href="#InputData_score" />
+    </informationRequirement>
+    <decisionTable id="uniqueGrade_table" hitPolicy="UNIQUE">
+      <input id="uniqueGrade_input1" label="Score">
+        <inputExpression id="uniqueGrade_inputExpression1" typeRef="number">
+          <text>score</text>
+        </inputExpression>
+      </input>
+      <output id="uniqueGrade_output1" name="grade" typeRef="string" />
+      <rule id="uniqueGrade_low">
+        <inputEntry id="uniqueGrade_low_in1"><text>&lt; 50</text></inputEntry>
+        <outputEntry id="uniqueGrade_low_out1"><text>"low"</text></outputEntry>
+      </rule>
+      <rule id="uniqueGrade_mid">
+        <inputEntry id="uniqueGrade_mid_in1"><text>[50..80)</text></inputEntry>
+        <outputEntry id="uniqueGrade_mid_out1"><text>"mid"</text></outputEntry>
+      </rule>
+      <rule id="uniqueGrade_high">
+        <inputEntry id="uniqueGrade_high_in1"><text>&gt;= 80</text></inputEntry>
+        <outputEntry id="uniqueGrade_high_out1"><text>"high"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_uniqueGrade" dmnElementRef="uniqueGrade">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_score" dmnElementRef="InputData_score">
+        <dc:Bounds height="45" width="150" x="160" y="300" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_uniqueGrade_req_InputData_score" dmnElementRef="uniqueGrade_req_InputData_score">
+        <di:waypoint x="235" y="300" />
+        <di:waypoint x="250" y="180" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C21">
+  <process id="miConnectorTasks" name="Multi-instance connector service tasks" isExecutable="true">
+    <documentation>Multi-instance on connector service tasks: a sequential crm.LOOKUP per customer id and a parallel echo.EXECUTE with MAP_ALL_INPUTS. Inside a multi-instance the connector's outbound variables stay local to the instance (the output mapping is skipped) and are collected by outputDataItem / loopDataOutputRef.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_lookupEach" sourceRef="start" targetRef="lookupEach"/>
+    <serviceTask id="lookupEach" name="Look up each customer" implementation="crm.LOOKUP">
+      <multiInstanceLoopCharacteristics isSequential="true" activiti:collection="customerIds" activiti:elementVariable="customerId" activiti:elementIndexVariable="position">
+        <loopDataOutputRef>customerNames</loopDataOutputRef>
+        <outputDataItem name="customerName"/>
+      </multiInstanceLoopCharacteristics>
+    </serviceTask>
+    <sequenceFlow id="f_lookupEach_echoEach" sourceRef="lookupEach" targetRef="echoEach"/>
+    <serviceTask id="echoEach" name="Echo everything per customer" implementation="echo.EXECUTE">
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="customerIds" activiti:elementVariable="who" activiti:elementIndexVariable="slot">
+        <loopDataOutputRef>echoCounts</loopDataOutputRef>
+        <outputDataItem name="echoCount"/>
+      </multiInstanceLoopCharacteristics>
+    </serviceTask>
+    <sequenceFlow id="f_echoEach_end" sourceRef="echoEach" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="miConnectorTasks">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="lookupEach_di" bpmnElement="lookupEach">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="echoEach_di" bpmnElement="echoEach">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_lookupEach_di" bpmnElement="f_start_lookupEach">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_lookupEach_echoEach_di" bpmnElement="f_lookupEach_echoEach">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_echoEach_end_di" bpmnElement="f_echoEach_end">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

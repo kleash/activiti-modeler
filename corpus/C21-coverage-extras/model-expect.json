@@ -1,0 +1,141 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "timerStartDuration": {
+      "definition": { "name": "Timer start with a duration", "category": "http://activiti.org/bpmn/corpus/C21" },
+      "elements": {
+        "startDuration": { "type": "startEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "TimerEventDefinition", "timeDuration": "PT1H", "timeDate": null, "timeCycle": null, "endDate": null, "calendarName": null } ] } }
+      }
+    },
+    "potentialStarters": {
+      "process": { "candidateStarterUsers": ["carl", "dora"], "candidateStarterGroups": ["auditors", "reviewers"] },
+      "candidateStarters": { "users": ["carl", "dora"], "groups": ["*", "auditors", "reviewers"] }
+    },
+    "starterSources": {
+      "process": { "candidateStarterUsers": ["ann", "carl"], "candidateStarterGroups": ["clerks", "auditors"] },
+      "candidateStarters": { "users": ["ann", "carl"], "groups": ["clerks", "auditors"] }
+    },
+    "extensionIds": {
+      "extensions": {
+        "mappings": {
+          "review": { "inputs": { "origin": { "type": "VALUE", "value": "found by element id" } } },
+          "lookup": { "inputs": { "customerId": { "type": "VARIABLE", "value": "customerId" } } },
+          "tally": { "$exists": false },
+          "ext-review": { "$exists": false }
+        }
+      },
+      "elements": {
+        "review": { "type": "userTask", "attributes": { "extensionId": "ext-review", "assignee": "ann" } },
+        "lookup": { "type": "serviceTask", "attributes": { "extensionId": "ext-lookup", "implementation": "crm.LOOKUP" } },
+        "tally": { "type": "scriptTask", "attributes": { "scriptFormat": null, "resultVariable": "tallied" } },
+        "confirm": { "type": "manualTask" }
+      }
+    },
+    "mapAllVariants": {
+      "extensions": {
+        "mappings": {
+          "echoAllInputs": {
+            "mappingType": "MAP_ALL_INPUTS", "ephemeral": false,
+            "inputs": { "decoy": { "type": "VALUE", "value": "never sent" } },
+            "outputs": { "echoSeen": { "type": "VARIABLE", "value": "echoCount" } } },
+          "reviewAllInputs": { "mappingType": "MAP_ALL_INPUTS", "inputs": { "$size": 1 }, "outputs": { "$size": 0 } },
+          "lookupAllOutputs": {
+            "mappingType": "MAP_ALL_OUTPUTS",
+            "inputs": { "customerId": { "type": "VARIABLE", "value": "customerId" } },
+            "outputs": { "ignoredOutput": { "type": "VALUE", "value": "never copied" } } },
+          "reviewAllOutputs": {
+            "mappingType": "MAP_ALL_OUTPUTS",
+            "inputs": { "amount": { "type": "VARIABLE", "value": "amount" }, "tierLabel": { "type": "VALUE", "value": "${tier}" } },
+            "outputs": { "$size": 0 } }
+        },
+        "constants": {
+          "echoAllInputs": { "limit": 1000, "region": "from-constant" },
+          "reviewAllInputs": { "stage": "review" },
+          "lookupAllOutputs": { "$exists": false }
+        }
+      },
+      "elements": {
+        "echoAllInputs": { "type": "serviceTask", "attributes": { "implementation": "echo.EXECUTE" } },
+        "lookupAllOutputs": { "type": "serviceTask", "attributes": { "implementation": "crm.LOOKUP" } }
+      }
+    },
+    "expressionValues": {
+      "extensions": {
+        "mappings": {
+          "showTemplate": { "mappingType": "MAP_ALL_INPUTS", "inputs": { "$size": 0 }, "outputs": { "$size": 0 } },
+          "ask": { "mappingType": null, "outputs": { "reply": { "type": "VARIABLE", "value": "comment" } } }
+        }
+      },
+      "elements": {
+        "prepare": { "type": "scriptTask", "attributes": { "scriptFormat": "javascript" } }
+      }
+    },
+    "miExpressionTasks": {
+      "elements": {
+        "doubleEach": { "type": "serviceTask", "attributes": {
+          "implementationType": "expression", "implementation": "${execution.setVariableLocal('doubled', price * 2)}",
+          "loopCharacteristics": { "sequential": false, "inputDataItem": "prices", "elementVariable": "price", "elementIndexVariable": "slot",
+                                   "loopDataOutputRef": "doubledPrices", "outputDataItem": "doubled", "loopCardinality": null, "completionCondition": null } } },
+        "tagEach": { "type": "serviceTask", "attributes": {
+          "loopCharacteristics": { "sequential": true, "inputDataItem": "labels", "elementVariable": "label", "elementIndexVariable": "turn",
+                                   "loopDataOutputRef": "tags", "outputDataItem": null, "completionCondition": "${nrOfCompletedInstances >= limit}" } } }
+      }
+    },
+    "miConnectorTasks": {
+      "extensions": {
+        "mappings": {
+          "lookupEach": {
+            "inputs": { "customerId": { "type": "VARIABLE", "value": "customerId" } },
+            "outputs": { "lastTier": { "type": "VARIABLE", "value": "tier" } } },
+          "echoEach": { "mappingType": "MAP_ALL_INPUTS" }
+        }
+      },
+      "elements": {
+        "lookupEach": { "type": "serviceTask", "attributes": {
+          "implementation": "crm.LOOKUP",
+          "loopCharacteristics": { "sequential": true, "inputDataItem": "customerIds", "elementVariable": "customerId", "elementIndexVariable": "position",
+                                   "loopDataOutputRef": "customerNames", "outputDataItem": "customerName" } } },
+        "echoEach": { "type": "serviceTask", "attributes": {
+          "implementation": "echo.EXECUTE",
+          "loopCharacteristics": { "sequential": false, "inputDataItem": "customerIds", "elementVariable": "who", "elementIndexVariable": "slot",
+                                   "loopDataOutputRef": "echoCounts", "outputDataItem": "echoCount" } } }
+      }
+    },
+    "miScriptTasks": {
+      "elements": {
+        "squareEach": { "type": "scriptTask", "attributes": {
+          "scriptFormat": "juel", "resultVariable": null,
+          "loopCharacteristics": { "sequential": false, "inputDataItem": "numbers", "elementVariable": "n", "elementIndexVariable": "pos",
+                                   "loopDataOutputRef": "squares", "outputDataItem": "square" } } },
+        "runningTotal": { "type": "scriptTask", "attributes": {
+          "scriptFormat": "javascript", "resultVariable": "running",
+          "loopCharacteristics": { "sequential": true, "inputDataItem": "numbers", "elementVariable": "n", "elementIndexVariable": "step",
+                                   "loopDataOutputRef": "trails", "outputDataItem": "trail" } } },
+        "cubeEach": { "type": "scriptTask", "attributes": {
+          "scriptFormat": "javascript",
+          "loopCharacteristics": { "sequential": false, "loopCardinality": "${rounds}", "inputDataItem": null, "elementVariable": null, "elementIndexVariable": "round",
+                                   "loopDataOutputRef": "cubes", "outputDataItem": "cube" } } }
+      }
+    },
+    "miStandardForm": {
+      "elements": {
+        "greetEach": { "type": "serviceTask", "attributes": {
+          "implementationType": "expression",
+          "implementation": "${execution.setVariableLocal('greeting', 'Hello '.concat(guest))}",
+          "loopCharacteristics": { "sequential": false, "inputDataItem": "guests", "elementVariable": "guest", "elementIndexVariable": null,
+                                   "loopDataOutputRef": "greetings", "outputDataItem": "greeting", "loopCardinality": null } } }
+      }
+    },
+    "miWaitTasks": {
+      "elements": {
+        "packEach": { "type": "manualTask", "attributes": {
+          "loopCharacteristics": { "sequential": false, "inputDataItem": "parcels", "elementVariable": "parcel",
+                                   "loopDataOutputRef": "packed", "outputDataItem": "parcel" } } },
+        "pickUpEach": { "type": "receiveTask", "attributes": {
+          "loopCharacteristics": { "sequential": false, "inputDataItem": "parcels", "elementVariable": "parcel",
+                                   "loopDataOutputRef": "pickedUp", "outputDataItem": "parcel" } } }
+      }
+    }
+  }
+}

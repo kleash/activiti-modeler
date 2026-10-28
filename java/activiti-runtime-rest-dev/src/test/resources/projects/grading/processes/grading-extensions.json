@@ -1,0 +1,24 @@
+{
+  "id": "grading-extensions",
+  "extensions": {
+    "devGrading": {
+      "properties": {
+        "p1": { "id": "p1", "name": "score", "type": "integer" },
+        "p2": { "id": "p2", "name": "grade", "type": "string" },
+        "p3": { "id": "p3", "name": "matchedRules", "type": "array" }
+      },
+      "constants": {
+        "decide": { "_activiti_dmn_table_": { "value": "uniqueGrade" } }
+      },
+      "mappings": {
+        "decide": {
+          "inputs": { "score": { "type": "variable", "value": "score" } },
+          "outputs": {
+            "grade": { "type": "variable", "value": "grade" },
+            "matchedRules": { "type": "variable", "value": "_activiti_dmn_matched_rules_" }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 multi-instance in the standard form",
+  "description": "loopDataInputRef names the collection variable and inputDataItem the element variable: the engine reads them into the fields activiti:collection and activiti:elementVariable fill (engine finding 3), and the modeler keeps them when it opens the file.",
+  "scenarios": [
+    {
+      "name": "loopDataInputRef and inputDataItem create one instance per guest, each with its own element variable",
+      "start": { "process": "miStandardForm", "variables": { "guests": ["Ann", "Bob", "Cy"] } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "greetings": ["Hello Ann", "Hello Bob", "Hello Cy"], "guests": ["Ann", "Bob", "Cy"] },
+        "absentVariables": ["guest", "greeting", "loopCounter", "nrOfInstances", "nrOfCompletedInstances", "nrOfActiveInstances"],
+        "path": { "order": [["greetEach", "end"]], "sequenceFlows": ["f_start_greetEach", "f_greetEach_end"] }
+      }
+    }
+  ]
+}

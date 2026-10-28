@@ -1,0 +1,17 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C02 delegate expressions",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "delegate beans are called and configured per task by their fields",
+      "start": { "process": "delegateExpressions", "user": "ann", "variables": { "customerName": "Ann" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "delegateCalls": ["record", "recordAgain"], "lastDelegate": "recordAgain", "origin": "Ann", "label": "Ann-label" },
+        "path": { "order": [["record", "copyName"], ["copyName", "labelName"], ["labelName", "recordAgain"]] }
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C11 call activity with activiti:in and activiti:out",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "values cross the boundary only through in and out parameters, and the child is a separate running instance",
+      "start": { "process": "callInOut", "user": "ann", "variables": { "unitPrice": 7, "itemCount": 3 } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "priceIt", "process": "priceCalculator", "count": 1, "state": "ACTIVE",
+                                   "startVariables": { "price": 7, "quantity": 6 },
+                                   "absentVariables": ["unitPrice", "itemCount", "total"],
+                                   "path": { "contains": ["cStart", "review"], "notContains": ["compute"] } } },
+        { "expectTask": { "activity": "review", "name": "Review price", "candidateUsers": ["ann"] } },
+        { "completeTask": { "activity": "review", "user": "ann" } },
+        { "expectChildInstance": { "callActivity": "priceIt", "state": "COMPLETED",
+                                   "variables": { "price": 7, "quantity": 6, "total": 42 },
+                                   "path": { "contains": ["review", "compute", "cEnd"], "sequenceFlows": ["f_review_compute", "f_compute_cEnd"] } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "unitPrice": 7, "itemCount": 3, "orderTotal": 42, "doubleTotal": 84, "priced": true },
+        "absentVariables": ["price", "quantity", "total"],
+        "path": { "order": [["priceIt", "markPriced"], ["markPriced", "end"]], "sequenceFlows": ["f_start_priceIt", "f_priceIt_markPriced", "f_markPriced_end"] }
+      }
+    }
+  ]
+}

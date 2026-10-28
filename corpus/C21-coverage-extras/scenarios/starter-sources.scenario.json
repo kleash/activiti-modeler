@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C21 candidate starter attributes and activiti:potentialStarter together",
+  "description": "ann and the group clerks come from the process attributes, carl and the group auditors from the potentialStarter element: all four ways start the process. With an attribute present the starters count as defined, so the Spring Boot deployment adds no everyone group and the rest cannot see the process definition (engine finding C21.1).",
+  "users": { "ann": [], "carl": [], "eve": ["auditors"], "hank": ["clerks"], "gina": [] },
+  "scenarios": [
+    {
+      "name": "the user of the candidateStarterUsers attribute starts",
+      "start": { "process": "starterSources", "user": "ann" },
+      "steps": [ { "expectTask": { "activity": "work", "assignee": "ann" } } ],
+      "expect": { "state": "ACTIVE", "variables": { "starter": "ann" } }
+    },
+    {
+      "name": "the user of the potentialStarter element starts",
+      "start": { "process": "starterSources", "user": "carl" },
+      "steps": [ { "expectTask": { "activity": "work", "assignee": "carl" } } ],
+      "expect": { "state": "ACTIVE", "variables": { "starter": "carl" } }
+    },
+    {
+      "name": "a member of the candidateStarterGroups group starts",
+      "start": { "process": "starterSources", "user": "hank" },
+      "steps": [ { "expectTask": { "activity": "work", "assignee": "hank" } } ],
+      "expect": { "state": "ACTIVE", "variables": { "starter": "hank" } }
+    },
+    {
+      "name": "a member of the potentialStarter group starts and finishes the process",
+      "start": { "process": "starterSources", "user": "eve" },
+      "steps": [
+        { "expectTask": { "activity": "work", "assignee": "eve" } },
+        { "completeTask": { "activity": "work", "user": "eve" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end"], "variables": { "starter": "eve" }, "path": { "sequenceFlows": ["f_start_work", "f_work_end"] } }
+    },
+    {
+      "name": "nobody else can start it",
+      "start": { "process": "starterSources", "user": "gina",
+                 "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "Unable to find process definition for the given id or key:'starterSources'" } }
+    }
+  ]
+}

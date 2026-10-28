@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_hitPolicies"
+             targetNamespace="http://kleash.github.io/corpus/C16">
+  <process id="hitPolicies" name="DMN hit policies" isExecutable="true">
+    <startEvent id="start" name="Start" />
+    <serviceTask id="decideUnique" name="Decide unique grade" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decideFirst" name="Decide first tier" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decideAny" name="Decide any region" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decidePriority" name="Decide priority risk" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decideRuleOrder" name="Decide rule order badges" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decidePriorityTwo" name="Decide priority with two outputs" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decideOutputOrder" name="Decide output order badges" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decideCollect" name="Decide collect flags" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decideSum" name="Decide collect sum" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decideMin" name="Decide collect min" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decideMax" name="Decide collect max" implementation="dmn-connector.EXECUTE_TABLE" />
+    <serviceTask id="decideCount" name="Decide collect count" implementation="dmn-connector.EXECUTE_TABLE" />
+    <endEvent id="end" name="End" />
+    <sequenceFlow id="flow_start_decideUnique" sourceRef="start" targetRef="decideUnique" />
+    <sequenceFlow id="flow_decideUnique_decideFirst" sourceRef="decideUnique" targetRef="decideFirst" />
+    <sequenceFlow id="flow_decideFirst_decideAny" sourceRef="decideFirst" targetRef="decideAny" />
+    <sequenceFlow id="flow_decideAny_decidePriority" sourceRef="decideAny" targetRef="decidePriority" />
+    <sequenceFlow id="flow_decidePriority_decideRuleOrder" sourceRef="decidePriority" targetRef="decideRuleOrder" />
+    <sequenceFlow id="flow_decideRuleOrder_decidePriorityTwo" sourceRef="decideRuleOrder" targetRef="decidePriorityTwo" />
+    <sequenceFlow id="flow_decidePriorityTwo_decideOutputOrder" sourceRef="decidePriorityTwo" targetRef="decideOutputOrder" />
+    <sequenceFlow id="flow_decideOutputOrder_decideCollect" sourceRef="decideOutputOrder" targetRef="decideCollect" />
+    <sequenceFlow id="flow_decideCollect_decideSum" sourceRef="decideCollect" targetRef="decideSum" />
+    <sequenceFlow id="flow_decideSum_decideMin" sourceRef="decideSum" targetRef="decideMin" />
+    <sequenceFlow id="flow_decideMin_decideMax" sourceRef="decideMin" targetRef="decideMax" />
+    <sequenceFlow id="flow_decideMax_decideCount" sourceRef="decideMax" targetRef="decideCount" />
+    <sequenceFlow id="flow_decideCount_end" sourceRef="decideCount" targetRef="end" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_hitPolicies">
+    <bpmndi:BPMNPlane id="BPMNPlane_hitPolicies" bpmnElement="hitPolicies">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="40" y="120" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="13" y="160" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideUnique_di" bpmnElement="decideUnique">
+        <dc:Bounds x="130" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideFirst_di" bpmnElement="decideFirst">
+        <dc:Bounds x="300" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideAny_di" bpmnElement="decideAny">
+        <dc:Bounds x="470" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decidePriority_di" bpmnElement="decidePriority">
+        <dc:Bounds x="640" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideRuleOrder_di" bpmnElement="decideRuleOrder">
+        <dc:Bounds x="810" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decidePriorityTwo_di" bpmnElement="decidePriorityTwo">
+        <dc:Bounds x="980" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideOutputOrder_di" bpmnElement="decideOutputOrder">
+        <dc:Bounds x="1150" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideCollect_di" bpmnElement="decideCollect">
+        <dc:Bounds x="1320" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideSum_di" bpmnElement="decideSum">
+        <dc:Bounds x="1490" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideMin_di" bpmnElement="decideMin">
+        <dc:Bounds x="1660" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideMax_di" bpmnElement="decideMax">
+        <dc:Bounds x="1830" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decideCount_di" bpmnElement="decideCount">
+        <dc:Bounds x="2000" y="103" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="2170" y="120" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2143" y="160" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_start_decideUnique_di" bpmnElement="flow_start_decideUnique">
+        <di:waypoint x="76" y="138" />
+        <di:waypoint x="130" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideUnique_decideFirst_di" bpmnElement="flow_decideUnique_decideFirst">
+        <di:waypoint x="260" y="138" />
+        <di:waypoint x="300" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideFirst_decideAny_di" bpmnElement="flow_decideFirst_decideAny">
+        <di:waypoint x="430" y="138" />
+        <di:waypoint x="470" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideAny_decidePriority_di" bpmnElement="flow_decideAny_decidePriority">
+        <di:waypoint x="600" y="138" />
+        <di:waypoint x="640" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decidePriority_decideRuleOrder_di" bpmnElement="flow_decidePriority_decideRuleOrder">
+        <di:waypoint x="770" y="138" />
+        <di:waypoint x="810" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideRuleOrder_decidePriorityTwo_di" bpmnElement="flow_decideRuleOrder_decidePriorityTwo">
+        <di:waypoint x="940" y="138" />
+        <di:waypoint x="980" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decidePriorityTwo_decideOutputOrder_di" bpmnElement="flow_decidePriorityTwo_decideOutputOrder">
+        <di:waypoint x="1110" y="138" />
+        <di:waypoint x="1150" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideOutputOrder_decideCollect_di" bpmnElement="flow_decideOutputOrder_decideCollect">
+        <di:waypoint x="1280" y="138" />
+        <di:waypoint x="1320" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideCollect_decideSum_di" bpmnElement="flow_decideCollect_decideSum">
+        <di:waypoint x="1450" y="138" />
+        <di:waypoint x="1490" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideSum_decideMin_di" bpmnElement="flow_decideSum_decideMin">
+        <di:waypoint x="1620" y="138" />
+        <di:waypoint x="1660" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideMin_decideMax_di" bpmnElement="flow_decideMin_decideMax">
+        <di:waypoint x="1790" y="138" />
+        <di:waypoint x="1830" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideMax_decideCount_di" bpmnElement="flow_decideMax_decideCount">
+        <di:waypoint x="1960" y="138" />
+        <di:waypoint x="2000" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_decideCount_end_di" bpmnElement="flow_decideCount_end">
+        <di:waypoint x="2130" y="138" />
+        <di:waypoint x="2170" y="138" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

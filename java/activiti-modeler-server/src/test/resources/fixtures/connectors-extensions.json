@@ -1,0 +1,20 @@
+{
+  "id": "connectors-extensions",
+  "extensions": {
+    "sampleConnectors": {
+      "properties": {
+        "p1": { "id": "p1", "name": "greeting", "type": "string" },
+        "p2": { "id": "p2", "name": "customerId", "type": "string" },
+        "p3": { "id": "p3", "name": "echoed", "type": "integer" },
+        "p4": { "id": "p4", "name": "status", "type": "integer" },
+        "p5": { "id": "p5", "name": "tier", "type": "string" }
+      },
+      "constants": { "fetch": { "url": { "value": "https://example.org/api/orders" } } },
+      "mappings": {
+        "echo": { "inputs": { "greeting": { "type": "variable", "value": "greeting" } }, "outputs": { "echoed": { "type": "variable", "value": "echoCount" } } },
+        "fetch": { "outputs": { "status": { "type": "variable", "value": "statusCode" } } },
+        "lookup": { "inputs": { "customerId": { "type": "variable", "value": "customerId" } }, "outputs": { "tier": { "type": "variable", "value": "tier" } } }
+      }
+    }
+  }
+}

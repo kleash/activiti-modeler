@@ -1,0 +1,13 @@
+{
+ "id": "ext-t25m",
+ "extensions": {
+  "t25m": {
+   "properties": {},
+   "mappings": {
+    "ca": {
+     "mappingType": "MAP_ALL"
+    }
+   }
+  }
+ }
+}

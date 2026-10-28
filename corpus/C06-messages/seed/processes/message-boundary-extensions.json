@@ -1,0 +1,16 @@
+{
+  "id": "message-boundary-extensions",
+  "extensions": {
+    "messageBoundary": {
+      "properties": {
+        "p1": { "id": "p1", "name": "orderId", "type": "string" },
+        "p2": { "id": "p2", "name": "lastInfo", "type": "string" },
+        "p3": { "id": "p3", "name": "cancelReason", "type": "string" }
+      },
+      "mappings": {
+        "infoBoundary": { "outputs": { "lastInfo": { "type": "VARIABLE", "value": "text" } } },
+        "cancelBoundary": { "outputs": { "cancelReason": { "type": "VARIABLE", "value": "reason" } } }
+      }
+    }
+  }
+}

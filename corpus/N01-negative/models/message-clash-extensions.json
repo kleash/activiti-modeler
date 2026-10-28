@@ -1,0 +1,14 @@
+{
+  "id": "messageClash-extensions",
+  "extensions": {
+    "messageClash": {
+      "properties": {},
+      "mappings": {
+        "docsBoundary": {
+          "mappingType": "MAP_ALL_OUTPUTS"
+        }
+      },
+      "constants": {}
+    }
+  }
+}

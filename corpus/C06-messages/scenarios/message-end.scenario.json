@@ -1,0 +1,26 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C06 message end event with a delegate class",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the class on the message end event receives the payload of the input mapping of the end event, with the correlation key and the business key",
+      "start": { "process": "messageEnd", "businessKey": "B-7", "user": "ann", "variables": { "orderId": "O-7", "amount": 250, "note": "fragile" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["closedEnd"],
+        "variables": {
+          "thrownMessages": ["closed"],
+          "thrownMessagePayload": { "order": "O-7", "total": 250, "status": "CLOSED" },
+          "thrownMessageCorrelationKey": "O-7",
+          "thrownMessageBusinessKey": "B-7",
+          "orderId": "O-7",
+          "amount": 250,
+          "note": "fragile"
+        },
+        "absentVariables": ["order", "total", "status"],
+        "path": { "order": [["start", "closedEnd"]], "sequenceFlows": ["f_start_closedEnd"] }
+      }
+    }
+  ]
+}

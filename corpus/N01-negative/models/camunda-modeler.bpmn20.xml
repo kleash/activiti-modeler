@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_camunda" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.20.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.20.0">
+  <bpmn:process id="approval" name="Approval" isExecutable="true" camunda:historyTimeToLive="180">
+    <bpmn:startEvent id="start" name="Request received" camunda:initiator="starter" camunda:formKey="request-form" />
+    <bpmn:userTask id="review" name="Review the request" camunda:assignee="${reviewer}" camunda:candidateGroups="managers" camunda:dueDate="${dueDate}" camunda:followUpDate="${followUp}">
+      <bpmn:extensionElements>
+        <camunda:taskListener event="create" class="com.example.ReviewCreated" />
+        <camunda:inputOutput>
+          <camunda:inputParameter name="amount">${total}</camunda:inputParameter>
+          <camunda:outputParameter name="approved">${decision}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="archive" name="Archive" camunda:class="com.example.ArchiveDelegate" camunda:asyncBefore="true" camunda:asyncAfter="true" camunda:resultVariable="archived" />
+    <bpmn:serviceTask id="notify" name="Notify" camunda:delegateExpression="${notifier}" />
+    <bpmn:endEvent id="end" name="Done" />
+    <bpmn:sequenceFlow id="f1" sourceRef="start" targetRef="review" />
+    <bpmn:sequenceFlow id="f2" sourceRef="review" targetRef="archive" />
+    <bpmn:sequenceFlow id="f3" sourceRef="archive" targetRef="notify" />
+    <bpmn:sequenceFlow id="f4" sourceRef="notify" targetRef="end" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="approval">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="152" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review"><dc:Bounds x="240" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="archive_di" bpmnElement="archive"><dc:Bounds x="400" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="notify_di" bpmnElement="notify"><dc:Bounds x="560" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end"><dc:Bounds x="722" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f1_di" bpmnElement="f1"><di:waypoint x="188" y="120" /><di:waypoint x="240" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f2_di" bpmnElement="f2"><di:waypoint x="340" y="120" /><di:waypoint x="400" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f3_di" bpmnElement="f3"><di:waypoint x="500" y="120" /><di:waypoint x="560" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f4_di" bpmnElement="f4"><di:waypoint x="660" y="120" /><di:waypoint x="722" y="120" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

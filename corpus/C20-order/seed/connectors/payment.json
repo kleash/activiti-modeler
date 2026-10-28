@@ -1,0 +1,21 @@
+{
+  "id": "payment",
+  "name": "payment",
+  "description": "Card payments (bean payment.CHARGE)",
+  "actions": {
+    "CHARGE": {
+      "id": "CHARGE",
+      "name": "Charge the card",
+      "description": "Charges the card; a declined card raises the BPMN error PAYMENT_DECLINED",
+      "inputs": [
+        { "id": "orderId", "name": "orderId", "type": "string", "required": true },
+        { "id": "amount", "name": "amount", "type": "integer", "required": true },
+        { "id": "cardToken", "name": "cardToken", "type": "string", "required": true }
+      ],
+      "outputs": [
+        { "id": "paymentId", "name": "paymentId", "type": "string" },
+        { "id": "chargedAmount", "name": "chargedAmount", "type": "integer" }
+      ]
+    }
+  }
+}

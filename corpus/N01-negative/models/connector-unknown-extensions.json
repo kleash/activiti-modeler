@@ -1,0 +1,14 @@
+{
+  "id": "connectorUnknown-extensions",
+  "extensions": {
+    "connectorUnknown": {
+      "properties": {},
+      "mappings": {
+        "send": {
+          "mappingType": "MAP_ALL"
+        }
+      },
+      "constants": {}
+    }
+  }
+}

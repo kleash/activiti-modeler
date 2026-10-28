@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+<message id="msg" name="theMessage"/>
+  <process id="t24_eventbased_gw" name="t24_eventbased_gw" isExecutable="true">
+    <startEvent id="s"/><eventBasedGateway id="eg"/>
+    <intermediateCatchEvent id="c1"><timerEventDefinition><timeDuration>PT1H</timeDuration></timerEventDefinition></intermediateCatchEvent>
+    <intermediateCatchEvent id="c2"><messageEventDefinition messageRef="msg"/></intermediateCatchEvent>
+    <endEvent id="e1"/><endEvent id="e2"/>
+    <sequenceFlow id="f0" sourceRef="s" targetRef="eg"/>
+    <sequenceFlow id="f1" sourceRef="eg" targetRef="c1"/>
+    <sequenceFlow id="f2" sourceRef="eg" targetRef="c2"/>
+    <sequenceFlow id="f3" sourceRef="c1" targetRef="e1"/>
+    <sequenceFlow id="f4" sourceRef="c2" targetRef="e2"/>
+
+  </process>
+</definitions>

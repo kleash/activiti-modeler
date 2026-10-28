@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C02">
+  <process id="connectorMappings" name="Connector mappings" isExecutable="true">
+    <documentation>Connector service tasks (implementation is the connector bean name) with every kind of variable mapping: VARIABLE and VALUE inputs (a value may contain expressions), constants, VARIABLE outputs, MAP_ALL in both directions, a JSONPATCH output and the ephemeral flag.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_lookup" sourceRef="start" targetRef="lookup"/>
+    <serviceTask id="lookup" name="Look up the customer" implementation="crm.LOOKUP"/>
+    <sequenceFlow id="f_lookup_echoMapped" sourceRef="lookup" targetRef="echoMapped"/>
+    <serviceTask id="echoMapped" name="Echo mapped values" implementation="echo.EXECUTE"/>
+    <sequenceFlow id="f_echoMapped_echoAll" sourceRef="echoMapped" targetRef="echoAll"/>
+    <serviceTask id="echoAll" name="Echo everything" implementation="echo.EXECUTE"/>
+    <sequenceFlow id="f_echoAll_patch" sourceRef="echoAll" targetRef="patch"/>
+    <serviceTask id="patch" name="Patch the profile" implementation="echo.EXECUTE"/>
+    <sequenceFlow id="f_patch_flagsEphemeral" sourceRef="patch" targetRef="flagsEphemeral"/>
+    <serviceTask id="flagsEphemeral" name="Ephemeral mapping" implementation="flags.EXECUTE"/>
+    <sequenceFlow id="f_flagsEphemeral_flagsPersistent" sourceRef="flagsEphemeral" targetRef="flagsPersistent"/>
+    <serviceTask id="flagsPersistent" name="Persistent mapping" implementation="flags.EXECUTE"/>
+    <sequenceFlow id="f_flagsPersistent_end" sourceRef="flagsPersistent" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="connectorMappings">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="lookup_di" bpmnElement="lookup">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="echoMapped_di" bpmnElement="echoMapped">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="echoAll_di" bpmnElement="echoAll">
+        <dc:Bounds x="520" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="patch_di" bpmnElement="patch">
+        <dc:Bounds x="670" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="flagsEphemeral_di" bpmnElement="flagsEphemeral">
+        <dc:Bounds x="820" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="flagsPersistent_di" bpmnElement="flagsPersistent">
+        <dc:Bounds x="970" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="1152" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_lookup_di" bpmnElement="f_start_lookup">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_lookup_echoMapped_di" bpmnElement="f_lookup_echoMapped">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_echoMapped_echoAll_di" bpmnElement="f_echoMapped_echoAll">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="520" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_echoAll_patch_di" bpmnElement="f_echoAll_patch">
+        <di:waypoint x="620" y="110"/>
+        <di:waypoint x="670" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_patch_flagsEphemeral_di" bpmnElement="f_patch_flagsEphemeral">
+        <di:waypoint x="770" y="110"/>
+        <di:waypoint x="820" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_flagsEphemeral_flagsPersistent_di" bpmnElement="f_flagsEphemeral_flagsPersistent">
+        <di:waypoint x="920" y="110"/>
+        <di:waypoint x="970" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_flagsPersistent_end_di" bpmnElement="f_flagsPersistent_end">
+        <di:waypoint x="1070" y="110"/>
+        <di:waypoint x="1152" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,45 @@
+{
+  "$schema": "../../../schemas/coverage-exemptions.schema.json",
+  "exemptions": [
+    {
+      "process": "insuranceClaim",
+      "element": "documentsHandler",
+      "reason": "the engine records no historic activity instance for an event sub process; its inner flows are visited"
+    },
+    {
+      "process": "insuranceClaim",
+      "element": "documentStart",
+      "reason": "the engine records no historic activity instance for the start event of an event sub process; f_documentStart_logDocument is taken"
+    },
+    {
+      "process": "mapAllMultiInstance",
+      "element": "reviewedEnd",
+      "reason": "the instance is wedged on purpose: with MAP_ALL on the parallel multi-instance user task the flow never leaves it (engine behaviour pinned by the scenario map-all-multi-instance)"
+    },
+    {
+      "process": "mapAllMultiInstance",
+      "element": "f_reviewEach_reviewedEnd",
+      "reason": "the instance is wedged on purpose: with MAP_ALL on the parallel multi-instance user task the flow never leaves it (engine behaviour pinned by the scenario map-all-multi-instance)"
+    },
+    {
+      "process": "interruptMultiInstance",
+      "element": "stopHandler",
+      "reason": "the delivery of the message fails on purpose (ACT_FK_EXE_PARENT, scenario interrupt-multi-instance): the event sub process never starts"
+    },
+    {
+      "process": "interruptMultiInstance",
+      "element": "stopStart",
+      "reason": "the delivery of the message fails on purpose (ACT_FK_EXE_PARENT, scenario interrupt-multi-instance): the event sub process never starts"
+    },
+    {
+      "process": "interruptMultiInstance",
+      "element": "f_stopStart_stoppedEnd",
+      "reason": "the delivery of the message fails on purpose (ACT_FK_EXE_PARENT, scenario interrupt-multi-instance): the event sub process never starts"
+    },
+    {
+      "process": "interruptMultiInstance",
+      "element": "stoppedEnd",
+      "reason": "the delivery of the message fails on purpose (ACT_FK_EXE_PARENT, scenario interrupt-multi-instance): the event sub process never starts"
+    }
+  ]
+}

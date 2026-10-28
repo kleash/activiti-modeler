@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_signalMappingIgnored"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C20">
+  <signal id="pingSignal" name="ping"/>
+  <process id="signalMappingIgnored" name="A mapping on a signal catch event" isExecutable="true">
+    <documentation>A signal catch event with an explicit output mapping that would rename the payload variable carrier to renamed. Activiti 9.0.0 applies no mapping to a signal catch event: the payload arrives under its own name and renamed is never set. This is why the modeler gives a signal catch event no default mapping (the lint rule signal-catch-has-mapping warns about the entry). Engine behaviour pinned here, not a model to copy.</documentation>
+    <startEvent id="start" name="Waiting for the ping"/>
+    <sequenceFlow id="f_start_awaitPing" sourceRef="start" targetRef="awaitPing"/>
+    <intermediateCatchEvent id="awaitPing" name="Ping">
+      <signalEventDefinition signalRef="pingSignal"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_awaitPing_pinged" sourceRef="awaitPing" targetRef="pinged"/>
+    <endEvent id="pinged" name="Pinged"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="signalMappingIgnored">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="awaitPing_di" bpmnElement="awaitPing">
+        <dc:Bounds x="252" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pinged_di" bpmnElement="pinged">
+        <dc:Bounds x="402" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_awaitPing_di" bpmnElement="f_start_awaitPing">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="252" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_awaitPing_pinged_di" bpmnElement="f_awaitPing_pinged">
+        <di:waypoint x="288" y="220"/>
+        <di:waypoint x="402" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "linkEvents": {
+      "definition": { "category": "http://activiti.org/bpmn/corpus/C12" },
+      "elements": {
+        "jumpDirect": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [ { "@class": "LinkEventDefinition", "name": "Pay", "target": "linkCatchPay" } ] } },
+        "jumpReview": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [ { "@class": "LinkEventDefinition", "target": "linkCatchPay" } ] } },
+        "payEntry": { "type": "intermediateCatchEvent", "attributes": { "eventDefinitions": [ { "@class": "LinkEventDefinition", "name": "Pay", "sources": ["linkThrowDirect", "linkThrowReview"] } ] } },
+        "milestone": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [] } }
+      }
+    },
+    "receiveTask": {
+      "elements": { "waitPayment": { "type": "receiveTask" } }
+    },
+    "implicitSplit": {
+      "elements": {
+        "prepareManual": { "type": "manualTask" },
+        "classify": { "type": "task", "attributes": { "defaultFlow": "f_classify_other" } },
+        "f_classify_a": { "type": "sequenceFlow", "attributes": { "conditionExpression": "${a == true}" } }
+      }
+    }
+  }
+}

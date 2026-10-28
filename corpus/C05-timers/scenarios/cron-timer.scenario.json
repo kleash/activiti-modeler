@@ -1,0 +1,34 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C05 non-interrupting cron timer (every 30 minutes)",
+  "description": "A cron expression is evaluated in the JVM time zone; the due dates are therefore asserted as windows of 30 minutes, which hold in every zone.",
+  "users": { "ann": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "the next cron occurrence is due within 30 minutes; forced firings re-plan it",
+      "start": { "process": "cronTimer", "user": "ann" },
+      "steps": [
+        { "expectTimer": { "activity": "watchTimer", "count": 1, "dueDate": { "$gt": "2030-01-01T09:00:00Z", "$lte": "2030-01-01T09:30:00Z" } } },
+        { "fireTimer": { "activity": "watchTimer" } },
+        { "expectTimer": { "activity": "watchTimer", "count": 1 } },
+        { "fireTimer": { "activity": "watchTimer" } },
+        { "expectTimer": { "activity": "watchTimer", "count": 1 } },
+        { "completeTask": { "activity": "watch", "user": "ann" } },
+        { "expectTimer": { "activity": "watchTimer", "count": 0 } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["doneEnd", "remindedEnd"], "variables": { "reminders": 2 } }
+    },
+    {
+      "name": "the clock drives the cron timer: one occurrence per 30 minutes",
+      "start": { "process": "cronTimer", "user": "ann" },
+      "steps": [
+        { "advanceClock": "PT30M" },
+        { "executeJobs": {} },
+        { "expectTimer": { "activity": "watchTimer", "count": 1, "dueDate": { "$gt": "2030-01-01T09:30:00Z", "$lte": "2030-01-01T10:00:00Z" } } },
+        { "completeTask": { "activity": "watch", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["doneEnd", "remindedEnd"], "variables": { "reminders": 1 } }
+    }
+  ]
+}

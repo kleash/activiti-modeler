@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_collaboration"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C18">
+  <message id="orderPlacedMsg" name="orderPlaced"/>
+  <message id="orderConfirmedMsg" name="orderConfirmed"/>
+  <dataStore id="orderDb" name="Order database"/>
+  <collaboration id="orderCollaboration">
+    <participant id="customerPool" name="Customer" processRef="customerOrder"/>
+    <participant id="supplierPool" name="Supplier" processRef="supplierFulfilment"/>
+    <participant id="carrierPool" name="Carrier (black box)"/>
+    <messageFlow id="mf_orderSent_supplierStart" name="Order" sourceRef="orderSent" targetRef="supplierStart" messageRef="orderPlacedMsg"/>
+    <messageFlow id="mf_supplierEnd_awaitConfirmation" name="Confirmation" sourceRef="supplierEnd" targetRef="awaitConfirmation" messageRef="orderConfirmedMsg"/>
+    <messageFlow id="mf_shipOrder_carrierPool" name="Parcel" sourceRef="shipOrder" targetRef="carrierPool"/>
+  </collaboration>
+  <process id="customerOrder" name="Customer order" isExecutable="true">
+    <documentation>The customer pool: places an order, sends it to the supplier, waits for the confirmation and approves the delivery. Pools, lanes, message flows, the data store reference and the data object reference are documentation: the engine deploys each pool as its own process and moves no token along a message flow.</documentation>
+    <laneSet id="customerLanes">
+      <lane id="buyerLane" name="Buyer">
+        <flowNodeRef>custStart</flowNodeRef>
+        <flowNodeRef>placeOrder</flowNodeRef>
+        <flowNodeRef>orderSent</flowNodeRef>
+        <flowNodeRef>awaitConfirmation</flowNodeRef>
+      </lane>
+      <lane id="approverLane" name="Approver">
+        <flowNodeRef>approveDelivery</flowNodeRef>
+        <flowNodeRef>custEnd</flowNodeRef>
+      </lane>
+    </laneSet>
+    <dataObject id="orderNote" name="orderNote" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>draft</activiti:value>
+      </extensionElements>
+    </dataObject>
+    <dataObjectReference id="orderNoteRef" name="Order note" dataObjectRef="orderNote"/>
+    <dataStoreReference id="orderStore" name="Orders" dataStoreRef="orderDb"/>
+    <startEvent id="custStart" name="Need an item"/>
+    <sequenceFlow id="f_custStart_placeOrder" sourceRef="custStart" targetRef="placeOrder"/>
+    <userTask id="placeOrder" name="Place order" activiti:assignee="ann">
+      <dataInputAssociation id="dia_orderNoteRef_placeOrder">
+        <sourceRef>orderNoteRef</sourceRef>
+        <targetRef>placeOrder</targetRef>
+      </dataInputAssociation>
+      <dataOutputAssociation id="doa_placeOrder_orderStore">
+        <targetRef>orderStore</targetRef>
+      </dataOutputAssociation>
+    </userTask>
+    <sequenceFlow id="f_placeOrder_orderSent" sourceRef="placeOrder" targetRef="orderSent"/>
+    <intermediateThrowEvent id="orderSent" name="Order sent">
+      <messageEventDefinition messageRef="orderPlacedMsg" activiti:delegateExpression="${recordingThrowMessageDelegate}"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="f_orderSent_awaitConfirmation" sourceRef="orderSent" targetRef="awaitConfirmation"/>
+    <intermediateCatchEvent id="awaitConfirmation" name="Confirmation arrives">
+      <messageEventDefinition messageRef="orderConfirmedMsg" activiti:correlationKey="${orderId}"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_awaitConfirmation_approveDelivery" sourceRef="awaitConfirmation" targetRef="approveDelivery"/>
+    <userTask id="approveDelivery" name="Approve delivery" activiti:assignee="bob"/>
+    <sequenceFlow id="f_approveDelivery_custEnd" sourceRef="approveDelivery" targetRef="custEnd"/>
+    <endEvent id="custEnd" name="Order done"/>
+  </process>
+  <process id="supplierFulfilment" name="Supplier fulfilment" isExecutable="true">
+    <documentation>The supplier pool: an order message starts it, the stock is reserved, the parcel is shipped and a confirmation message ends it. The pool has no lanes.</documentation>
+    <startEvent id="supplierStart" name="Order received">
+      <messageEventDefinition messageRef="orderPlacedMsg"/>
+    </startEvent>
+    <sequenceFlow id="f_supplierStart_reserveStock" sourceRef="supplierStart" targetRef="reserveStock"/>
+    <serviceTask id="reserveStock" name="Reserve stock" activiti:expression="${execution.setVariable('reserved', true)}"/>
+    <sequenceFlow id="f_reserveStock_shipOrder" sourceRef="reserveStock" targetRef="shipOrder"/>
+    <userTask id="shipOrder" name="Ship order" activiti:assignee="ann"/>
+    <sequenceFlow id="f_shipOrder_supplierEnd" sourceRef="shipOrder" targetRef="supplierEnd"/>
+    <endEvent id="supplierEnd" name="Confirmation sent">
+      <messageEventDefinition messageRef="orderConfirmedMsg" activiti:delegateExpression="${recordingThrowMessageDelegate}"/>
+    </endEvent>
+    <textAnnotation id="shipNote">
+      <text>The carrier is a black box pool: nothing is deployed for it.</text>
+    </textAnnotation>
+    <association id="as_shipOrder_shipNote" sourceRef="shipOrder" targetRef="shipNote" associationDirection="None"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="orderCollaboration">
+      <bpmndi:BPMNShape id="customerPool_di" bpmnElement="customerPool" isHorizontal="true">
+        <dc:Bounds x="10" y="20" width="1218" height="257"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="buyerLane_di" bpmnElement="buyerLane" isHorizontal="true">
+        <dc:Bounds x="40" y="20" width="1188" height="135"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approverLane_di" bpmnElement="approverLane" isHorizontal="true">
+        <dc:Bounds x="40" y="155" width="1188" height="122"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="supplierPool_di" bpmnElement="supplierPool" isHorizontal="true">
+        <dc:Bounds x="10" y="350" width="1218" height="257"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="carrierPool_di" bpmnElement="carrierPool" isHorizontal="true">
+        <dc:Bounds x="10" y="647" width="1218" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="orderNoteRef_di" bpmnElement="orderNoteRef">
+        <dc:Bounds x="102" y="175" width="36" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="orderStore_di" bpmnElement="orderStore">
+        <dc:Bounds x="245" y="197" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="custStart_di" bpmnElement="custStart">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="placeOrder_di" bpmnElement="placeOrder">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="orderSent_di" bpmnElement="orderSent">
+        <dc:Bounds x="402" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="awaitConfirmation_di" bpmnElement="awaitConfirmation">
+        <dc:Bounds x="852" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approveDelivery_di" bpmnElement="approveDelivery">
+        <dc:Bounds x="970" y="160" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="custEnd_di" bpmnElement="custEnd">
+        <dc:Bounds x="1152" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="supplierStart_di" bpmnElement="supplierStart">
+        <dc:Bounds x="402" y="402" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reserveStock_di" bpmnElement="reserveStock">
+        <dc:Bounds x="520" y="380" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shipOrder_di" bpmnElement="shipOrder">
+        <dc:Bounds x="670" y="380" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="supplierEnd_di" bpmnElement="supplierEnd">
+        <dc:Bounds x="852" y="402" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shipNote_di" bpmnElement="shipNote">
+        <dc:Bounds x="505" y="527" width="130" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_custStart_placeOrder_di" bpmnElement="f_custStart_placeOrder">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_placeOrder_orderSent_di" bpmnElement="f_placeOrder_orderSent">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="402" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_orderSent_awaitConfirmation_di" bpmnElement="f_orderSent_awaitConfirmation">
+        <di:waypoint x="438" y="90"/>
+        <di:waypoint x="852" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_awaitConfirmation_approveDelivery_di" bpmnElement="f_awaitConfirmation_approveDelivery">
+        <di:waypoint x="888" y="90"/>
+        <di:waypoint x="929" y="90"/>
+        <di:waypoint x="929" y="200"/>
+        <di:waypoint x="970" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_approveDelivery_custEnd_di" bpmnElement="f_approveDelivery_custEnd">
+        <di:waypoint x="1070" y="200"/>
+        <di:waypoint x="1152" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="dia_orderNoteRef_placeOrder_di" bpmnElement="dia_orderNoteRef_placeOrder">
+        <di:waypoint x="138" y="200"/>
+        <di:waypoint x="179" y="200"/>
+        <di:waypoint x="179" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="doa_placeOrder_orderStore_di" bpmnElement="doa_placeOrder_orderStore">
+        <di:waypoint x="270" y="130"/>
+        <di:waypoint x="270" y="197"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_supplierStart_reserveStock_di" bpmnElement="f_supplierStart_reserveStock">
+        <di:waypoint x="438" y="420"/>
+        <di:waypoint x="520" y="420"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_reserveStock_shipOrder_di" bpmnElement="f_reserveStock_shipOrder">
+        <di:waypoint x="620" y="420"/>
+        <di:waypoint x="670" y="420"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_shipOrder_supplierEnd_di" bpmnElement="f_shipOrder_supplierEnd">
+        <di:waypoint x="770" y="420"/>
+        <di:waypoint x="852" y="420"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="as_shipOrder_shipNote_di" bpmnElement="as_shipOrder_shipNote">
+        <di:waypoint x="720" y="460"/>
+        <di:waypoint x="720" y="607"/>
+        <di:waypoint x="570" y="607"/>
+        <di:waypoint x="570" y="577"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="mf_orderSent_supplierStart_di" bpmnElement="mf_orderSent_supplierStart">
+        <di:waypoint x="420" y="108"/>
+        <di:waypoint x="420" y="402"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="mf_supplierEnd_awaitConfirmation_di" bpmnElement="mf_supplierEnd_awaitConfirmation">
+        <di:waypoint x="870" y="402"/>
+        <di:waypoint x="870" y="108"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="mf_shipOrder_carrierPool_di" bpmnElement="mf_shipOrder_carrierPool">
+        <di:waypoint x="720" y="460"/>
+        <di:waypoint x="720" y="554"/>
+        <di:waypoint x="619" y="554"/>
+        <di:waypoint x="619" y="647"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

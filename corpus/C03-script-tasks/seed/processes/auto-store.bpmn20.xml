@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C03">
+  <process id="autoStore" name="Script variables" isExecutable="true">
+    <documentation>activiti:autoStoreVariables decides whether variables a script assigns become process variables.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_assignPlain" sourceRef="start" targetRef="assignPlain"/>
+    <scriptTask id="assignPlain" name="Assign without auto store" scriptFormat="javascript">
+      <script>plainGlobal = 1;
+var plainLocal = 2;</script>
+    </scriptTask>
+    <sequenceFlow id="f_assignPlain_assignStored" sourceRef="assignPlain" targetRef="assignStored"/>
+    <scriptTask id="assignStored" name="Assign with auto store" scriptFormat="javascript" activiti:autoStoreVariables="true">
+      <script>storedGlobal = 3;
+var storedLocal = 4;</script>
+    </scriptTask>
+    <sequenceFlow id="f_assignStored_end" sourceRef="assignStored" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="autoStore">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="assignPlain_di" bpmnElement="assignPlain">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="assignStored_di" bpmnElement="assignStored">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_assignPlain_di" bpmnElement="f_start_assignPlain">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_assignPlain_assignStored_di" bpmnElement="f_assignPlain_assignStored">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_assignStored_end_di" bpmnElement="f_assignStored_end">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

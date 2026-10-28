@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C12 receive task",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the instance waits at the receive task until it is triggered",
+      "start": { "process": "receiveTask", "user": "ann" },
+      "steps": [
+        { "expectActive": ["waitPayment"] },
+        { "expectTask": { "activity": "afterPayment", "count": 0 } },
+        { "triggerReceiveTask": { "activity": "waitPayment" } },
+        { "expectActive": ["afterPayment"] },
+        { "completeTask": { "activity": "afterPayment", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "path": { "order": [["waitPayment", "afterPayment"], ["afterPayment", "end"]], "sequenceFlows": ["f_start_waitPayment", "f_waitPayment_afterPayment"] },
+        "absentVariables": ["paid"]
+      }
+    },
+    {
+      "name": "triggering with variables sets them on the process",
+      "start": { "process": "receiveTask", "user": "ann" },
+      "steps": [
+        { "expectActive": ["waitPayment"] },
+        { "triggerReceiveTask": { "activity": "waitPayment", "variables": { "paid": true, "amount": 12 } } },
+        { "expectActive": ["afterPayment"] },
+        { "completeTask": { "activity": "afterPayment", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "paid": true, "amount": 12 },
+        "path": { "order": [["waitPayment", "afterPayment"], ["afterPayment", "end"]], "sequenceFlows": ["f_start_waitPayment", "f_waitPayment_afterPayment", "f_afterPayment_end"] }
+      }
+    }
+  ]
+}

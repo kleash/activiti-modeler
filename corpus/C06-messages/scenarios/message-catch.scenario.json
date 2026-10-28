@@ -1,0 +1,49 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C06 intermediate catch message events",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "correlation key and message name must match; the payload passes only through the catch mapping",
+      "start": { "process": "messageCatch", "businessKey": "O-1", "user": "ann", "variables": { "orderId": "O-1", "region": "EU" } },
+      "steps": [
+        { "expectActive": ["waitPayment"] },
+        { "message": { "name": "paymentReceived", "correlationKey": "O-999",
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "Message subscription name 'paymentReceived' with correlation key 'O-999' not found" } } },
+        { "message": { "name": "paymentReceived",
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "with correlation key 'null' not found" } } },
+        { "expectActive": ["waitPayment"] },
+        { "message": { "name": "paymentReceived", "correlationKey": "O-1", "variables": { "amount": 120, "noise": "x" } } },
+        { "expectActive": ["waitDocs"] },
+        { "message": { "name": "docs-US", "correlationKey": "O-1",
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "Message subscription name 'docs-US' with correlation key 'O-1' not found" } } },
+        { "message": { "name": "docs-EU", "correlationKey": "O-1", "variables": { "pages": 3, "scanned": true } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "orderId": "O-1", "region": "EU", "paidAmount": 120, "pages": 3, "scanned": true },
+        "absentVariables": ["amount", "noise"],
+        "path": { "order": [["waitPayment", "waitDocs"], ["waitDocs", "end"]], "sequenceFlows": ["f_start_waitPayment", "f_waitPayment_waitDocs", "f_waitDocs_end"] }
+      }
+    },
+    {
+      "name": "the correlation key is part of the subscription: the key of another order finds nothing",
+      "start": { "process": "messageCatch", "user": "ann", "variables": { "orderId": "O-2", "region": "US" } },
+      "steps": [
+        { "message": { "name": "paymentReceived", "correlationKey": "O-1",
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "correlation key 'O-1' not found" } } },
+        { "expectActive": ["waitPayment"] },
+        { "message": { "name": "paymentReceived", "correlationKey": "O-2", "variables": { "amount": 7 } } },
+        { "expectActive": ["waitDocs"] },
+        { "message": { "name": "docs-US", "correlationKey": "O-2" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "paidAmount": 7, "region": "US" },
+        "path": { "order": [["waitPayment", "waitDocs"], ["waitDocs", "end"]], "sequenceFlows": ["f_start_waitPayment", "f_waitPayment_waitDocs", "f_waitDocs_end"] }
+      }
+    }
+  ]
+}

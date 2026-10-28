@@ -1,0 +1,44 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C14 mail tasks and send tasks, delivered to the corpus mail server",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "five mails reach the customer; cc and bcc recipients get their copy; the defaults, html, charset, variable texts and attachment all work",
+      "start": { "process": "mailTasks", "user": "ann",
+                 "variables": { "orderId": 7, "customerName": "Ann", "customerEmail": "ann-7@corpus.test", "auditEmail": "audit-7@corpus.test", "archiveEmail": "archive-7@corpus.test" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": {
+          "customerInbox": [
+            { "subject": "Order 7 confirmed", "from": "shop@corpus.test", "to": "ann-7@corpus.test", "cc": "audit-7@corpus.test",
+              "contentType": "text/plain", "text": "Dear Ann, thank you.", "html": null, "attachments": [] },
+            { "subject": "Grüße for order 7", "from": "noreply@corpus.test", "to": "ann-7@corpus.test", "cc": null,
+              "contentType": "multipart/alternative", "text": "Hi Ann (plain alternative)", "html": "<p>Hi <b>Ann</b></p>", "attachments": [] },
+            { "subject": "Template for order 7", "from": "noreply@corpus.test", "to": "ann-7@corpus.test", "cc": null,
+              "contentType": "multipart/alternative", "text": "Hello Ann, order 7 ships soon.", "html": "<p>Hello <b>Ann</b>, order 7 ships soon.</p>", "attachments": [] },
+            { "subject": "Report for order 7", "from": "noreply@corpus.test", "to": "ann-7@corpus.test", "cc": null,
+              "contentType": "multipart/mixed", "text": "Report attached.", "html": null, "attachments": ["report.txt"] },
+            { "subject": "Shipped 7", "from": "noreply@corpus.test", "to": "ann-7@corpus.test", "cc": null,
+              "contentType": "text/plain", "text": "Your order 7 has shipped.", "html": null, "attachments": [] }
+          ],
+          "auditInbox": [
+            { "subject": "Order 7 confirmed", "from": "shop@corpus.test", "to": "ann-7@corpus.test", "cc": "audit-7@corpus.test",
+              "contentType": "text/plain", "text": "Dear Ann, thank you.", "html": null, "attachments": [] }
+          ],
+          "archiveInbox": [
+            { "subject": "Order 7 confirmed", "from": "shop@corpus.test", "to": "ann-7@corpus.test", "cc": "audit-7@corpus.test",
+              "contentType": "text/plain", "text": "Dear Ann, thank you.", "html": null, "attachments": [] }
+          ],
+          "mailText": "Hello ${customerName}, order ${orderId} ships soon."
+        },
+        "path": {
+          "order": [["prepareText", "sendPlain"], ["sendPlain", "sendHtml"], ["sendHtml", "sendFromVariables"], ["sendFromVariables", "sendWithAttachment"],
+                    ["sendWithAttachment", "notifyBySendTask"], ["notifyBySendTask", "captureCustomer"], ["captureArchive", "end"]],
+          "sequenceFlows": ["f_start_prepareText", "f_notifyBySendTask_captureCustomer", "f_captureArchive_end"]
+        }
+      }
+    }
+  ]
+}

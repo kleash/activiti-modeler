@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="Definitions_grade" name="grade" namespace="http://activiti.org/schema/1.0/dmn/Definitions_grade">
+  <inputData id="InputData_age" name="age"><variable id="InputData_age_variable" name="age" typeRef="number" /></inputData>
+  <inputData id="InputData_region" name="region"><variable id="InputData_region_variable" name="region" typeRef="string" /></inputData>
+  <decision id="grade" name="grade">
+    <variable id="grade_variable" name="grade" typeRef="string" />
+    <informationRequirement id="grade_req_age"><requiredInput href="#InputData_age" /></informationRequirement>
+    <informationRequirement id="grade_req_region"><requiredInput href="#InputData_region" /></informationRequirement>
+    <decisionTable id="grade_table" hitPolicy="FIRST">
+      <input id="grade_in1" label="Age"><inputExpression id="grade_ie1" typeRef="number"><text>age</text></inputExpression></input>
+      <input id="grade_in2" label="Region"><inputExpression id="grade_ie2" typeRef="string"><text>region</text></inputExpression></input>
+      <output id="grade_out1" name="grade" typeRef="string" />
+      <rule id="grade_r1"><inputEntry id="grade_r1_1"><text>&lt; 18</text></inputEntry><inputEntry id="grade_r1_2"><text>-</text></inputEntry><outputEntry id="grade_r1_o"><text>"minor"</text></outputEntry></rule>
+      <rule id="grade_r2"><inputEntry id="grade_r2_1"><text>&gt;= 18</text></inputEntry><inputEntry id="grade_r2_2"><text>-</text></inputEntry><outputEntry id="grade_r2_o"><text>"adult"</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+</definitions>

@@ -1,0 +1,467 @@
+{
+  "id": "hitPolicies-extensions",
+  "extensions": {
+    "hitPolicies": {
+      "properties": {
+        "Property_score": {
+          "id": "Property_score",
+          "name": "score",
+          "type": "integer",
+          "required": false
+        },
+        "Property_amount": {
+          "id": "Property_amount",
+          "name": "amount",
+          "type": "integer",
+          "required": false
+        },
+        "Property_country": {
+          "id": "Property_country",
+          "name": "country",
+          "type": "string",
+          "required": false
+        },
+        "Property_delay": {
+          "id": "Property_delay",
+          "name": "delay",
+          "type": "integer",
+          "required": false
+        },
+        "Property_grade": {
+          "id": "Property_grade",
+          "name": "grade",
+          "type": "string",
+          "required": false
+        },
+        "Property_tier": {
+          "id": "Property_tier",
+          "name": "tier",
+          "type": "string",
+          "required": false
+        },
+        "Property_region": {
+          "id": "Property_region",
+          "name": "region",
+          "type": "string",
+          "required": false
+        },
+        "Property_risk": {
+          "id": "Property_risk",
+          "name": "risk",
+          "type": "string",
+          "required": false
+        },
+        "Property_riskLevel": {
+          "id": "Property_riskLevel",
+          "name": "riskLevel",
+          "type": "string",
+          "required": false
+        },
+        "Property_action": {
+          "id": "Property_action",
+          "name": "action",
+          "type": "string",
+          "required": false
+        },
+        "Property_badgesInRuleOrder": {
+          "id": "Property_badgesInRuleOrder",
+          "name": "badgesInRuleOrder",
+          "type": "array",
+          "required": false
+        },
+        "Property_badgesByPriority": {
+          "id": "Property_badgesByPriority",
+          "name": "badgesByPriority",
+          "type": "array",
+          "required": false
+        },
+        "Property_flags": {
+          "id": "Property_flags",
+          "name": "flags",
+          "type": "array",
+          "required": false
+        },
+        "Property_points": {
+          "id": "Property_points",
+          "name": "points",
+          "type": "integer",
+          "required": false
+        },
+        "Property_unitPrice": {
+          "id": "Property_unitPrice",
+          "name": "unitPrice",
+          "type": "integer",
+          "required": false
+        },
+        "Property_penalty": {
+          "id": "Property_penalty",
+          "name": "penalty",
+          "type": "integer",
+          "required": false
+        },
+        "Property_alerts": {
+          "id": "Property_alerts",
+          "name": "alerts",
+          "type": "integer",
+          "required": false
+        },
+        "Property_rulesUnique": {
+          "id": "Property_rulesUnique",
+          "name": "rulesUnique",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesFirst": {
+          "id": "Property_rulesFirst",
+          "name": "rulesFirst",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesAny": {
+          "id": "Property_rulesAny",
+          "name": "rulesAny",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesPriority": {
+          "id": "Property_rulesPriority",
+          "name": "rulesPriority",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesRuleOrder": {
+          "id": "Property_rulesRuleOrder",
+          "name": "rulesRuleOrder",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesPriorityTwo": {
+          "id": "Property_rulesPriorityTwo",
+          "name": "rulesPriorityTwo",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesOutputOrder": {
+          "id": "Property_rulesOutputOrder",
+          "name": "rulesOutputOrder",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesCollect": {
+          "id": "Property_rulesCollect",
+          "name": "rulesCollect",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesSum": {
+          "id": "Property_rulesSum",
+          "name": "rulesSum",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesMin": {
+          "id": "Property_rulesMin",
+          "name": "rulesMin",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesMax": {
+          "id": "Property_rulesMax",
+          "name": "rulesMax",
+          "type": "array",
+          "required": false
+        },
+        "Property_rulesCount": {
+          "id": "Property_rulesCount",
+          "name": "rulesCount",
+          "type": "array",
+          "required": false
+        }
+      },
+      "mappings": {
+        "decideUnique": {
+          "inputs": {
+            "score": {
+              "type": "variable",
+              "value": "score"
+            }
+          },
+          "outputs": {
+            "grade": {
+              "type": "variable",
+              "value": "grade"
+            },
+            "rulesUnique": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decideFirst": {
+          "inputs": {
+            "score": {
+              "type": "variable",
+              "value": "score"
+            }
+          },
+          "outputs": {
+            "tier": {
+              "type": "variable",
+              "value": "tier"
+            },
+            "rulesFirst": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decideAny": {
+          "inputs": {
+            "country": {
+              "type": "variable",
+              "value": "country"
+            }
+          },
+          "outputs": {
+            "region": {
+              "type": "variable",
+              "value": "region"
+            },
+            "rulesAny": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decidePriority": {
+          "inputs": {
+            "amount": {
+              "type": "variable",
+              "value": "amount"
+            }
+          },
+          "outputs": {
+            "risk": {
+              "type": "variable",
+              "value": "risk"
+            },
+            "rulesPriority": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decideRuleOrder": {
+          "inputs": {
+            "score": {
+              "type": "variable",
+              "value": "score"
+            }
+          },
+          "outputs": {
+            "badgesInRuleOrder": {
+              "type": "variable",
+              "value": "ruleOrderBadges"
+            },
+            "rulesRuleOrder": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decidePriorityTwo": {
+          "inputs": {
+            "amount": {
+              "type": "variable",
+              "value": "amount"
+            }
+          },
+          "outputs": {
+            "riskLevel": {
+              "type": "variable",
+              "value": "risk"
+            },
+            "action": {
+              "type": "variable",
+              "value": "action"
+            },
+            "rulesPriorityTwo": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decideOutputOrder": {
+          "inputs": {
+            "score": {
+              "type": "variable",
+              "value": "score"
+            }
+          },
+          "outputs": {
+            "badgesByPriority": {
+              "type": "variable",
+              "value": "outputOrderBadges"
+            },
+            "rulesOutputOrder": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decideCollect": {
+          "inputs": {
+            "amount": {
+              "type": "variable",
+              "value": "amount"
+            }
+          },
+          "outputs": {
+            "flags": {
+              "type": "variable",
+              "value": "collectFlags"
+            },
+            "rulesCollect": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decideSum": {
+          "inputs": {
+            "amount": {
+              "type": "variable",
+              "value": "amount"
+            }
+          },
+          "outputs": {
+            "points": {
+              "type": "variable",
+              "value": "points"
+            },
+            "rulesSum": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decideMin": {
+          "inputs": {
+            "amount": {
+              "type": "variable",
+              "value": "amount"
+            }
+          },
+          "outputs": {
+            "unitPrice": {
+              "type": "variable",
+              "value": "unitPrice"
+            },
+            "rulesMin": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decideMax": {
+          "inputs": {
+            "delay": {
+              "type": "variable",
+              "value": "delay"
+            }
+          },
+          "outputs": {
+            "penalty": {
+              "type": "variable",
+              "value": "penalty"
+            },
+            "rulesMax": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        },
+        "decideCount": {
+          "inputs": {
+            "amount": {
+              "type": "variable",
+              "value": "amount"
+            }
+          },
+          "outputs": {
+            "alerts": {
+              "type": "variable",
+              "value": "alerts"
+            },
+            "rulesCount": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_rules_"
+            }
+          }
+        }
+      },
+      "constants": {
+        "decideUnique": {
+          "_activiti_dmn_table_": {
+            "value": "uniqueGrade"
+          }
+        },
+        "decideFirst": {
+          "_activiti_dmn_table_": {
+            "value": "firstTier"
+          }
+        },
+        "decideAny": {
+          "_activiti_dmn_table_": {
+            "value": "anyRegion"
+          }
+        },
+        "decidePriority": {
+          "_activiti_dmn_table_": {
+            "value": "priorityRisk"
+          }
+        },
+        "decideRuleOrder": {
+          "_activiti_dmn_table_": {
+            "value": "ruleOrderBadges"
+          }
+        },
+        "decidePriorityTwo": {
+          "_activiti_dmn_table_": {
+            "value": "priorityTwoOutputs"
+          }
+        },
+        "decideOutputOrder": {
+          "_activiti_dmn_table_": {
+            "value": "outputOrderBadges"
+          }
+        },
+        "decideCollect": {
+          "_activiti_dmn_table_": {
+            "value": "collectFlags"
+          }
+        },
+        "decideSum": {
+          "_activiti_dmn_table_": {
+            "value": "collectSumPoints"
+          }
+        },
+        "decideMin": {
+          "_activiti_dmn_table_": {
+            "value": "collectMinPrice"
+          }
+        },
+        "decideMax": {
+          "_activiti_dmn_table_": {
+            "value": "collectMaxPenalty"
+          }
+        },
+        "decideCount": {
+          "_activiti_dmn_table_": {
+            "value": "collectCountAlerts"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C12 manual task, abstract task and the implicit split",
+  "users": { "ann": [], "ben": [], "cy": [] },
+  "scenarios": [
+    {
+      "name": "the manual task and the abstract task pass straight through; one true condition takes one flow",
+      "start": { "process": "implicitSplit", "user": "ann", "variables": { "a": true, "b": false } },
+      "steps": [
+        { "expectActive": { "exactly": ["taskA"] } },
+        { "completeTask": { "activity": "taskA", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["endA"],
+        "path": {
+          "contains": ["prepareManual", "classify", "taskA", "endA"],
+          "notContains": ["taskB", "taskOther"],
+          "order": [["start", "prepareManual"], ["prepareManual", "classify"], ["classify", "taskA"]],
+          "sequenceFlows": ["f_start_prepareManual", "f_prepareManual_classify", "f_classify_a", "f_taskA_endA"],
+          "notSequenceFlows": ["f_classify_b", "f_classify_other"]
+        }
+      }
+    },
+    {
+      "name": "two true conditions split the flow into two parallel branches without a gateway",
+      "start": { "process": "implicitSplit", "user": "ann", "variables": { "a": true, "b": true } },
+      "steps": [
+        { "expectActive": { "exactly": ["taskA", "taskB"] } },
+        { "completeTask": { "activity": "taskB", "user": "ben" } },
+        { "expectActive": { "exactly": ["taskA"] } },
+        { "completeTask": { "activity": "taskA", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["endA", "endB"],
+        "path": { "notContains": ["taskOther"], "sequenceFlows": ["f_classify_a", "f_classify_b"], "notSequenceFlows": ["f_classify_other"] }
+      }
+    },
+    {
+      "name": "only the second condition is true",
+      "start": { "process": "implicitSplit", "user": "ann", "variables": { "a": false, "b": true } },
+      "steps": [ { "completeTask": { "activity": "taskB", "user": "ben" } } ],
+      "expect": { "state": "COMPLETED", "endEvents": ["endB"], "path": { "notContains": ["taskA", "taskOther"] } }
+    },
+    {
+      "name": "no condition is true, so the default flow of the activity is taken",
+      "start": { "process": "implicitSplit", "user": "ann", "variables": { "a": false, "b": false } },
+      "steps": [
+        { "expectActive": { "exactly": ["taskOther"] } },
+        { "completeTask": { "activity": "taskOther", "user": "cy" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["endOther"], "path": { "sequenceFlows": ["f_classify_other"], "notSequenceFlows": ["f_classify_a", "f_classify_b"] } }
+    }
+  ]
+}

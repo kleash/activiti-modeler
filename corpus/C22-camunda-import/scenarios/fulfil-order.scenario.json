@@ -1,0 +1,77 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C22 imported Camunda process: order fulfilment",
+  "description": "The process was a Camunda 7 model (camunda:* attributes, a business rule task, parameters on a user task and a call activity). These scenarios run what the importer made of it on Activiti 9.",
+  "users": { "alice": ["sales"], "maria": ["managers"] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "a small order skips the review: async delegate, decision task, call activity, dispatch confirmation",
+      "start": { "process": "fulfilOrder", "businessKey": "O-1", "user": "alice", "variables": { "customerName": "Acme", "quantity": 3 } },
+      "steps": [
+        { "executeJobs": {} },
+        { "expectChildInstance": { "callActivity": "shipOrder", "process": "shippingLabel", "businessKey": "O-1", "state": "COMPLETED",
+                                   "startVariables": { "parcelOwner": "Acme" }, "variables": { "labelText": "Hello, Acme" },
+                                   "absentVariables": ["quantity", "discount"] } },
+        { "expectTask": { "activity": "confirmDispatch", "name": "Confirm dispatch", "assignee": "alice" } },
+        { "completeTask": { "activity": "confirmDispatch", "user": "alice", "variables": { "dispatchNote": "left at the door", "carrier": "courier" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["fulfilled"],
+        "path": {
+          "contains": ["received", "greetCustomer", "applyDiscount", "classifyRisk", "needsReview", "packOrder", "shipOrder", "confirmDispatch", "fulfilled"],
+          "notContains": ["reviewOrder", "isApproved", "refusedEnd"],
+          "order": [["greetCustomer", "applyDiscount"], ["applyDiscount", "classifyRisk"], ["classifyRisk", "packOrder"], ["packOrder", "shipOrder"], ["shipOrder", "confirmDispatch"]],
+          "sequenceFlows": ["Flow_toGreet", "Flow_toDiscount", "Flow_toRisk", "Flow_toReviewGateway", "Flow_noReview", "Flow_toShip", "Flow_toConfirm", "Flow_toDone"],
+          "notSequenceFlows": ["Flow_review", "Flow_granted", "Flow_refused"]
+        },
+        "variables": { "customerName": "Acme", "quantity": 3, "greeting": "Hello, Acme", "discount": 0, "risk": "low", "label": "Hello, Acme", "requester": "alice" }
+      }
+    },
+    {
+      "name": "a large order is reviewed by a manager and granted",
+      "start": { "process": "fulfilOrder", "businessKey": "O-2", "user": "alice", "variables": { "customerName": "Globex", "quantity": 60 } },
+      "steps": [
+        { "executeJobs": {} },
+        { "expectTask": { "activity": "reviewOrder", "name": "Review discount", "candidateGroups": ["managers"], "assignee": null,
+                          "priority": 80, "dueDate": "2030-01-03T09:00:00Z", "formKey": "forms/review",
+                          "localVariables": { "maxDiscount": "20", "orderValue": 600 }, "visibleTo": ["maria"], "notVisibleTo": ["alice"] } },
+        { "completeTask": { "activity": "reviewOrder", "user": "maria", "variables": { "decision": true } } },
+        { "completeTask": { "activity": "confirmDispatch", "user": "alice", "variables": { "dispatchNote": "pallet", "carrier": "post" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["fulfilled"],
+        "path": {
+          "contains": ["applyDiscount", "classifyRisk", "reviewOrder", "isApproved", "packOrder", "shipOrder", "fulfilled"],
+          "notContains": ["refusedEnd"],
+          "sequenceFlows": ["Flow_review", "Flow_toApprovedGateway", "Flow_granted", "Flow_toShip"],
+          "notSequenceFlows": ["Flow_noReview", "Flow_refused"]
+        },
+        "variables": { "discount": 15, "risk": "high", "approved": true, "label": "Hello, Globex", "taskListenerCalls": ["create:reviewOrder", "assignment:reviewOrder:maria"] }
+      }
+    },
+    {
+      "name": "a manager refuses the discount: the order ends without shipping",
+      "start": { "process": "fulfilOrder", "businessKey": "O-3", "user": "alice", "variables": { "customerName": "Initech", "quantity": 20 } },
+      "steps": [
+        { "executeJobs": {} },
+        { "expectTask": { "activity": "reviewOrder", "candidateGroups": ["managers"] } },
+        { "completeTask": { "activity": "reviewOrder", "user": "maria", "variables": { "decision": false } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["refusedEnd"],
+        "path": {
+          "contains": ["reviewOrder", "isApproved", "refusedEnd"],
+          "notContains": ["packOrder", "shipOrder", "confirmDispatch", "fulfilled"],
+          "sequenceFlows": ["Flow_refused"],
+          "notSequenceFlows": ["Flow_granted"]
+        },
+        "variables": { "discount": 15, "risk": "medium", "approved": false },
+        "absentVariables": ["label"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C13 task listeners for every event, and the delete listener of a cancelled task",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "claim and complete both tasks: assignment follows create, delete follows complete",
+      "start": { "process": "taskListeners", "user": "ann" },
+      "steps": [
+        { "expectTask": { "activity": "approve", "assignee": null } },
+        { "claim": { "activity": "approve", "user": "ann" } },
+        { "completeTask": { "activity": "approve", "user": "ann" } },
+        { "completeTask": { "activity": "cancellable", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["done"],
+        "variables": {
+          "taskListenerCalls": [
+            "create:approve",
+            "assignment:approve:ann",
+            "complete:approve",
+            "delete:approve",
+            "create:cancellable",
+            "complete:cancellable",
+            "delete:cancellable"
+          ],
+          "fieldListenerCalls": ["all:create:approve", "all:assignment:approve", "all:complete:approve", "all:delete:approve"]
+        },
+        "path": { "notContains": ["giveUp", "abandoned"], "sequenceFlows": ["f_approve_cancellable", "f_cancellable_done"] }
+      }
+    },
+    {
+      "name": "the timer boundary event cancels the second task: its delete listener runs, its complete listener does not",
+      "start": { "process": "taskListeners", "user": "ann" },
+      "steps": [
+        { "completeTask": { "activity": "approve", "user": "ann" } },
+        { "expectTimer": { "activity": "giveUp", "count": 1 } },
+        { "fireTimer": { "activity": "giveUp" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["abandoned"],
+        "variables": {
+          "taskListenerCalls": ["create:approve", "assignment:approve:ann", "complete:approve", "delete:approve", "create:cancellable", "delete:cancellable"]
+        },
+        "path": { "contains": ["giveUp", "abandoned"], "notContains": ["done"], "sequenceFlows": ["f_giveUp_abandoned"], "notSequenceFlows": ["f_cancellable_done"] }
+      }
+    }
+  ]
+}

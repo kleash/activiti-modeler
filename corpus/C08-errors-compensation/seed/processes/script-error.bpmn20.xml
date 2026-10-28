@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_scriptError"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C08">
+  <error id="invalidAmountError" name="Invalid amount" errorCode="INVALID_AMOUNT"/>
+  <process id="scriptError" name="Script task throws a BPMN error" isExecutable="true">
+    <documentation>A JavaScript script task throws a BpmnError for a negative amount; the error boundary event (errorRef points at the definitions-level error whose errorCode is INVALID_AMOUNT) routes the process to the rejection branch.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_checkAmount" sourceRef="start" targetRef="checkAmount"/>
+    <scriptTask id="checkAmount" name="Check amount" scriptFormat="javascript">
+      <script>if (amount &lt; 0) {
+  throw new (Java.type('org.activiti.engine.delegate.BpmnError'))('INVALID_AMOUNT', 'negative amount ' + amount);
+}
+execution.setVariable('status', 'accepted');</script>
+    </scriptTask>
+    <sequenceFlow id="f_checkAmount_accepted" sourceRef="checkAmount" targetRef="accepted"/>
+    <endEvent id="accepted" name="Accepted"/>
+    <boundaryEvent id="onInvalidAmount" name="Invalid amount" attachedToRef="checkAmount">
+      <errorEventDefinition errorRef="invalidAmountError"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onInvalidAmount_rejectAmount" sourceRef="onInvalidAmount" targetRef="rejectAmount"/>
+    <serviceTask id="rejectAmount" name="Reject amount" activiti:expression="${execution.setVariable('status', 'rejected')}"/>
+    <sequenceFlow id="f_rejectAmount_rejected" sourceRef="rejectAmount" targetRef="rejected"/>
+    <endEvent id="rejected" name="Rejected"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="scriptError">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="checkAmount_di" bpmnElement="checkAmount">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="accepted_di" bpmnElement="accepted">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="rejectAmount_di" bpmnElement="rejectAmount">
+        <dc:Bounds x="370" y="270" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="rejected_di" bpmnElement="rejected">
+        <dc:Bounds x="552" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onInvalidAmount_di" bpmnElement="onInvalidAmount">
+        <dc:Bounds x="240" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_checkAmount_di" bpmnElement="f_start_checkAmount">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_checkAmount_accepted_di" bpmnElement="f_checkAmount_accepted">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onInvalidAmount_rejectAmount_di" bpmnElement="f_onInvalidAmount_rejectAmount">
+        <di:waypoint x="258" y="148"/>
+        <di:waypoint x="258" y="310"/>
+        <di:waypoint x="370" y="310"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_rejectAmount_rejected_di" bpmnElement="f_rejectAmount_rejected">
+        <di:waypoint x="470" y="310"/>
+        <di:waypoint x="552" y="310"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

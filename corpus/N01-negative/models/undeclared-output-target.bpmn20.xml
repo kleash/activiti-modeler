@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:activiti="http://activiti.org/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_undeclaredOutput" targetNamespace="http://activiti.org/bpmn/n01">
+  <bpmn:process id="undeclaredOutput" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:serviceTask id="lookup" name="Look up" implementation="crm.LOOKUP" />
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_lookup" sourceRef="start" targetRef="lookup" />
+    <bpmn:sequenceFlow id="f_lookup_end" sourceRef="lookup" targetRef="end" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_undeclaredOutput">
+    <bpmndi:BPMNPlane id="BPMNPlane_undeclaredOutput" bpmnElement="undeclaredOutput">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="150" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="lookup_di" bpmnElement="lookup"><dc:Bounds x="246" y="120" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end"><dc:Bounds x="406" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_lookup_di" bpmnElement="f_start_lookup"><di:waypoint x="186" y="160" /><di:waypoint x="246" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_lookup_end_di" bpmnElement="f_lookup_end"><di:waypoint x="346" y="160" /><di:waypoint x="406" y="160" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

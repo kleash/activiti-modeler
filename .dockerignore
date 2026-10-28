@@ -1,0 +1,22 @@
+# The Docker build needs java/, modeler/ (without what it installs or builds), docker/, scripts/build-runtime.sh and the licence files. Nothing else.
+.git
+.github
+.claude
+.scratch
+.tools
+dist-desktop
+dist-*
+docs
+corpus
+compat-check
+scripts
+!scripts/build-runtime.sh
+**/node_modules
+**/target
+**/dist
+**/test-results
+**/playwright-report
+**/.vite
+modeler/e2e
+*.log
+.DS_Store

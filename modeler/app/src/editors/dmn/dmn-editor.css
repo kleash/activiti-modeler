@@ -1,0 +1,85 @@
+.dmn-editor {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dmn-main {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dmn-main.hidden {
+  display: none;
+}
+
+.dmn-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel);
+}
+
+.dmn-views {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+  overflow-x: auto;
+}
+
+.dmn-views button {
+  flex: none;
+  border: 1px solid transparent;
+  background: none;
+  padding: 3px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dmn-views button small {
+  color: var(--muted);
+}
+
+.dmn-views button.selected {
+  background: var(--bg);
+  border-color: var(--panel-border);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.dmn-work {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.dmn-stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+/* The view fills the stage. Nothing may be positioned over its bottom-right corner: the bpmn.io license requires the
+   watermark to stay visible there (the tester is a column next to the stage, not an overlay). */
+.dmn-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.dmn-canvas .dmn-js-parent {
+  background: var(--bg);
+}
+
+/* decisions a test evaluation went through */
+.dmn-canvas .activiti-evaluated .djs-visual > rect {
+  stroke: #2e7d32 !important;
+  stroke-width: 3px !important;
+}

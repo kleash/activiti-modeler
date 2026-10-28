@@ -1,0 +1,57 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "signalStart": {
+      "definition": { "name": "Signal start event", "category": "http://activiti.org/bpmn/corpus/C07" },
+      "elements": {
+        "startOnSignal": { "type": "startEvent", "attributes": { "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalRef": "newOrderSignal" } ] } }
+      }
+    },
+    "signalCatch": {
+      "elements": {
+        "waitApproval": { "type": "intermediateCatchEvent", "attributes": { "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalRef": "approvedSignal", "signalExpression": null } ] } },
+        "waitAudit": { "type": "intermediateCatchEvent", "attributes": { "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalRef": "auditedSignal" } ] } }
+      }
+    },
+    "signalLocalScope": {
+      "elements": {
+        "waitLocal": { "type": "intermediateCatchEvent", "attributes": { "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalRef": "localPingSignal" } ] } },
+        "raiseLocal": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalRef": "localPingSignal", "async": false } ] } }
+      }
+    },
+    "signalParent": {
+      "elements": {
+        "waitChild": { "type": "intermediateCatchEvent", "attributes": { "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalRef": "childDoneSignal" } ] } },
+        "callChild": { "type": "callActivity", "attributes": { "calledElement": "${childProcess}" } }
+      }
+    },
+    "signalAsync": {
+      "elements": {
+        "waitAsync": { "type": "intermediateCatchEvent", "attributes": { "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalRef": "asyncPingSignal", "async": false } ] } },
+        "raiseAsync": { "type": "intermediateThrowEvent", "attributes": { "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalRef": "asyncPingSignal", "async": true } ] } }
+      }
+    },
+    "signalBoundary": {
+      "elements": {
+        "cancelBoundary": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "work", "cancelActivity": true, "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalRef": "cancelOrderSignal" } ] } },
+        "noteBoundary": { "type": "boundaryEvent", "attributes": {
+          "attachedToRefId": "work", "cancelActivity": false, "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalRef": "orderNoteSignal" } ] } }
+      }
+    },
+    "signalExpressions": {
+      "elements": {
+        "waitDynamic": { "type": "intermediateCatchEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalExpression": "${'go-'.concat(region)}", "signalRef": null } ] } },
+        "raiseDynamic": { "type": "intermediateThrowEvent", "attributes": {
+          "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalExpression": "${'go-'.concat(region)}", "signalRef": null } ] } }
+      }
+    },
+    "signalExpressionLeak": {
+      "elements": {
+        "waitGo": { "type": "intermediateCatchEvent", "attributes": { "eventDefinitions": [ { "@class": "SignalEventDefinition", "signalExpression": "${'go-'.concat(region)}" } ] } },
+        "hold": { "type": "receiveTask" }
+      }
+    }
+  }
+}

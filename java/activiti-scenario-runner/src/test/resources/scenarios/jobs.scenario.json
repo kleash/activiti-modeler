@@ -1,0 +1,59 @@
+{
+  "name": "jobs, retries and rollbacks",
+  "users": { "alice": [] },
+  "scenarios": [
+    {
+      "name": "an asynchronous service task runs when its jobs are executed",
+      "start": { "process": "asyncOk", "user": "alice" },
+      "steps": [
+        { "expectActive": ["slow"] },
+        { "executeJobs": {} }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["aEnd"], "variables": { "done": true } }
+    },
+    {
+      "name": "a failing job ends in the dead-letter table",
+      "start": { "process": "flaky", "user": "alice" },
+      "steps": [
+        { "expectActive": ["flakyCall"] },
+        { "failJobUntilDeadLetter": { "activity": "flakyCall" } }
+      ],
+      "expect": {
+        "state": "DEADLETTER",
+        "deadLetterJobs": [ { "activity": "flakyCall", "exceptionMessageContains": "boom" } ],
+        "path": { "contains": ["fStart"], "notContains": ["flakyCall", "fEnd"] }
+      }
+    },
+    {
+      "name": "a synchronous failure rolls the whole call back",
+      "start": { "process": "stuck", "user": "alice" },
+      "steps": [
+        { "completeTask": { "activity": "bad", "user": "alice", "expectFailure": { "exception": "ActivitiException", "messageContains": "No outgoing" } } },
+        { "expectTask": { "activity": "bad", "assignee": "alice" } },
+        { "expectActive": ["bad"] }
+      ],
+      "expect": { "state": "ACTIVE", "path": { "notContains": ["kEnd"], "notSequenceFlows": ["f_bad_kEnd"] } }
+    },
+    {
+      "name": "a rolled-back completion leaves no taken flows behind",
+      "start": { "process": "rollback", "user": "alice" },
+      "steps": [
+        { "completeTask": { "activity": "step", "user": "alice", "expectFailure": { "exception": "IllegalStateException", "messageContains": "boom" } } },
+        { "expectActive": ["step"] }
+      ],
+      "expect": { "state": "ACTIVE", "path": { "contains": ["step"], "notContains": ["explode"], "notSequenceFlows": ["f_step_explode"] } }
+    },
+    {
+      "name": "executeJobs runs until no job is left",
+      "start": { "process": "looping", "user": "alice", "variables": { "limit": 5 } },
+      "steps": [ { "executeJobs": {} } ],
+      "expect": { "state": "COMPLETED", "variables": { "n": 5, "limit": 5 } }
+    },
+    {
+      "name": "setVariables writes through ProcessRuntime",
+      "start": { "process": "asyncOk", "user": "alice", "variables": { "x": 1 } },
+      "steps": [ { "setVariables": { "x": 2, "y": "why" } }, { "executeJobs": {} } ],
+      "expect": { "state": "COMPLETED", "variables": { "x": 2, "y": "why" } }
+    }
+  ]
+}

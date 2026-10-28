@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Variant of models/web-service-task.bpmn20.xml for the engine checks: the complete web service wiring (WSDL import, message,
+     interface, operation, operationRef). The validator is satisfied and the file deploys; the WSDL importer is looked up when the
+     task runs. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" xmlns:tns="http://example.org/ws" id="Definitions_webServiceWsdl" targetNamespace="http://example.org/ws">
+  <bpmn:import importType="http://schemas.xmlsoap.org/wsdl/" location="http://localhost:9/counter?wsdl" namespace="http://example.org/counter" />
+  <bpmn:message id="incRequest" name="incRequest" />
+  <bpmn:interface id="counterInterface" name="Counter" implementationRef="tns:Counter">
+    <bpmn:operation id="incOperation" name="inc" implementationRef="tns:inc">
+      <bpmn:inMessageRef>tns:incRequest</bpmn:inMessageRef>
+    </bpmn:operation>
+  </bpmn:interface>
+  <bpmn:process id="webServiceWsdl" isExecutable="true">
+    <bpmn:startEvent id="start" name="Start" />
+    <bpmn:serviceTask id="call" name="Call the web service" implementation="##WebService" operationRef="tns:incOperation" />
+    <bpmn:endEvent id="end" name="End" />
+    <bpmn:sequenceFlow id="f_start_call" sourceRef="start" targetRef="call" />
+    <bpmn:sequenceFlow id="f_call_end" sourceRef="call" targetRef="end" />
+  </bpmn:process>
+</bpmn:definitions>

@@ -1,0 +1,93 @@
+name: OSV scan
+
+# The gate for "no known vulnerabilities in anything the project ships" (docs/developer-guide.md "Security scanning", SECURITY.md).
+# It runs scripts/cve-scan.sh, the same script a developer runs locally: CycloneDX SBOMs of the Maven artifacts (the server jar and the three
+# libraries, runtime scope, both Activiti lines on the Spring Boot that ships), of the built jar, and of the npm production dependencies, then the
+# Docker image; all scanned with OSV-Scanner (pinned by version and by SHA-256 in scripts/osv-scanner.sha256).
+# It FAILS on any known vulnerability that osv-scanner.toml does not except, on an exception that has expired or matches nothing any more, and
+# on an exception file that breaks the rules of scripts/cve-scan-check.py. The Spring Boot 3.5.7 compatibility run of ci.yml is not scanned.
+# Make this check required in the branch protection rules (Settings > Branches).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '47 3 * * 1'   # Mondays 03:47 UTC: new advisories appear without a change of ours
+  workflow_dispatch:
+
+# Least privilege: every job asks for what it needs.
+permissions: {}
+
+concurrency:
+  group: osv-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source:
+    name: Maven (Activiti 9.0.0 and 8.8.1), jar and npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Set up Node 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: modeler/package-lock.json
+
+      # SBOMs with the pinned cyclonedx-maven-plugin, npm sbom for the web app, the pinned OSV-Scanner; the table lands in the job summary.
+      - name: SBOMs and OSV scan
+        run: scripts/cve-scan.sh --out cve-scan
+
+      - name: Upload SBOMs and scan results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: osv-source
+          path: |
+            cve-scan/sbom/
+            cve-scan/results/
+            cve-scan/summary.md
+          if-no-files-found: ignore
+
+  image:
+    name: Docker image (operating system and jar)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # A JDK is not covered by OSV and the pin cannot be moved by Dependabot: warn when a newer Temurin 25 exists (see docker/jdk-alpine.env).
+      - name: Is the pinned Temurin 25 the newest?
+        run: scripts/update-jdk-alpine.sh
+
+      - name: Build the image
+        run: docker build -t activiti-modeler:osv .
+
+      - name: Scan the image
+        run: scripts/cve-scan.sh --skip-java --skip-npm --image activiti-modeler:osv --out cve-scan
+
+      - name: Upload SBOM and scan results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: osv-image
+          path: |
+            cve-scan/sbom/
+            cve-scan/results/
+            cve-scan/summary.md
+          if-no-files-found: ignore

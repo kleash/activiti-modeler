@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C10">
+  <process id="miSequential" name="Sequential multi-instance sub process" isExecutable="true">
+    <documentation>A sequential multi-instance sub process with a loop cardinality: one instance after the other, the index variable round counts from 0.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_rounds" sourceRef="start" targetRef="rounds"/>
+    <subProcess id="rounds" name="Rounds">
+      <multiInstanceLoopCharacteristics isSequential="true" activiti:elementIndexVariable="round">
+        <loopCardinality>${roundCount}</loopCardinality>
+      </multiInstanceLoopCharacteristics>
+      <startEvent id="roundStart"/>
+      <sequenceFlow id="f_roundStart_step" sourceRef="roundStart" targetRef="step"/>
+      <userTask id="step" name="Round ${round + 1}" activiti:candidateUsers="ann"/>
+      <sequenceFlow id="f_step_roundEnd" sourceRef="step" targetRef="roundEnd"/>
+      <endEvent id="roundEnd"/>
+    </subProcess>
+    <sequenceFlow id="f_rounds_end" sourceRef="rounds" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="miSequential">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="roundStart_di" bpmnElement="roundStart">
+        <dc:Bounds x="252" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="step_di" bpmnElement="step">
+        <dc:Bounds x="370" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="roundEnd_di" bpmnElement="roundEnd">
+        <dc:Bounds x="552" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="rounds_di" bpmnElement="rounds" isExpanded="true">
+        <dc:Bounds x="212" y="140" width="416" height="160"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="852" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_rounds_di" bpmnElement="f_start_rounds">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="212" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_roundStart_step_di" bpmnElement="f_roundStart_step">
+        <di:waypoint x="288" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_step_roundEnd_di" bpmnElement="f_step_roundEnd">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="552" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_rounds_end_di" bpmnElement="f_rounds_end">
+        <di:waypoint x="628" y="220"/>
+        <di:waypoint x="852" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

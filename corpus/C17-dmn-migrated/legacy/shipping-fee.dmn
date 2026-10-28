@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/DMN/20180521/MODEL/" xmlns:dmndi="http://www.omg.org/spec/DMN/20180521/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:camunda="http://camunda.org/schema/1.0/dmn" id="shippingFees" name="Shipping fees" namespace="http://camunda.org/schema/1.0/dmn">
+  <decision id="shippingFee" name="Shipping fee">
+    <decisionTable id="DecisionTable_shippingFee" hitPolicy="FIRST">
+      <input id="Input_weight" label="Weight" camunda:inputVariable="weight">
+        <inputExpression id="InputExpression_weight" typeRef="double">
+          <text>weight</text>
+        </inputExpression>
+      </input>
+      <input id="Input_express" label="Express">
+        <inputExpression id="InputExpression_express" typeRef="boolean">
+          <text>express</text>
+        </inputExpression>
+      </input>
+      <output id="Output_fee" label="Fee" name="fee" typeRef="double" />
+      <rule id="Rule_express">
+        <inputEntry id="UnaryTests_1">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_2">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1">
+          <text>25</text>
+        </outputEntry>
+      </rule>
+      <rule id="Rule_light">
+        <inputEntry id="UnaryTests_3">
+          <text>&lt; 2</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_4">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_2">
+          <text>5</text>
+        </outputEntry>
+      </rule>
+      <rule id="Rule_heavy">
+        <inputEntry id="UnaryTests_5">
+          <text>&gt;= 2</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_6">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_3">
+          <text>12.5</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_shippingFee" dmnElementRef="shippingFee">
+        <dc:Bounds height="80" width="180" x="160" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

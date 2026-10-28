@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+
+  <process id="t59_cond_noxsi" name="t59_cond_noxsi" isExecutable="true">
+    <startEvent id="s"/><exclusiveGateway id="x" default="d"/><userTask id="a"/><userTask id="b"/><endEvent id="e"/>
+    <sequenceFlow id="f0" sourceRef="s" targetRef="x"/><sequenceFlow id="c" sourceRef="x" targetRef="a"><conditionExpression>${v == 1}</conditionExpression></sequenceFlow><sequenceFlow id="d" sourceRef="x" targetRef="b"/>
+    <sequenceFlow id="f3" sourceRef="a" targetRef="e"/>
+    <sequenceFlow id="f4" sourceRef="b" targetRef="e"/>
+
+  </process>
+</definitions>

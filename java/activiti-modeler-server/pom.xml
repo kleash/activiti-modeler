@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.github.kleash.activiti</groupId>
+    <artifactId>activiti-modeler-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>activiti-modeler-server</artifactId>
+  <name>Activiti modeler server</name>
+  <description>Spring Boot server: hosts the modeler web app, the runtime REST API and embedded Activiti 9.0.0.</description>
+
+  <properties>
+    <!-- Where the built modeler app is (npm run build in modeler/); used by the bundle-modeler profile. -->
+    <modeler.dist>${project.basedir}/../../modeler/app/dist</modeler.dist>
+    <!-- bundle-modeler also builds the app (frontend-maven-plugin, below) unless this is true: scripts/build-server.sh builds it itself. -->
+    <modeler.skipFrontend>false</modeler.skipFrontend>
+    <!-- The Node that builds the app: downloaded by Maven into <repo>/.tools/node, so building needs only a JDK. Keep in step with .github workflows. -->
+    <modeler.node.version>v22.22.0</modeler.node.version>
+    <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.github.kleash.activiti</groupId>
+      <artifactId>activiti-runtime-rest-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.kleash.activiti</groupId>
+      <artifactId>activiti-runtime-rest-dev</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.kleash.activiti</groupId>
+      <artifactId>activiti-scenario-runner</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.github.kleash.activiti</groupId>
+      <artifactId>activiti-dmn-connector</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.activiti</groupId>
+      <artifactId>activiti-spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!-- The starter declares these as optional: security (ProcessRuntime/TaskRuntime) and JDBC. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- Serves the OpenAPI description of the whole API at /v3/api-docs (behind authentication). -->
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+    </dependency>
+    <!-- The SMTP server mail tasks send to. GreenMail declares JUnit 4 for its rules; the server does not use them. -->
+    <dependency>
+      <groupId>com.icegreen</groupId>
+      <artifactId>greenmail</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- CorpusOverRestTest: the corpus projects need the harness' support library (delegates, listeners, connectors, mail helpers; docs/corpus-support.md)
+         and its project discovery. Test scope only: the server jar does not contain it. -->
+    <dependency>
+      <groupId>io.github.kleash.activiti</groupId>
+      <artifactId>verification-harness</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!-- The licence files travel inside the jar under META-INF/ (ADR 0008): LICENSE, NOTICE and THIRD-PARTY-NOTICES.md from the repository root. -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${project.basedir}/../..</directory>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+          <include>THIRD-PARTY-NOTICES.md</include>
+        </includes>
+        <targetPath>META-INF</targetPath>
+      </resource>
+    </resources>
+    <plugins>
+      <!-- Tests never touch the real ~/ActivitiModeler: the home folder of the start-up defaults is moved into target/ (ADR 0008). -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <modeler.home>${project.build.directory}/test-home</modeler.home>
+            <java.awt.headless>true</java.awt.headless>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <!--
+        The runnable jar is target/activiti-modeler-server-<version>-exec.jar (classifier exec, ADR 0009): the plain jar stays the main artifact, so
+        that on Maven Central the server is a usable dependency and `java -jar` takes the exec one. The downloads and scripts use the exec jar.
+      -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals><goal>repackage</goal></goals>
+            <configuration>
+              <classifier>exec</classifier>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <!--
+      mvn -f java/pom.xml -pl activiti-modeler-server -am package -Pbundle-modeler
+      Copies the built modeler app (modeler/app/dist, see scripts/build-server.sh) into the jar as classpath:/static, replacing the
+      placeholder page. The copy happens before the jar is built, so it is part of the repackaged executable jar.
+    -->
+    <profile>
+      <id>bundle-modeler</id>
+      <build>
+        <plugins>
+          <!--
+            Builds the web app with a Node that Maven downloads itself (into <repo>/.tools/node): npm ci and npm run build in modeler/.
+            So "./java/mvnw -Pbundle-modeler -pl activiti-modeler-server -am package" needs nothing but a JDK (ADR 0008).
+            -Dmodeler.skipFrontend=true uses the modeler/app/dist that is there (scripts/build-server.sh builds the app first).
+          -->
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>${frontend-maven-plugin.version}</version>
+            <configuration>
+              <skip>${modeler.skipFrontend}</skip>
+              <installDirectory>${project.basedir}/../../.tools</installDirectory>
+              <workingDirectory>${project.basedir}/../../modeler</workingDirectory>
+              <nodeVersion>${modeler.node.version}</nodeVersion>
+            </configuration>
+            <executions>
+              <execution>
+                <id>install-node</id>
+                <phase>generate-resources</phase>
+                <goals><goal>install-node-and-npm</goal></goals>
+              </execution>
+              <execution>
+                <id>npm-ci</id>
+                <phase>generate-resources</phase>
+                <goals><goal>npm</goal></goals>
+                <configuration>
+                  <arguments>ci</arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>npm-build</id>
+                <phase>generate-resources</phase>
+                <goals><goal>npm</goal></goals>
+                <configuration>
+                  <arguments>run build</arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.3.1</version>
+            <executions>
+              <execution>
+                <id>bundle-modeler-app</id>
+                <phase>prepare-package</phase>
+                <goals><goal>copy-resources</goal></goals>
+                <configuration>
+                  <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+                  <overwrite>true</overwrite>
+                  <resources>
+                    <resource>
+                      <directory>${modeler.dist}</directory>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- After the copy: the page must be the built app (it has an assets folder), not the placeholder; copy-resources skips a missing folder silently. -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>modeler-app-bundled</id>
+                <phase>prepare-package</phase>
+                <goals><goal>enforce</goal></goals>
+                <configuration>
+                  <rules>
+                    <requireFilesExist>
+                      <files>
+                        <file>${project.build.outputDirectory}/static/assets</file>
+                      </files>
+                      <message>The modeler app was not bundled: ${modeler.dist} has no built app (index.html and assets/). Run scripts/build-server.sh (npm ci &amp;&amp; npm run build in modeler/), or build the app first.</message>
+                    </requireFilesExist>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

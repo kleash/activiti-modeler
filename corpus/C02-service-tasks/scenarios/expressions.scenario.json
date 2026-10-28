@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C02 expressions with result variables",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the value of the expression is stored in the result variable",
+      "start": { "process": "expressions", "user": "ann", "variables": { "customerName": "Ann", "price": 12, "quantity": 5 } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "total": 60, "greeting": "Hello, Ann", "sum": 17, "marker": "done" },
+        "path": { "order": [["computeTotal", "greet"], ["greet", "sum"], ["sum", "sideEffect"]] }
+      }
+    },
+    {
+      "name": "an expression that cannot be evaluated rejects the start",
+      "start": { "process": "expressions", "user": "ann", "variables": { "customerName": "Ann", "price": 12 },
+                 "expectFailure": { "exception": "ActivitiException", "messageContains": "quantity" } }
+    }
+  ]
+}

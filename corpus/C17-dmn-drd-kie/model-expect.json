@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "pricing": {
+      "definition": { "name": "Pricing with a business knowledge model", "category": "http://kleash.github.io/corpus/C17-kie" },
+      "extensions": {
+        "properties": {
+          "basePrice": { "type": "integer" },
+          "loyaltyYears": { "type": "integer" },
+          "price": { "type": "integer" },
+          "priced": { "type": "boolean" }
+        },
+        "mappings": {
+          "decidePrice": { "mappingType": null, "inputs": { "basePrice": { "type": "VARIABLE", "value": "basePrice" }, "loyaltyYears": { "type": "VARIABLE", "value": "loyaltyYears" } }, "outputs": { "price": { "type": "VARIABLE", "value": "finalPrice" }, "priced": { "type": "VARIABLE", "value": "_activiti_dmn_matched_" } } }
+        },
+        "constants": {
+          "decidePrice": { "_activiti_dmn_table_": "finalPrice" }
+        }
+      },
+      "elements": {
+        "decidePrice": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } }
+      }
+    }
+  }
+}

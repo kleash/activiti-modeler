@@ -1,0 +1,13 @@
+{
+  "id": "mini-extensions",
+  "extensions": {
+    "mini": {
+      "properties": {
+        "p1": { "id": "p1", "name": "ok", "type": "boolean" }
+      },
+      "mappings": {
+        "check": { "outputs": { "ok": { "type": "VARIABLE", "value": "ok" } } }
+      }
+    }
+  }
+}

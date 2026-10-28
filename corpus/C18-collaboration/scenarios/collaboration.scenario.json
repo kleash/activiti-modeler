@@ -1,0 +1,61 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C18 collaboration: two executable pools deployed as two processes, message flows without runtime effect",
+  "users": { "ann": [], "bob": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "customer pool: the order message is thrown (recorded) and the confirmation is correlated by order id",
+      "start": { "process": "customerOrder", "businessKey": "O-1", "user": "ann", "variables": { "orderId": "O-1" } },
+      "steps": [
+        { "expectActive": { "exactly": ["placeOrder"] } },
+        { "completeTask": { "activity": "placeOrder", "user": "ann" } },
+        { "expectActive": { "exactly": ["awaitConfirmation"] } },
+        { "message": { "name": "orderConfirmed", "correlationKey": "O-1" } },
+        { "expectActive": { "exactly": ["approveDelivery"] } },
+        { "completeTask": { "activity": "approveDelivery", "user": "bob" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["custEnd"],
+        "variables": { "orderId": "O-1", "orderNote": "draft", "thrownMessages": ["orderPlaced"] },
+        "path": {
+          "contains": ["custStart", "placeOrder", "orderSent", "awaitConfirmation", "approveDelivery", "custEnd"],
+          "order": [["placeOrder", "orderSent"], ["orderSent", "awaitConfirmation"], ["awaitConfirmation", "approveDelivery"], ["approveDelivery", "custEnd"]],
+          "sequenceFlows": ["f_custStart_placeOrder", "f_placeOrder_orderSent", "f_orderSent_awaitConfirmation", "f_awaitConfirmation_approveDelivery", "f_approveDelivery_custEnd"]
+        }
+      }
+    },
+    {
+      "name": "customer pool: the message flow delivers nothing, a confirmation for another order does not reach this instance",
+      "start": { "process": "customerOrder", "user": "ann", "variables": { "orderId": "O-2" } },
+      "steps": [
+        { "completeTask": { "activity": "placeOrder", "user": "ann" } },
+        { "message": { "name": "orderConfirmed", "correlationKey": "O-999",
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "correlation key 'O-999' not found" } } },
+        { "expectActive": { "exactly": ["awaitConfirmation"] } },
+        { "message": { "name": "orderConfirmed", "correlationKey": "O-2" } },
+        { "completeTask": { "activity": "approveDelivery", "user": "bob" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["custEnd"], "variables": { "thrownMessages": ["orderPlaced"] } }
+    },
+    {
+      "name": "supplier pool: the order message starts it, the confirmation message end event is recorded",
+      "start": { "message": "orderPlaced", "businessKey": "O-3", "user": "ann", "variables": { "item": "widget" } },
+      "steps": [
+        { "expectActive": { "exactly": ["shipOrder"] } },
+        { "completeTask": { "activity": "shipOrder", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["supplierEnd"],
+        "variables": { "item": "widget", "reserved": true, "thrownMessages": ["orderConfirmed"] },
+        "path": {
+          "contains": ["supplierStart", "reserveStock", "shipOrder", "supplierEnd"],
+          "order": [["supplierStart", "reserveStock"], ["reserveStock", "shipOrder"], ["shipOrder", "supplierEnd"]],
+          "sequenceFlows": ["f_supplierStart_reserveStock", "f_reserveStock_shipOrder", "f_shipOrder_supplierEnd"]
+        }
+      }
+    }
+  ]
+}

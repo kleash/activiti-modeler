@@ -1,0 +1,61 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "callInOut": {
+      "definition": { "name": "Call activity with activiti:in and activiti:out", "category": "http://activiti.org/bpmn/corpus/C11" },
+      "elements": {
+        "priceIt": { "type": "callActivity", "attributes": {
+          "calledElement": "priceCalculator",
+          "inheritVariables": false,
+          "inheritBusinessKey": false,
+          "inParameters": [
+            { "source": "unitPrice", "target": "price", "sourceExpression": null },
+            { "source": null, "target": "quantity", "sourceExpression": "${itemCount * 2}" }
+          ],
+          "outParameters": [
+            { "source": "total", "target": "orderTotal" },
+            { "source": null, "target": "doubleTotal", "sourceExpression": "${total * 2}" }
+          ] } }
+      }
+    },
+    "callInherit": {
+      "elements": {
+        "audit": { "type": "callActivity", "attributes": { "inheritVariables": true, "inParameters": [], "outParameters": [] } }
+      }
+    },
+    "callBusinessKey": {
+      "elements": {
+        "callExplicitKey": { "type": "callActivity", "attributes": { "businessKey": "BK-${orderId}", "inheritBusinessKey": false } },
+        "callInheritedKey": { "type": "callActivity", "attributes": { "businessKey": null, "inheritBusinessKey": true } },
+        "callNoKey": { "type": "callActivity", "attributes": { "businessKey": null, "inheritBusinessKey": false } }
+      }
+    },
+    "callExpression": {
+      "elements": {
+        "pick": { "type": "callActivity", "attributes": { "calledElement": "${childKey}", "outParameters": [ { "source": "variant", "target": "chosen" } ] } }
+      }
+    },
+    "callMultiInstance": {
+      "elements": {
+        "inspectAll": { "type": "callActivity", "attributes": {
+          "outParameters": [ { "source": "result", "target": "lastResult" } ],
+          "loopCharacteristics": {
+            "sequential": false,
+            "inputDataItem": "items",
+            "elementVariable": "item",
+            "loopDataOutputRef": "itemResults",
+            "outputDataItem": "result"
+          } } },
+        "stepEach": { "type": "callActivity", "attributes": {
+          "outParameters": [ { "source": "result", "target": "lastStepResult" } ],
+          "loopCharacteristics": {
+            "sequential": true,
+            "loopCardinality": "${rounds}",
+            "elementIndexVariable": "step",
+            "loopDataOutputRef": "stepResults",
+            "outputDataItem": "result"
+          } } }
+      }
+    }
+  }
+}

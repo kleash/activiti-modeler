@@ -1,0 +1,35 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C07 global signal against processInstance signal, across a call activity",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "a global signal thrown by the child reaches the parent, with the child's variables",
+      "start": { "process": "signalParent", "user": "ann", "variables": { "childProcess": "signalChildGlobal" } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "callChild", "process": "signalChildGlobal", "state": "COMPLETED", "variables": { "childResult": "done" },
+            "path": { "order": [["prepare", "raise"], ["raise", "end"]] } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end"],
+        "variables": { "childProcess": "signalChildGlobal", "childResult": "done" },
+        "path": { "sequenceFlows": ["f_fork_waitChild", "f_fork_callChild", "f_waitChild_join", "f_callChild_join", "f_join_end"] }
+      }
+    },
+    {
+      "name": "a processInstance-scoped signal thrown by the child stays in the child: the parent keeps waiting",
+      "start": { "process": "signalParent", "user": "ann", "variables": { "childProcess": "signalChildLocal" } },
+      "steps": [
+        { "expectChildInstance": { "callActivity": "callChild", "process": "signalChildLocal", "state": "COMPLETED", "variables": { "childResult": "done" },
+            "path": { "contains": ["prepare", "raise", "end"] } } },
+        { "expectActive": ["waitChild"] }
+      ],
+      "expect": {
+        "state": "ACTIVE",
+        "absentVariables": ["childResult"],
+        "path": { "contains": ["callChild"], "notContains": ["end"], "sequenceFlows": ["f_callChild_join"], "notSequenceFlows": ["f_waitChild_join", "f_join_end"] }
+      }
+    }
+  ]
+}

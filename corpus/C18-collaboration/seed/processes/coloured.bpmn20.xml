@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_coloured"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0"
+             xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0"
+             targetNamespace="http://activiti.org/bpmn/corpus/C18">
+  <collaboration id="colouredCollaboration">
+    <participant id="colouredPool" name="Review desk" processRef="colouredReview"/>
+  </collaboration>
+  <process id="colouredReview" name="Coloured review" isExecutable="true">
+    <documentation>A reviewed request in a coloured diagram: the bpmn-js colour picker writes bioc:stroke / bioc:fill and color:border-color / color:background-color on the shapes, bioc:stroke / color:border-color on the edges. The engine ignores all of them.</documentation>
+    <laneSet id="reviewLanes">
+      <lane id="reviewerLane" name="Reviewer">
+        <flowNodeRef>reviewStart</flowNodeRef>
+        <flowNodeRef>review</flowNodeRef>
+        <flowNodeRef>decide</flowNodeRef>
+        <flowNodeRef>acceptedEnd</flowNodeRef>
+        <flowNodeRef>rejectedEnd</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="reviewStart" name="Request received"/>
+    <sequenceFlow id="f_reviewStart_review" sourceRef="reviewStart" targetRef="review"/>
+    <userTask id="review" name="Review request" activiti:assignee="ann"/>
+    <sequenceFlow id="f_review_decide" sourceRef="review" targetRef="decide"/>
+    <exclusiveGateway id="decide" name="Accepted?" default="f_decide_rejectedEnd"/>
+    <sequenceFlow id="f_decide_acceptedEnd" name="yes" sourceRef="decide" targetRef="acceptedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${accepted == true}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_decide_rejectedEnd" name="no" sourceRef="decide" targetRef="rejectedEnd"/>
+    <endEvent id="acceptedEnd" name="Accepted"/>
+    <endEvent id="rejectedEnd" name="Rejected"/>
+    <textAnnotation id="colourNote">
+      <text>Green is the happy path, red the rejection.</text>
+    </textAnnotation>
+    <association id="as_decide_colourNote" sourceRef="decide" targetRef="colourNote" associationDirection="None"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="colouredCollaboration">
+      <bpmndi:BPMNShape id="colouredPool_di" bpmnElement="colouredPool" isHorizontal="true" bioc:stroke="#1e88e5" bioc:fill="#e3f2fd" color:background-color="#e3f2fd" color:border-color="#1e88e5">
+        <dc:Bounds x="12" y="20" width="616" height="279"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewerLane_di" bpmnElement="reviewerLane" isHorizontal="true" bioc:stroke="#5b8dc9" bioc:fill="#f5faff" color:background-color="#f5faff" color:border-color="#5b8dc9">
+        <dc:Bounds x="42" y="20" width="586" height="279"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="reviewStart_di" bpmnElement="reviewStart" bioc:stroke="#43a047" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#43a047">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review" bioc:stroke="#1e88e5" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#1e88e5">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decide_di" bpmnElement="decide" isMarkerVisible="true" bioc:stroke="#fb8c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#fb8c00">
+        <dc:Bounds x="395" y="65" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="acceptedEnd_di" bpmnElement="acceptedEnd" bioc:stroke="#2e7d32" bioc:fill="#a5d6a7" color:background-color="#a5d6a7" color:border-color="#2e7d32">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="rejectedEnd_di" bpmnElement="rejectedEnd" bioc:stroke="#c62828" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#c62828">
+        <dc:Bounds x="552" y="182" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="colourNote_di" bpmnElement="colourNote" bioc:stroke="#6d4c41" bioc:fill="#efebe9" color:background-color="#efebe9" color:border-color="#6d4c41">
+        <dc:Bounds x="355" y="219" width="130" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_reviewStart_review_di" bpmnElement="f_reviewStart_review" bioc:stroke="#1e88e5" color:border-color="#1e88e5">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_review_decide_di" bpmnElement="f_review_decide">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="395" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_decide_acceptedEnd_di" bpmnElement="f_decide_acceptedEnd" bioc:stroke="#2e7d32" color:border-color="#2e7d32">
+        <di:waypoint x="445" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_decide_rejectedEnd_di" bpmnElement="f_decide_rejectedEnd" bioc:stroke="#c62828" color:border-color="#c62828">
+        <di:waypoint x="445" y="90"/>
+        <di:waypoint x="498" y="90"/>
+        <di:waypoint x="498" y="200"/>
+        <di:waypoint x="552" y="200"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="as_decide_colourNote_di" bpmnElement="as_decide_colourNote" bioc:stroke="#6d4c41" color:border-color="#6d4c41">
+        <di:waypoint x="420" y="115"/>
+        <di:waypoint x="420" y="219"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

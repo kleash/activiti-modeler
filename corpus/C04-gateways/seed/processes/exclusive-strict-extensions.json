@@ -1,0 +1,13 @@
+{
+  "id": "exclusive-strict-extensions",
+  "extensions": {
+    "exclusiveStrict": {
+      "properties": {
+        "p1": { "id": "p1", "name": "decision", "type": "string" }
+      },
+      "mappings": {
+        "decide": { "outputs": { "decision": { "type": "VARIABLE", "value": "decision" } } }
+      }
+    }
+  }
+}

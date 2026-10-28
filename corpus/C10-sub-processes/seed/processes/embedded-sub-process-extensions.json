@@ -1,0 +1,25 @@
+{
+  "id": "embedded-sub-process-extensions",
+  "extensions": {
+    "embeddedSubProcess": {
+      "properties": {
+        "p1": { "id": "p1", "name": "verdict", "type": "string" }
+      },
+      "mappings": {
+        "check": {
+          "inputs": {
+            "subScore": { "type": "VARIABLE", "value": "subScore" },
+            "region": { "type": "VARIABLE", "value": "region" }
+          },
+          "outputs": { "verdict": { "type": "VARIABLE", "value": "verdict" } }
+        },
+        "afterReview": {
+          "inputs": {
+            "subScore": { "type": "VARIABLE", "value": "subScore" },
+            "region": { "type": "VARIABLE", "value": "region" }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C03 BpmnError thrown from scripts",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "no error: both scripts complete",
+      "start": { "process": "scriptErrors", "user": "ann" },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["okEnd"],
+        "variables": { "jsOutcome": "js ok", "juelOutcome": "juel ok" },
+        "path": { "notContains": ["jsHandledEnd", "juelHandledEnd"], "sequenceFlows": ["f_start_jsRisky", "f_jsRisky_juelRisky", "f_juelRisky_okEnd"] }
+      }
+    },
+    {
+      "name": "a BpmnError from the JavaScript is caught by the boundary event with its error code",
+      "start": { "process": "scriptErrors", "user": "ann", "variables": { "jsFailWith": "SCRIPT_FAILED" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["jsHandledEnd"],
+        "absentVariables": ["jsOutcome", "juelOutcome"],
+        "path": { "contains": ["onJsError"], "notContains": ["juelRisky", "okEnd"], "sequenceFlows": ["f_onJsError_jsHandledEnd"], "notSequenceFlows": ["f_jsRisky_juelRisky"] }
+      }
+    },
+    {
+      "name": "a BpmnError from a JUEL script is caught by the boundary event without an error reference",
+      "start": { "process": "scriptErrors", "user": "ann", "variables": { "juelFailWith": "WHATEVER_CODE" } },
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["juelHandledEnd"],
+        "variables": { "jsOutcome": "js ok" },
+        "absentVariables": ["juelOutcome"],
+        "path": { "contains": ["jsRisky", "onJuelError"], "notContains": ["okEnd", "jsHandledEnd"], "sequenceFlows": ["f_jsRisky_juelRisky", "f_onJuelError_juelHandledEnd"], "notSequenceFlows": ["f_juelRisky_okEnd"] }
+      }
+    },
+    {
+      "name": "a BpmnError whose code no boundary event handles fails the call",
+      "start": { "process": "scriptErrors", "user": "ann", "variables": { "jsFailWith": "OTHER_CODE" },
+                 "expectFailure": { "exception": "BpmnError", "messageContains": "No catching boundary event found for error with errorCode 'OTHER_CODE'" } }
+    },
+    {
+      "name": "an ordinary exception is not an error event: it fails the call as a script problem",
+      "start": { "process": "scriptErrors", "user": "ann", "variables": { "jsFailWith": "PLAIN" },
+                 "expectFailure": { "exception": "ActivitiException", "messageContains": "problem evaluating script: a plain script failure" } }
+    }
+  ]
+}

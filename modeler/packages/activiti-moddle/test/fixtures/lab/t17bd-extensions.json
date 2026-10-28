@@ -1,0 +1,31 @@
+{
+ "id": "ext-t17bd",
+ "extensions": {
+  "t17bd": {
+   "properties": {
+    "p1": {
+     "id": "p1",
+     "name": "count",
+     "type": "integer",
+     "required": true,
+     "value": 3
+    },
+    "p2": {
+     "id": "p2",
+     "name": "when",
+     "type": "date",
+     "value": "2024-05-06"
+    },
+    "p3": {
+     "id": "p3",
+     "name": "cfg",
+     "type": "json",
+     "value": {
+      "a": 1
+     }
+    }
+   },
+   "mappings": {}
+  }
+ }
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C04 event-based gateway: timer against message",
+  "users": { "ann": [] },
+  "clock": "2030-01-01T09:00:00Z",
+  "scenarios": [
+    {
+      "name": "the timer fires first: the message subscription is gone afterwards",
+      "start": { "process": "eventBased", "businessKey": "O-1", "user": "ann", "variables": { "orderId": "O-1" } },
+      "steps": [
+        { "expectActive": { "exactly": ["timerCatch", "messageCatch"] } },
+        { "expectTimer": { "activity": "timerCatch", "count": 1, "dueDate": "2030-01-01T10:00:00Z" } },
+        { "fireTimer": { "activity": "timerCatch" } },
+        { "message": { "name": "approveOrder", "correlationKey": "O-1", "variables": { "approvedBy": "ann" },
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "Message subscription name 'approveOrder' with correlation key 'O-1' not found" } } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["endTimeout"],
+        "path": { "contains": ["race", "timerCatch", "messageCatch", "endTimeout"], "notContains": ["endApproved"],
+                  "sequenceFlows": ["f_race_timerCatch", "f_race_messageCatch", "f_timerCatch_endTimeout"], "notSequenceFlows": ["f_messageCatch_endApproved"] },
+        "absentVariables": ["approvedBy"]
+      }
+    },
+    {
+      "name": "the message arrives first: the timer is removed and its payload is mapped",
+      "start": { "process": "eventBased", "businessKey": "O-2", "user": "ann", "variables": { "orderId": "O-2" } },
+      "steps": [
+        { "expectTimer": { "activity": "timerCatch", "count": 1 } },
+        { "message": { "name": "approveOrder", "correlationKey": "O-2", "variables": { "approvedBy": "ann" } } },
+        { "expectTimer": { "activity": "timerCatch", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["endApproved"],
+        "path": { "contains": ["race", "timerCatch", "messageCatch", "endApproved"], "notContains": ["endTimeout"],
+                  "sequenceFlows": ["f_race_timerCatch", "f_race_messageCatch", "f_messageCatch_endApproved"], "notSequenceFlows": ["f_timerCatch_endTimeout"] },
+        "variables": { "approvedBy": "ann", "orderId": "O-2" }
+      }
+    },
+    {
+      "name": "a message for another order does not reach this instance",
+      "start": { "process": "eventBased", "user": "ann", "variables": { "orderId": "O-3" } },
+      "steps": [
+        { "message": { "name": "approveOrder", "correlationKey": "O-999", "variables": { "approvedBy": "ann" },
+            "expectFailure": { "exception": "ActivitiObjectNotFoundException", "messageContains": "correlation key 'O-999' not found" } } },
+        { "expectActive": { "exactly": ["timerCatch", "messageCatch"] } },
+        { "message": { "name": "approveOrder", "correlationKey": "O-3" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["endApproved"] }
+    }
+  ]
+}

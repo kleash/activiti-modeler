@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C10 sequential multi-instance sub process",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "one round after the other, counted by the index variable",
+      "start": { "process": "miSequential", "user": "ann", "variables": { "roundCount": 3 } },
+      "steps": [
+        { "expectTask": { "activity": "step", "count": 1, "name": "Round 1" } },
+        { "completeTask": { "activity": "step", "user": "ann" } },
+        { "expectTask": { "activity": "step", "count": 1, "name": "Round 2" } },
+        { "completeTask": { "activity": "step", "user": "ann" } },
+        { "expectTask": { "activity": "step", "count": 1, "name": "Round 3" } },
+        { "completeTask": { "activity": "step", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end", "roundEnd"], "path": { "contains": ["rounds", "roundStart", "step", "roundEnd"], "sequenceFlows": ["f_rounds_end"] } }
+    },
+    {
+      "name": "a cardinality of one runs a single round",
+      "start": { "process": "miSequential", "user": "ann", "variables": { "roundCount": 1 } },
+      "steps": [
+        { "expectTask": { "activity": "step", "count": 1, "name": "Round 1" } },
+        { "completeTask": { "activity": "step", "user": "ann" } },
+        { "expectTask": { "activity": "step", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["end", "roundEnd"],
+        "variables": { "roundCount": 1 },
+        "absentVariables": ["round", "nrOfInstances", "nrOfCompletedInstances", "nrOfActiveInstances"],
+        "path": {
+          "contains": ["rounds", "roundStart", "step", "roundEnd"],
+          "order": [["roundStart", "step"], ["step", "roundEnd"], ["rounds", "end"]],
+          "sequenceFlows": ["f_start_rounds", "f_roundStart_step", "f_step_roundEnd", "f_rounds_end"]
+        }
+      }
+    }
+  ]
+}

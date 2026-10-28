@@ -1,0 +1,34 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C10 terminate end event with terminateAll",
+  "users": { "ann": [], "ben": [], "cy": [] },
+  "scenarios": [
+    {
+      "name": "terminateAll ends the whole process instance from inside the sub process",
+      "start": { "process": "terminateAllScopes", "user": "ann" },
+      "steps": [
+        { "expectTask": { "activity": "outsideTask", "count": 1 } },
+        { "completeTask": { "activity": "subTask", "user": "ann", "variables": { "abort": true } } },
+        { "expectTask": { "activity": "subSide", "count": 0 } },
+        { "expectTask": { "activity": "outsideTask", "count": 0 } },
+        { "expectTask": { "activity": "afterJoin", "count": 0 } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["terminateInSub"],
+        "path": { "contains": ["terminateInSub"], "notContains": ["joinMain", "afterJoin", "end"], "sequenceFlows": ["f_subGate_terminate"] }
+      }
+    },
+    {
+      "name": "without abort the process runs to its end as usual",
+      "start": { "process": "terminateAllScopes", "user": "ann" },
+      "steps": [
+        { "completeTask": { "activity": "subSide", "user": "ben" } },
+        { "completeTask": { "activity": "subTask", "user": "ann", "variables": { "abort": false } } },
+        { "completeTask": { "activity": "outsideTask", "user": "cy" } },
+        { "completeTask": { "activity": "afterJoin", "user": "ann" } }
+      ],
+      "expect": { "state": "COMPLETED", "endEvents": ["end", "subDone", "subSideEnd"], "path": { "notContains": ["terminateInSub"] } }
+    }
+  ]
+}

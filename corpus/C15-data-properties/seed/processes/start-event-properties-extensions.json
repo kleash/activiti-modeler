@@ -1,0 +1,19 @@
+{
+  "id": "start-event-properties-extensions",
+  "extensions": {
+    "startEventProperties": {
+      "properties": {
+        "p1": { "id": "p1", "name": "customerName", "type": "string" },
+        "p2": { "id": "p2", "name": "channel", "type": "string" }
+      },
+      "mappings": {
+        "begin": {
+          "outputs": {
+            "customerName": { "type": "VARIABLE", "value": "name" },
+            "channel": { "type": "VALUE", "value": "web" }
+          }
+        }
+      }
+    }
+  }
+}

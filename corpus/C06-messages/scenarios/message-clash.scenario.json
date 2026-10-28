@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C06 boundary and event sub process on the same message (lint L30)",
+  "description": "Two subscriptions named docs without a correlation key are active only while the user task waits. Engine finding 31.",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "at the user task both subscribe, so receive cannot choose and delivers nothing",
+      "start": { "process": "messageClash", "user": "ann" },
+      "steps": [
+        { "triggerReceiveTask": { "activity": "prepare" } },
+        { "expectTask": { "activity": "collect", "assignee": "ann" } },
+        { "message": { "name": "docs", "expectFailure": { "exception": "ActivitiException", "messageContains": "Query return 2 results instead of max 1" } } },
+        { "expectTask": { "activity": "collect", "assignee": "ann" } },
+        { "completeTask": { "activity": "collect", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["collectedEnd"],
+        "path": { "notContains": ["docsBoundary", "docsStart", "boundaryEnd", "handlerEnd"], "sequenceFlows": ["f_start_prepare", "f_prepare_collect", "f_collect_collectedEnd"] }
+      }
+    },
+    {
+      "name": "one subscription at a time: the event sub process first, then the boundary",
+      "start": { "process": "messageClash", "user": "ann" },
+      "steps": [
+        { "message": { "name": "docs" } },
+        { "triggerReceiveTask": { "activity": "prepare" } },
+        { "expectTask": { "activity": "collect", "assignee": "ann" } },
+        { "message": { "name": "docs" } },
+        { "completeTask": { "activity": "collect", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["handlerEnd", "boundaryEnd", "collectedEnd"],
+        "path": { "order": [["handlerEnd", "collect"], ["docsBoundary", "boundaryEnd"]], "sequenceFlows": ["f_docsStart_handlerEnd", "f_docsBoundary_boundaryEnd"] }
+      }
+    }
+  ]
+}

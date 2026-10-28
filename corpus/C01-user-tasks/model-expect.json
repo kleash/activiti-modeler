@@ -1,0 +1,72 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "assignmentForms": {
+      "definition": { "name": "Assignment forms", "category": "http://activiti.org/bpmn/corpus/C01" },
+      "elements": {
+        "byAssignee": { "type": "userTask", "attributes": { "assignee": "ann", "owner": "bob" } },
+        "byExpression": { "type": "userTask", "attributes": { "assignee": "${reviewer}" } },
+        "byCandidates": { "type": "userTask", "attributes": { "candidateUsers": ["ann", "bob"], "candidateGroups": ["reviewers", "clerks"] } },
+        "byCandidateExpressions": { "type": "userTask", "attributes": { "candidateUsers": ["${approvers}"], "candidateGroups": ["${groupNames}"] } },
+        "byHumanPerformer": { "type": "userTask", "attributes": { "assignee": "carl" } },
+        "byPotentialOwner": { "type": "userTask", "attributes": { "candidateUsers": ["ann", "carl"], "candidateGroups": ["reviewers"] } },
+        "byCustomResource": { "type": "userTask", "attributes": {
+          "customUserIdentityLinks": { "supervisor": ["dave"] },
+          "customGroupIdentityLinks": { "supervisor": ["managers"] } } }
+      }
+    },
+    "taskAttributes": {
+      "elements": {
+        "literal": { "type": "userTask", "attributes": { "priority": "80", "category": "credit", "formKey": "reviewForm", "dueDate": "P2D" } },
+        "expressions": { "type": "userTask", "attributes": { "priority": "${urgency}", "category": "${area}", "formKey": "${formName}", "dueDate": "${deadline}" } },
+        "durationCalendar": { "type": "userTask", "attributes": { "businessCalendarName": "duration", "dueDate": "PT4H" } },
+        "dueDateCalendar": { "type": "userTask", "attributes": { "businessCalendarName": "dueDate", "dueDate": "2030-02-01T12:30:00Z" } },
+        "plain": { "type": "userTask", "attributes": { "businessCalendarName": null } }
+      }
+    },
+    "taskListeners": {
+      "elements": {
+        "listened": { "type": "userTask", "attributes": { "taskListeners": [
+          { "event": "create", "implementationType": "class", "implementation": "io.github.kleash.activiti.harness.support.RecordingTaskListener" },
+          { "event": "assignment", "implementationType": "delegateExpression", "implementation": "${recordingTaskListener}" },
+          { "event": "complete", "implementationType": "class" },
+          { "event": "delete", "implementationType": "class" },
+          { "event": "complete", "implementationType": "expression", "implementation": "${execution.setVariable('completedBy', task.assignee)}" },
+          { "event": "all", "implementationType": "class", "implementation": "io.github.kleash.activiti.harness.support.FieldTaskListener",
+            "fieldExtensions": [ { "fieldName": "tag", "stringValue": "any" } ] },
+          { "event": "create", "implementationType": "class",
+            "fieldExtensions": [ { "fieldName": "tag", "expression": "${customerId}" } ] }
+        ] } }
+      }
+    },
+    "skipEnabled": {
+      "elements": { "review": { "type": "userTask", "attributes": { "skipExpression": "${skipReview}" } } }
+    },
+    "skipDisabled": {
+      "elements": { "review": { "type": "userTask", "attributes": { "skipExpression": "${skipReview}" } } }
+    },
+    "candidateStarters": {
+      "process": { "candidateStarterUsers": ["ann", "bob"], "candidateStarterGroups": ["clerks"] },
+      "candidateStarters": { "users": ["ann", "bob"], "groups": ["clerks"] },
+      "elements": {
+        "start": { "type": "startEvent", "attributes": { "initiator": "starter", "formKey": "startForm" } }
+      }
+    },
+    "reviewParallel": {
+      "elements": {
+        "reviewEach": { "type": "userTask", "attributes": { "loopCharacteristics": {
+          "sequential": false, "inputDataItem": "reviewers", "elementVariable": "reviewer",
+          "loopDataOutputRef": "verdicts", "outputDataItem": "verdict",
+          "completionCondition": "${nrOfCompletedInstances >= quorum}" } } }
+      }
+    },
+    "reviewSequential": {
+      "elements": {
+        "approveInTurn": { "type": "userTask", "attributes": { "loopCharacteristics": {
+          "sequential": true, "inputDataItem": "${approvers}", "elementVariable": "approver", "elementIndexVariable": "position",
+          "completionCondition": "${nrOfCompletedInstances >= limit}" } } },
+        "signOff": { "type": "userTask", "attributes": { "loopCharacteristics": { "sequential": true, "loopCardinality": "2" } } }
+      }
+    }
+  }
+}

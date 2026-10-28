@@ -1,0 +1,7 @@
+{
+  "$schema": "../../../schemas/coverage-exemptions.schema.json",
+  "exemptions": [
+    { "process": "timerStarts", "element": "startExpired", "reason": "its end date has passed, so the engine drops the start job; scenario 4 asserts that no instance is created" },
+    { "process": "timerStarts", "element": "f_startExpired_work", "reason": "the flow after the expired start event can never be taken; see the exemption of startExpired" }
+  ]
+}

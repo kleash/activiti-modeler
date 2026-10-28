@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_callMultiInstance"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C11">
+  <process id="callMultiInstance" name="Multi-instance call activities" isExecutable="true">
+    <documentation>inspectAll starts one child per item in parallel (collection, element variable, results collected through loopDataOutputRef and outputDataItem); stepEach starts a child per round in sequence (loop cardinality, element index variable passed on through activiti:in sourceExpression). In Activiti 9.0.0 nothing comes back from the children of a multi-instance call activity: the multi-instance wrapper does not forward the completion of the sub process to the call activity behavior, so activiti:out, output mappings and outputDataItem see no child variables (the collections hold null entries).</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_inspectAll" sourceRef="start" targetRef="inspectAll"/>
+    <callActivity id="inspectAll" name="Inspect each item" calledElement="itemChild">
+      <extensionElements>
+        <activiti:in source="item" target="item"/>
+        <activiti:out source="result" target="lastResult"/>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="items" activiti:elementVariable="item">
+        <loopDataOutputRef>itemResults</loopDataOutputRef>
+        <outputDataItem name="result"/>
+      </multiInstanceLoopCharacteristics>
+    </callActivity>
+    <sequenceFlow id="f_inspectAll_stepEach" sourceRef="inspectAll" targetRef="stepEach"/>
+    <callActivity id="stepEach" name="Step each round" calledElement="positionChild">
+      <extensionElements>
+        <activiti:in sourceExpression="${step}" target="position"/>
+        <activiti:out source="result" target="lastStepResult"/>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="true" activiti:elementIndexVariable="step">
+        <loopCardinality>${rounds}</loopCardinality>
+        <loopDataOutputRef>stepResults</loopDataOutputRef>
+        <outputDataItem name="result"/>
+      </multiInstanceLoopCharacteristics>
+    </callActivity>
+    <sequenceFlow id="f_stepEach_end" sourceRef="stepEach" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="callMultiInstance">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="inspectAll_di" bpmnElement="inspectAll">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="stepEach_di" bpmnElement="stepEach">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_inspectAll_di" bpmnElement="f_start_inspectAll">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_inspectAll_stepEach_di" bpmnElement="f_inspectAll_stepEach">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_stepEach_end_di" bpmnElement="f_stepEach_end">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="552" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

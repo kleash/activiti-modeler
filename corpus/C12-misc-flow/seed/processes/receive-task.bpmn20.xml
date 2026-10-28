@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C12">
+  <process id="receiveTask" name="Receive task" isExecutable="true">
+    <documentation>A receive task is a wait state; it is resumed by RuntimeService.trigger (ProcessRuntime has no API for it), optionally with variables.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_waitPayment" sourceRef="start" targetRef="waitPayment"/>
+    <receiveTask id="waitPayment" name="Wait for the payment"/>
+    <sequenceFlow id="f_waitPayment_afterPayment" sourceRef="waitPayment" targetRef="afterPayment"/>
+    <userTask id="afterPayment" name="Book the payment" activiti:candidateUsers="ann"/>
+    <sequenceFlow id="f_afterPayment_end" sourceRef="afterPayment" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="receiveTask">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitPayment_di" bpmnElement="waitPayment">
+        <dc:Bounds x="220" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="afterPayment_di" bpmnElement="afterPayment">
+        <dc:Bounds x="370" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_waitPayment_di" bpmnElement="f_start_waitPayment">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitPayment_afterPayment_di" bpmnElement="f_waitPayment_afterPayment">
+        <di:waypoint x="320" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_afterPayment_end_di" bpmnElement="f_afterPayment_end">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="552" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

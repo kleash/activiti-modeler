@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C03">
+  <error id="scriptFailed" name="Script failed" errorCode="SCRIPT_FAILED"/>
+  <process id="scriptErrors" name="BpmnError thrown from scripts" isExecutable="true">
+    <documentation>A BpmnError thrown by a JavaScript or a JUEL script is routed to the error boundary events of the script task; any other exception rolls the call back.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_jsRisky" sourceRef="start" targetRef="jsRisky"/>
+    <scriptTask id="jsRisky" name="Risky JavaScript" scriptFormat="javascript" activiti:resultVariable="jsOutcome">
+      <script>var code = execution.getVariable('jsFailWith');
+if (code == 'PLAIN') {
+  throw 'a plain script failure';
+}
+if (code != null) {
+  var BpmnError = Java.type('org.activiti.engine.delegate.BpmnError');
+  throw new BpmnError(code, 'raised by the JavaScript');
+}
+'js ok'</script>
+    </scriptTask>
+    <boundaryEvent id="onJsError" name="Script failed" attachedToRef="jsRisky">
+      <errorEventDefinition errorRef="scriptFailed"/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onJsError_jsHandledEnd" sourceRef="onJsError" targetRef="jsHandledEnd"/>
+    <endEvent id="jsHandledEnd" name="JavaScript error handled"/>
+    <sequenceFlow id="f_jsRisky_juelRisky" sourceRef="jsRisky" targetRef="juelRisky"/>
+    <scriptTask id="juelRisky" name="Risky JUEL" scriptFormat="juel" activiti:resultVariable="juelOutcome">
+      <script>${empty execution.getVariable('juelFailWith') ? 'juel ok' : scriptHelper.fail(execution.getVariable('juelFailWith'))}</script>
+    </scriptTask>
+    <boundaryEvent id="onJuelError" name="Any error" attachedToRef="juelRisky">
+      <errorEventDefinition/>
+    </boundaryEvent>
+    <sequenceFlow id="f_onJuelError_juelHandledEnd" sourceRef="onJuelError" targetRef="juelHandledEnd"/>
+    <endEvent id="juelHandledEnd" name="JUEL error handled"/>
+    <sequenceFlow id="f_juelRisky_okEnd" sourceRef="juelRisky" targetRef="okEnd"/>
+    <endEvent id="okEnd" name="No error"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="scriptErrors">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="jsRisky_di" bpmnElement="jsRisky">
+        <dc:Bounds x="220" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="jsHandledEnd_di" bpmnElement="jsHandledEnd">
+        <dc:Bounds x="252" y="422" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="juelRisky_di" bpmnElement="juelRisky">
+        <dc:Bounds x="370" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="juelHandledEnd_di" bpmnElement="juelHandledEnd">
+        <dc:Bounds x="402" y="422" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="okEnd_di" bpmnElement="okEnd">
+        <dc:Bounds x="552" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onJsError_di" bpmnElement="onJsError">
+        <dc:Bounds x="240" y="242" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="onJuelError_di" bpmnElement="onJuelError">
+        <dc:Bounds x="390" y="242" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_jsRisky_di" bpmnElement="f_start_jsRisky">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onJsError_jsHandledEnd_di" bpmnElement="f_onJsError_jsHandledEnd">
+        <di:waypoint x="258" y="278"/>
+        <di:waypoint x="258" y="440"/>
+        <di:waypoint x="252" y="440"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_jsRisky_juelRisky_di" bpmnElement="f_jsRisky_juelRisky">
+        <di:waypoint x="320" y="220"/>
+        <di:waypoint x="370" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_onJuelError_juelHandledEnd_di" bpmnElement="f_onJuelError_juelHandledEnd">
+        <di:waypoint x="408" y="278"/>
+        <di:waypoint x="408" y="440"/>
+        <di:waypoint x="402" y="440"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_juelRisky_okEnd_di" bpmnElement="f_juelRisky_okEnd">
+        <di:waypoint x="470" y="220"/>
+        <di:waypoint x="552" y="220"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

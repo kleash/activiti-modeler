@@ -1,0 +1,450 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kleash/activiti-modeler/schemas/scenario.schema.json",
+  "title": "Activiti scenario file",
+  "description": "Executable test scenarios for BPMN/DMN projects (docs/adr/0005-scenario-format.md, docs/user-guide/scenarios.md). One file holds the users, an optional fixed clock, any number of process scenarios and any number of decision cases. Executed by the activiti-scenario-runner library.",
+  "type": "object",
+  "required": ["name"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": { "type": "string", "minLength": 1, "description": "Name of the scenario file (shown in reports)." },
+    "description": { "type": "string" },
+    "users": {
+      "description": "Users known to the identity store for this file. Key = user name, value = the groups the user belongs to (they become GROUP_<name> authorities; every user also gets ROLE_ACTIVITI_USER).",
+      "type": "object",
+      "propertyNames": { "pattern": "^\\S+$" },
+      "additionalProperties": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+    },
+    "clock": { "$ref": "#/$defs/instant", "description": "Fixed engine clock applied before every scenario of this file (reset afterwards). A scenario may override it." },
+    "scenarios": { "type": "array", "items": { "$ref": "#/$defs/scenario" } },
+    "decisions": { "type": "array", "items": { "$ref": "#/$defs/decisionCase" } }
+  },
+
+  "$defs": {
+    "identifier": { "type": "string", "minLength": 1 },
+    "instant": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?(Z|[+-]\\d{2}:\\d{2})$",
+      "description": "ISO-8601 date-time with an offset or Z, e.g. 2030-01-01T09:00:00Z."
+    },
+    "duration": {
+      "type": "string",
+      "pattern": "^[-+]?P(?=\\d|T\\d)(\\d+Y)?(\\d+M)?(\\d+W)?(\\d+D)?(T(?=\\d)(\\d+H)?(\\d+M)?(\\d+(\\.\\d+)?S)?)?$",
+      "description": "ISO-8601 duration such as PT25H, P1D, P1Y2M3DT4H."
+    },
+    "variables": {
+      "description": "Plain values (no matchers): they are sent to the engine.",
+      "type": "object"
+    },
+
+    "expected": {
+      "description": "An expected value. A literal means 'equals' (numbers compare by value, dates by instant). An object whose keys all start with '$' is a matcher; any other object is compared key by key (exact key set); an array is compared element by element.",
+      "if": { "type": "object", "minProperties": 1, "propertyNames": { "pattern": "^\\$" } },
+      "then": { "$ref": "#/$defs/matcher" },
+      "else": {
+        "if": { "type": "object" },
+        "then": { "propertyNames": { "pattern": "^[^$]" }, "additionalProperties": { "$ref": "#/$defs/expected" } },
+        "else": { "if": { "type": "array" }, "then": { "items": { "$ref": "#/$defs/expected" } } }
+      }
+    },
+    "expectedMap": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/expected" }
+    },
+    "matcher": {
+      "description": "All operators present must hold.",
+      "type": "object",
+      "properties": {
+        "$exists": { "type": "boolean", "description": "true: the key is present (even with a null value); false: it is absent." },
+        "$type": { "enum": ["string", "number", "integer", "boolean", "array", "object", "null", "date"] },
+        "$regex": { "type": "string", "description": "Java regular expression; matches when it is found anywhere in the text of the value (anchor with ^ and $)." },
+        "$gt": { "type": ["number", "string"] },
+        "$gte": { "type": ["number", "string"] },
+        "$lt": { "type": ["number", "string"] },
+        "$lte": { "type": ["number", "string"] },
+        "$contains": { "description": "String: substring. Array: some element equals (or matches) the given value. Object: the given entries are present." },
+        "$size": { "$ref": "#/$defs/expected", "description": "Length of an array, object or string: a number or a matcher such as { \"$gt\": 1 }." },
+        "$any": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/expected" }, "description": "The value equals or matches at least one alternative." },
+        "$ignore": { "const": true, "description": "The key must exist but its value is not checked." }
+      },
+      "additionalProperties": false
+    },
+
+    "scenario": {
+      "type": "object",
+      "required": ["name", "start"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "clock": { "$ref": "#/$defs/instant" },
+        "start": { "$ref": "#/$defs/start" },
+        "steps": { "type": "array", "items": { "$ref": "#/$defs/step" } },
+        "expect": { "$ref": "#/$defs/expect" }
+      },
+      "if": { "required": ["start"], "properties": { "start": { "required": ["expectFailure"] } } },
+      "then": { "properties": { "steps": false, "expect": false } }
+    },
+
+    "start": {
+      "description": "How the root process instance of the scenario comes into being. Exactly one trigger: process (start by key), message (message start event), signal (signal start event) or timer (timer start event, together with its process).",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "process": { "$ref": "#/$defs/identifier", "description": "Process definition key. With 'timer' it names the process that owns the start event; with 'signal' it narrows which new instance is the root." },
+        "message": { "$ref": "#/$defs/identifier", "description": "Message name of a message start event." },
+        "signal": { "$ref": "#/$defs/identifier", "description": "Signal name; the instance created by the signal start event is the root." },
+        "timer": { "$ref": "#/$defs/identifier", "description": "Id of a timer start event; its start timer job is fired." },
+        "businessKey": { "type": "string" },
+        "user": { "type": "string", "description": "User that starts the instance (default: the built-in runner user)." },
+        "variables": { "$ref": "#/$defs/variables" },
+        "expectFailure": { "$ref": "#/$defs/expectFailure", "description": "The start itself must be rejected (for example a missing required variable); the scenario then has no steps and no expect." }
+      },
+      "anyOf": [
+        { "required": ["process"] },
+        { "required": ["message"] },
+        { "required": ["signal"] },
+        { "required": ["timer"] }
+      ],
+      "allOf": [
+        { "if": { "required": ["message"] }, "then": { "properties": { "process": false, "signal": false, "timer": false } } },
+        { "if": { "required": ["signal"] }, "then": { "properties": { "message": false, "timer": false } } },
+        { "if": { "required": ["timer"] }, "then": { "required": ["process"], "properties": { "message": false, "signal": false } } }
+      ]
+    },
+
+    "step": {
+      "description": "One step: an object with exactly one key naming the step type.",
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "expectTask": { "$ref": "#/$defs/expectTask" },
+        "claim": { "$ref": "#/$defs/claim" },
+        "release": { "$ref": "#/$defs/release" },
+        "assign": { "$ref": "#/$defs/assign" },
+        "completeTask": { "$ref": "#/$defs/completeTask" },
+        "expectConnectorCall": { "$ref": "#/$defs/expectConnectorCall" },
+        "expectChildInstance": { "$ref": "#/$defs/expectChildInstance" },
+        "message": { "$ref": "#/$defs/messageStep" },
+        "signal": { "$ref": "#/$defs/signalStep" },
+        "triggerReceiveTask": { "$ref": "#/$defs/triggerReceiveTask" },
+        "expectTimer": { "$ref": "#/$defs/expectTimer" },
+        "fireTimer": { "$ref": "#/$defs/fireTimer" },
+        "advanceClock": { "$ref": "#/$defs/duration" },
+        "executeJobs": { "$ref": "#/$defs/executeJobs" },
+        "failJobUntilDeadLetter": { "$ref": "#/$defs/failJobUntilDeadLetter" },
+        "expectActive": { "$ref": "#/$defs/expectActive" },
+        "setVariables": { "$ref": "#/$defs/variables" }
+      }
+    },
+
+    "taskMatch": {
+      "description": "Selects one task among several at the same activity (multi-instance). Every given field must match.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "localVariables": { "$ref": "#/$defs/expectedMap", "description": "Task-local variables the task must have (subset)." },
+        "assignee": { "$ref": "#/$defs/expected" },
+        "name": { "$ref": "#/$defs/expected" },
+        "index": { "type": "integer", "minimum": 1, "description": "1-based position among the matching tasks, ordered by creation." }
+      }
+    },
+
+    "expectTask": {
+      "description": "Asserts the open task(s) at a user task activity inside the scenario's instance tree. Reads the task through the engine TaskService (all tasks, regardless of who may see them); 'visibleTo'/'notVisibleTo' check visibility through TaskRuntime as the named users.",
+      "type": "object",
+      "required": ["activity"],
+      "additionalProperties": false,
+      "properties": {
+        "activity": { "$ref": "#/$defs/identifier", "description": "Id of the user task element." },
+        "match": { "$ref": "#/$defs/taskMatch" },
+        "count": { "type": "integer", "minimum": 0, "description": "Number of open tasks at the activity; every field below is then checked on all of them (0: no open task)." },
+        "name": { "$ref": "#/$defs/expected" },
+        "description": { "$ref": "#/$defs/expected" },
+        "assignee": { "$ref": "#/$defs/expected", "description": "null: unassigned." },
+        "owner": { "$ref": "#/$defs/expected" },
+        "candidateUsers": { "type": "array", "items": { "type": "string" }, "uniqueItems": true, "description": "Exact set of candidate users (identity links of type candidate)." },
+        "candidateGroups": { "type": "array", "items": { "type": "string" }, "uniqueItems": true, "description": "Exact set of candidate groups." },
+        "identityLinks": {
+          "type": "array",
+          "description": "Identity links (TaskService.getIdentityLinksForTask) that must exist on the task, in addition to the candidates: for example the custom links of an activiti:customResource ({ \"type\": \"supervisor\", \"user\": \"dave\" }) or the links of the assignee (type assignee) and owner (type owner). Every listed link must be present; other links are not checked.",
+          "items": {
+            "type": "object",
+            "required": ["type"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "minLength": 1 },
+              "user": { "type": "string", "minLength": 1 },
+              "group": { "type": "string", "minLength": 1 }
+            },
+            "oneOf": [ { "required": ["user"] }, { "required": ["group"] } ]
+          }
+        },
+        "priority": { "$ref": "#/$defs/expected" },
+        "category": { "$ref": "#/$defs/expected" },
+        "formKey": { "$ref": "#/$defs/expected" },
+        "dueDate": { "$ref": "#/$defs/expected", "description": "ISO instant, null (no due date) or a matcher." },
+        "localVariables": { "$ref": "#/$defs/expectedMap", "description": "The task-local variables: exact key set unless 'partial' is true." },
+        "partial": { "type": "boolean", "default": false, "description": "localVariables lists only some of the task-local variables." },
+        "visibleTo": { "type": "array", "items": { "type": "string" }, "description": "Users that must see the task through TaskRuntime (assignee, owner, candidate user or member of a candidate group)." },
+        "notVisibleTo": { "type": "array", "items": { "type": "string" }, "description": "Users that must not see the task through TaskRuntime." }
+      }
+    },
+
+    "claim": {
+      "type": "object",
+      "required": ["activity", "user"],
+      "additionalProperties": false,
+      "properties": {
+        "activity": { "$ref": "#/$defs/identifier" },
+        "user": { "type": "string", "minLength": 1 },
+        "match": { "$ref": "#/$defs/taskMatch" }
+      }
+    },
+    "release": {
+      "type": "object",
+      "required": ["activity", "user"],
+      "additionalProperties": false,
+      "properties": {
+        "activity": { "$ref": "#/$defs/identifier" },
+        "user": { "type": "string", "minLength": 1, "description": "The current assignee." },
+        "match": { "$ref": "#/$defs/taskMatch" }
+      }
+    },
+    "assign": {
+      "type": "object",
+      "required": ["activity", "assignee", "user"],
+      "additionalProperties": false,
+      "properties": {
+        "activity": { "$ref": "#/$defs/identifier" },
+        "assignee": { "type": "string", "minLength": 1, "description": "The new assignee (must be a candidate user of the task, per TaskRuntime.assign)." },
+        "user": { "type": "string", "minLength": 1, "description": "The current assignee, who performs the hand-over." },
+        "match": { "$ref": "#/$defs/taskMatch" }
+      }
+    },
+    "completeTask": {
+      "description": "Completes a task through TaskRuntime as 'user'. The user claims it first unless it is already assigned to that user. Variables are task-local and reach the process only through the element's output mappings.",
+      "type": "object",
+      "required": ["activity", "user"],
+      "additionalProperties": false,
+      "properties": {
+        "activity": { "$ref": "#/$defs/identifier" },
+        "user": { "type": "string", "minLength": 1 },
+        "variables": { "$ref": "#/$defs/variables" },
+        "match": { "$ref": "#/$defs/taskMatch" },
+        "expectFailure": { "$ref": "#/$defs/expectFailure" }
+      }
+    },
+    "expectFailure": {
+      "description": "The step must fail. Both fields are checked against the exception and its causes.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "exception": { "type": "string", "minLength": 1, "description": "Simple or fully qualified class name of the exception or one of its causes." },
+        "messageContains": { "type": "string", "description": "Text contained in the message of the exception or one of its causes." }
+      }
+    },
+
+    "expectConnectorCall": {
+      "description": "Asserts on the recording wrapper around Connector beans: the calls made for a service task within the instance tree.",
+      "type": "object",
+      "required": ["activity"],
+      "additionalProperties": false,
+      "properties": {
+        "activity": { "$ref": "#/$defs/identifier", "description": "Id of the service task." },
+        "connector": { "type": "string", "description": "Expected implementation (connector bean name), e.g. crm.LOOKUP." },
+        "count": { "type": "integer", "minimum": 0, "description": "Number of calls made so far for the activity." },
+        "call": { "type": "integer", "minimum": 1, "default": 1, "description": "Which call (1-based, in call order) 'inbound' and 'outbound' apply to." },
+        "inbound": { "$ref": "#/$defs/expectedMap", "description": "Inbound variables of the call: exact key set unless 'partial'. Use { \"$ignore\": true } for keys whose value does not matter." },
+        "outbound": { "$ref": "#/$defs/expectedMap", "description": "Outbound variables the connector returned: exact key set unless 'partial'." },
+        "partial": { "type": "boolean", "default": false }
+      }
+    },
+
+    "path": {
+      "description": "Assertions on what a process instance did, read from its history and the recorded sequence flows.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contains": { "type": "array", "items": { "$ref": "#/$defs/identifier" }, "description": "Activities that were entered (order-free)." },
+        "notContains": { "type": "array", "items": { "$ref": "#/$defs/identifier" }, "description": "Activities that were never entered." },
+        "order": {
+          "type": "array",
+          "items": { "type": "array", "prefixItems": [ { "$ref": "#/$defs/identifier" }, { "$ref": "#/$defs/identifier" } ], "minItems": 2, "maxItems": 2 },
+          "description": "Happens-before pairs [a, b]: a was entered before b (meaningful along one branch only)."
+        },
+        "sequenceFlows": { "type": "array", "items": { "$ref": "#/$defs/identifier" }, "description": "Sequence flows that were taken." },
+        "notSequenceFlows": { "type": "array", "items": { "$ref": "#/$defs/identifier" }, "description": "Sequence flows that were not taken." }
+      }
+    },
+
+    "expectChildInstance": {
+      "description": "Asserts on the child process instance started by a call activity of the scenario's tree.",
+      "type": "object",
+      "required": ["callActivity"],
+      "additionalProperties": false,
+      "properties": {
+        "callActivity": { "$ref": "#/$defs/identifier", "description": "Id of the call activity in the parent." },
+        "process": { "$ref": "#/$defs/identifier", "description": "Process definition key of the child." },
+        "businessKey": { "$ref": "#/$defs/expected" },
+        "count": { "type": "integer", "minimum": 0, "description": "Number of child instances the call activity has started (multi-instance call activities start several)." },
+        "call": { "type": "integer", "minimum": 1, "default": 1, "description": "Which child (1-based, in start order) the following fields apply to." },
+        "state": { "enum": ["ACTIVE", "COMPLETED"] },
+        "startVariables": { "$ref": "#/$defs/expectedMap", "description": "First recorded value of each listed variable (what the child was started with, after input mapping); subset." },
+        "variables": { "$ref": "#/$defs/expectedMap", "description": "Current (or final) process variables of the child; subset." },
+        "absentVariables": { "type": "array", "items": { "type": "string" } },
+        "path": { "$ref": "#/$defs/path" }
+      }
+    },
+
+    "messageStep": {
+      "description": "ProcessRuntime.receive: delivers a message to the single subscription with this name and correlation key.",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/identifier" },
+        "correlationKey": { "type": "string" },
+        "variables": { "$ref": "#/$defs/variables" },
+        "user": { "type": "string" },
+        "expectFailure": { "$ref": "#/$defs/expectFailure" }
+      }
+    },
+    "signalStep": {
+      "description": "ProcessRuntime.signal: broadcasts a signal to every waiting instance.",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/identifier" },
+        "variables": { "$ref": "#/$defs/variables" },
+        "user": { "type": "string" }
+      }
+    },
+    "triggerReceiveTask": {
+      "description": "RuntimeService.trigger on the execution waiting at a receive task (ProcessRuntime has no API for it).",
+      "type": "object",
+      "required": ["activity"],
+      "additionalProperties": false,
+      "properties": {
+        "activity": { "$ref": "#/$defs/identifier" },
+        "variables": { "$ref": "#/$defs/variables" },
+        "match": {
+          "description": "Selects one execution among several waiting at the activity (a multi-instance receive task).",
+          "type": "object",
+          "required": ["localVariables"],
+          "additionalProperties": false,
+          "properties": {
+            "localVariables": { "$ref": "#/$defs/expectedMap", "description": "Variables the execution must see (subset), such as the element variable of its instance." }
+          }
+        }
+      }
+    },
+    "expectTimer": {
+      "description": "Asserts on the timer jobs (not yet fired) at a timer event of the instance tree, read through ManagementService.createTimerJobQuery. The due date is the one the engine computed from the timer definition and the engine clock, so a fixed clock makes it exact.",
+      "type": "object",
+      "required": ["activity"],
+      "additionalProperties": false,
+      "properties": {
+        "activity": { "$ref": "#/$defs/identifier", "description": "Id of the timer event (boundary or intermediate catch event); a timer job of a failed async job counts for its activity too." },
+        "count": { "type": "integer", "minimum": 0, "description": "Number of timer jobs at the activity (0: none). Default: at least one." },
+        "dueDate": { "$ref": "#/$defs/expected", "description": "Due date of the earliest timer job at the activity: an ISO instant or a matcher." }
+      }
+    },
+    "fireTimer": {
+      "description": "Makes the timer job of a timer event due now: moveTimerToExecutableJob, then executeJob (MANUAL) or wait for the async executor (EXECUTOR).",
+      "type": "object",
+      "required": ["activity"],
+      "additionalProperties": false,
+      "properties": {
+        "activity": { "$ref": "#/$defs/identifier", "description": "Id of the timer event (boundary, intermediate catch or start event)." },
+        "all": { "type": "boolean", "default": false, "description": "Fire every timer job at the activity instead of the earliest one." }
+      }
+    },
+    "executeJobs": {
+      "description": "Runs the due work of the instance tree: timers whose due date has passed on the engine clock, then executable (async) jobs, until none are left.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maxRounds": { "type": "integer", "minimum": 1, "default": 100 },
+        "timeoutMs": { "type": "integer", "minimum": 1, "description": "EXECUTOR mode: how long to wait for the async executor." }
+      }
+    },
+    "failJobUntilDeadLetter": {
+      "description": "Executes the job at an activity again and again (moving retry timers to executable) until it lands in the dead-letter table. The job must keep failing.",
+      "type": "object",
+      "required": ["activity"],
+      "additionalProperties": false,
+      "properties": {
+        "activity": { "$ref": "#/$defs/identifier" },
+        "maxAttempts": { "type": "integer", "minimum": 1, "default": 20 }
+      }
+    },
+    "expectActive": {
+      "description": "Activities that are currently active (RuntimeService.getActiveActivityIds, over the instance tree). An array means exactly this set.",
+      "oneOf": [
+        { "type": "array", "items": { "$ref": "#/$defs/identifier" }, "uniqueItems": true },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "exactly": { "type": "array", "items": { "$ref": "#/$defs/identifier" }, "uniqueItems": true },
+            "contains": { "type": "array", "items": { "$ref": "#/$defs/identifier" } },
+            "notContains": { "type": "array", "items": { "$ref": "#/$defs/identifier" } }
+          }
+        }
+      ]
+    },
+
+    "expect": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "state": { "enum": ["COMPLETED", "ACTIVE", "DEADLETTER"], "description": "COMPLETED: the root instance has ended. ACTIVE: it is still running and has no dead-letter job. DEADLETTER: it is still running and has at least one dead-letter job." },
+        "endEvents": { "type": "array", "items": { "$ref": "#/$defs/identifier" }, "uniqueItems": true, "description": "Exact set of end events the root instance reached." },
+        "path": { "$ref": "#/$defs/path" },
+        "variables": { "$ref": "#/$defs/expectedMap", "description": "Process variables of the root instance (subset). Read from history, so it works after the instance has ended." },
+        "absentVariables": { "type": "array", "items": { "type": "string" } },
+        "deadLetterJobs": {
+          "type": "array",
+          "description": "Exactly these dead-letter jobs exist in the instance tree.",
+          "items": {
+            "type": "object",
+            "required": ["activity"],
+            "additionalProperties": false,
+            "properties": {
+              "activity": { "$ref": "#/$defs/identifier" },
+              "exceptionMessageContains": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "decisionCase": {
+      "description": "Evaluates a DMN decision through the DecisionEvaluator and checks the result rows and matched rules.",
+      "type": "object",
+      "required": ["decision", "expect"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "decision": { "$ref": "#/$defs/identifier", "description": "Decision id (or table name) to evaluate." },
+        "inputs": { "$ref": "#/$defs/variables" },
+        "expect": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "result": { "type": "array", "items": { "$ref": "#/$defs/expectedMap" }, "description": "Result rows, in order. A single-result decision yields one row. Each row: exact key set." },
+            "matchedRules": { "type": "array", "items": { "type": "string" }, "description": "Ids of the matched rules (order-free, exact set)." }
+          }
+        }
+      }
+    }
+  }
+}

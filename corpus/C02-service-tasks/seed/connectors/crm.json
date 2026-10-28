@@ -1,0 +1,18 @@
+{
+  "id": "crm",
+  "name": "crm",
+  "description": "Customer lookups (bean crm.LOOKUP)",
+  "actions": {
+    "LOOKUP": {
+      "id": "LOOKUP",
+      "name": "Look up a customer",
+      "description": "Finds a customer by id",
+      "inputs": [ { "id": "customerId", "name": "customerId", "type": "string", "required": true } ],
+      "outputs": [
+        { "id": "customerName", "name": "customerName", "type": "string" },
+        { "id": "tier", "name": "tier", "type": "string" },
+        { "id": "found", "name": "found", "type": "boolean" }
+      ]
+    }
+  }
+}

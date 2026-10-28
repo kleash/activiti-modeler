@@ -1,0 +1,74 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "processes": {
+    "loanApplication": {
+      "definition": { "name": "Loan application (decision id)", "category": "http://kleash.github.io/corpus/C17" },
+      "extensions": {
+        "properties": {
+          "age": { "type": "integer" },
+          "country": { "type": "string" },
+          "income": { "type": "integer" },
+          "amount": { "type": "integer" },
+          "offer": { "type": "string" },
+          "matched": { "type": "boolean" },
+          "matchedRules": { "type": "array" }
+        },
+        "mappings": {
+          "decideOffer": { "mappingType": null, "inputs": { "age": { "type": "VARIABLE", "value": "age" }, "country": { "type": "VARIABLE", "value": "country" }, "income": { "type": "VARIABLE", "value": "income" }, "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": { "offer": { "type": "VARIABLE", "value": "offer" }, "matched": { "type": "VARIABLE", "value": "_activiti_dmn_matched_" }, "matchedRules": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } }
+        },
+        "constants": {
+          "decideOffer": { "_activiti_dmn_table_": "loanOffer" }
+        }
+      },
+      "elements": {
+        "decideOffer": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } }
+      }
+    },
+    "loanApplicationByFile": {
+      "definition": { "name": "Loan application (DMN file base name)", "category": "http://kleash.github.io/corpus/C17" },
+      "extensions": {
+        "properties": {
+          "age": { "type": "integer" },
+          "country": { "type": "string" },
+          "income": { "type": "integer" },
+          "amount": { "type": "integer" },
+          "offer": { "type": "string" },
+          "matched": { "type": "boolean" },
+          "matchedRules": { "type": "array" }
+        },
+        "mappings": {
+          "decideOffer": { "mappingType": null, "inputs": { "age": { "type": "VARIABLE", "value": "age" }, "country": { "type": "VARIABLE", "value": "country" }, "income": { "type": "VARIABLE", "value": "income" }, "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": { "offer": { "type": "VARIABLE", "value": "offer" }, "matched": { "type": "VARIABLE", "value": "_activiti_dmn_matched_" }, "matchedRules": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } }
+        },
+        "constants": {
+          "decideOffer": { "_activiti_dmn_table_": "loan-decision" }
+        }
+      },
+      "elements": {
+        "decideOffer": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } }
+      }
+    },
+    "loanApplicationByModelName": {
+      "definition": { "name": "Loan application (DMN model name)", "category": "http://kleash.github.io/corpus/C17" },
+      "extensions": {
+        "properties": {
+          "age": { "type": "integer" },
+          "country": { "type": "string" },
+          "income": { "type": "integer" },
+          "amount": { "type": "integer" },
+          "offer": { "type": "string" },
+          "matched": { "type": "boolean" },
+          "matchedRules": { "type": "array" }
+        },
+        "mappings": {
+          "decideOffer": { "mappingType": null, "inputs": { "age": { "type": "VARIABLE", "value": "age" }, "country": { "type": "VARIABLE", "value": "country" }, "income": { "type": "VARIABLE", "value": "income" }, "amount": { "type": "VARIABLE", "value": "amount" } }, "outputs": { "offer": { "type": "VARIABLE", "value": "offer" }, "matched": { "type": "VARIABLE", "value": "_activiti_dmn_matched_" }, "matchedRules": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" } } }
+        },
+        "constants": {
+          "decideOffer": { "_activiti_dmn_table_": "Loan decision" }
+        }
+      },
+      "elements": {
+        "decideOffer": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "terminate-all-scopes-extensions",
+  "extensions": {
+    "terminateAllScopes": {
+      "properties": {
+        "p1": {
+          "id": "p1",
+          "name": "abort",
+          "type": "boolean"
+        }
+      },
+      "mappings": {
+        "subTask": {
+          "outputs": {
+            "abort": {
+              "type": "VARIABLE",
+              "value": "abort"
+            }
+          }
+        }
+      }
+    }
+  }
+}

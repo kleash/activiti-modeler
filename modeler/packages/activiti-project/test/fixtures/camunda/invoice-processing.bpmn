@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_invoices" targetNamespace="http://bpmn.io/schema/bpmn" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.19.0">
+  <bpmn:message id="Message_paymentReceived" name="PaymentReceived" />
+  <bpmn:error id="Error_unknownSupplier" name="UnknownSupplier" errorCode="SUPPLIER_UNKNOWN" camunda:errorMessage="The supplier is not in the master data" />
+  <bpmn:process id="invoiceProcessing" name="Invoice processing" isExecutable="true" camunda:historyTimeToLive="180" camunda:taskPriority="50" camunda:jobPriority="10">
+    <bpmn:startEvent id="invoiceArrived" name="Invoice arrived">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="normalise" name="Normalise amounts" scriptFormat="groovy" camunda:resultVariable="net" camunda:asyncBefore="true">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+      <bpmn:script>return invoice.gross - invoice.tax</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="loadRates" name="Load rates" scriptFormat="javascript" camunda:resource="deployment://rates.js" camunda:resultVariable="rates">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:businessRuleTask id="classify" name="Classify invoice" camunda:decisionRef="invoiceClassification" camunda:decisionRefBinding="version" camunda:decisionRefVersion="4" camunda:mapDecisionResult="singleEntry" camunda:resultVariable="invoiceClass">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:businessRuleTask id="legacyRule" name="Legacy rule" camunda:class="com.acme.invoices.LegacyRule">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:serviceTask id="validateSupplier" name="Validate supplier" camunda:type="external" camunda:topic="supplier-validation" camunda:taskPriority="3">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="supplierUnknown" name="Supplier unknown" attachedToRef="validateSupplier">
+      <bpmn:outgoing>Flow_unknown</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1" errorRef="Error_unknownSupplier" camunda:errorCodeVariable="errorCode" camunda:errorMessageVariable="errorMessage" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="postToLedger" name="Post to ledger" camunda:delegateExpression="${ledgerDelegate}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="account">4711</camunda:inputParameter>
+          <camunda:outputParameter name="posted">${true}</camunda:outputParameter>
+        </camunda:inputOutput>
+        <camunda:connector>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="approveInvoice" name="Approve invoice" camunda:assignee="${approver}" camunda:formRef="approval-form" camunda:formRefBinding="latest">
+      <bpmn:multiInstanceLoopCharacteristics camunda:asyncBefore="true" camunda:collection="${approvers}" camunda:elementVariable="approver">
+        <bpmn:completionCondition xsi:type="bpmn:tFormalExpression">${nrOfCompletedInstances &gt;= 2}</bpmn:completionCondition>
+      </bpmn:multiInstanceLoopCharacteristics>
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:intermediateCatchEvent id="waitForPayment" name="Payment received">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1" messageRef="Message_paymentReceived" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="paid" name="Invoice paid">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_2" camunda:class="com.acme.invoices.PaidNotifier" />
+    </bpmn:endEvent>
+    <bpmn:endEvent id="unknownSupplierEnd" name="Rejected">
+      <bpmn:incoming>Flow_unknown</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="invoiceArrived" targetRef="normalise" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="normalise" targetRef="loadRates" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="loadRates" targetRef="classify" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="classify" targetRef="legacyRule" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="legacyRule" targetRef="validateSupplier" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="validateSupplier" targetRef="postToLedger" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="postToLedger" targetRef="approveInvoice" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="approveInvoice" targetRef="waitForPayment" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="waitForPayment" targetRef="paid" />
+    <bpmn:sequenceFlow id="Flow_unknown" sourceRef="supplierUnknown" targetRef="unknownSupplierEnd">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" language="groovy" camunda:resource="classpath://conditions/supplier.groovy" />
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="invoiceProcessing">
+      <bpmndi:BPMNShape id="invoiceArrived_di" bpmnElement="invoiceArrived"><dc:Bounds x="152" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="normalise_di" bpmnElement="normalise"><dc:Bounds x="230" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="loadRates_di" bpmnElement="loadRates"><dc:Bounds x="370" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="classify_di" bpmnElement="classify"><dc:Bounds x="510" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="legacyRule_di" bpmnElement="legacyRule"><dc:Bounds x="650" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="validateSupplier_di" bpmnElement="validateSupplier"><dc:Bounds x="790" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="postToLedger_di" bpmnElement="postToLedger"><dc:Bounds x="930" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approveInvoice_di" bpmnElement="approveInvoice"><dc:Bounds x="1070" y="80" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitForPayment_di" bpmnElement="waitForPayment"><dc:Bounds x="1212" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="paid_di" bpmnElement="paid"><dc:Bounds x="1292" y="102" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="supplierUnknown_di" bpmnElement="supplierUnknown"><dc:Bounds x="822" y="142" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="unknownSupplierEnd_di" bpmnElement="unknownSupplierEnd"><dc:Bounds x="822" y="232" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1"><di:waypoint x="188" y="120" /><di:waypoint x="230" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2"><di:waypoint x="330" y="120" /><di:waypoint x="370" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3"><di:waypoint x="470" y="120" /><di:waypoint x="510" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4"><di:waypoint x="610" y="120" /><di:waypoint x="650" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5"><di:waypoint x="750" y="120" /><di:waypoint x="790" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6"><di:waypoint x="890" y="120" /><di:waypoint x="930" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7"><di:waypoint x="1030" y="120" /><di:waypoint x="1070" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8"><di:waypoint x="1170" y="120" /><di:waypoint x="1212" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9"><di:waypoint x="1248" y="120" /><di:waypoint x="1292" y="120" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_unknown_di" bpmnElement="Flow_unknown"><di:waypoint x="840" y="178" /><di:waypoint x="840" y="232" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

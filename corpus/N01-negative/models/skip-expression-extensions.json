@@ -1,0 +1,14 @@
+{
+  "id": "skipExpr-extensions",
+  "extensions": {
+    "skipExpr": {
+      "properties": {},
+      "mappings": {
+        "review": {
+          "mappingType": "MAP_ALL_INPUTS"
+        }
+      },
+      "constants": {}
+    }
+  }
+}

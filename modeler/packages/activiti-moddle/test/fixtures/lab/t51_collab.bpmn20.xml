@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:activiti="http://activiti.org/bpmn" xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://example.org/lab">
+<collaboration id="col"><participant id="p1" name="Pool" processRef="t51_collab"/><participant id="p2" name="Ext"/><messageFlow id="mf" sourceRef="p1" targetRef="p2"/></collaboration>
+  <process id="t51_collab" name="t51_collab" isExecutable="true">
+    <startEvent id="s"/><userTask id="u"/><endEvent id="e"/>
+    <sequenceFlow id="f1" sourceRef="s" targetRef="u"/>
+    <sequenceFlow id="f2" sourceRef="u" targetRef="e"/>
+
+  </process>
+</definitions>

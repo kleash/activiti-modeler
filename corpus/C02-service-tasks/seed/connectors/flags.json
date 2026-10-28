@@ -1,0 +1,18 @@
+{
+  "id": "flags",
+  "name": "flags",
+  "description": "Reports what a connector sees about its call (bean flags.EXECUTE)",
+  "actions": {
+    "EXECUTE": {
+      "id": "EXECUTE",
+      "name": "Report flags",
+      "description": "Returns ephemeral (whether the mapping is ephemeral), connectorType and clientId (the service task id)",
+      "inputs": [],
+      "outputs": [
+        { "id": "ephemeral", "name": "ephemeral", "type": "boolean" },
+        { "id": "connectorType", "name": "connectorType", "type": "string" },
+        { "id": "clientId", "name": "clientId", "type": "string" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "id": "pricing-extensions",
+  "extensions": {
+    "pricing": {
+      "properties": {
+        "Property_basePrice": {
+          "id": "Property_basePrice",
+          "name": "basePrice",
+          "type": "integer",
+          "required": false
+        },
+        "Property_loyaltyYears": {
+          "id": "Property_loyaltyYears",
+          "name": "loyaltyYears",
+          "type": "integer",
+          "required": false
+        },
+        "Property_price": {
+          "id": "Property_price",
+          "name": "price",
+          "type": "integer",
+          "required": false
+        },
+        "Property_priced": {
+          "id": "Property_priced",
+          "name": "priced",
+          "type": "boolean",
+          "required": false
+        }
+      },
+      "mappings": {
+        "decidePrice": {
+          "inputs": {
+            "basePrice": {
+              "type": "variable",
+              "value": "basePrice"
+            },
+            "loyaltyYears": {
+              "type": "variable",
+              "value": "loyaltyYears"
+            }
+          },
+          "outputs": {
+            "price": {
+              "type": "variable",
+              "value": "finalPrice"
+            },
+            "priced": {
+              "type": "variable",
+              "value": "_activiti_dmn_matched_"
+            }
+          }
+        }
+      },
+      "constants": {
+        "decidePrice": {
+          "_activiti_dmn_table_": {
+            "value": "finalPrice"
+          }
+        }
+      }
+    }
+  }
+}

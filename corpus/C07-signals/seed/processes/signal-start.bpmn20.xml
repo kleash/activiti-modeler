@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C07">
+  <signal id="newOrderSignal" name="newOrder"/>
+  <process id="signalStart" name="Signal start event" isExecutable="true">
+    <documentation>A broadcast signal named newOrder starts a new instance; the signal's variables become process variables as they are.</documentation>
+    <startEvent id="startOnSignal" name="Order signal arrives">
+      <signalEventDefinition signalRef="newOrderSignal"/>
+    </startEvent>
+    <sequenceFlow id="f_startOnSignal_register" sourceRef="startOnSignal" targetRef="register"/>
+    <serviceTask id="register" name="Register the order" activiti:expression="${execution.setVariable('registered', true)}"/>
+    <sequenceFlow id="f_register_end" sourceRef="register" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="signalStart">
+      <bpmndi:BPMNShape id="startOnSignal_di" bpmnElement="startOnSignal">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="register_di" bpmnElement="register">
+        <dc:Bounds x="220" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="402" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_startOnSignal_register_di" bpmnElement="f_startOnSignal_register">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="220" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_register_end_di" bpmnElement="f_register_end">
+        <di:waypoint x="320" y="110"/>
+        <di:waypoint x="402" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

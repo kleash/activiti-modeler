@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="hp" name="hp" namespace="http://activiti.org/schema/1.0/dmn">
+  <decision id="sumT" name="sumT">
+    <decisionTable id="d1" hitPolicy="COLLECT" aggregation="SUM">
+      <input id="a1"><inputExpression id="a1e" typeRef="integer"><text>n</text></inputExpression></input>
+      <output id="a2" name="pts" typeRef="integer"/>
+      <rule id="x1"><inputEntry id="x1a"><text>&gt; 0</text></inputEntry><outputEntry id="x1b"><text>1</text></outputEntry></rule>
+      <rule id="x2"><inputEntry id="x2a"><text>&gt; 5</text></inputEntry><outputEntry id="x2b"><text>10</text></outputEntry></rule>
+      <rule id="x3"><inputEntry id="x3a"><text>&gt; 8</text></inputEntry><outputEntry id="x3b"><text>100</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+  <decision id="minT" name="minT">
+    <decisionTable id="d2" hitPolicy="COLLECT" aggregation="MIN">
+      <input id="b1"><inputExpression id="b1e" typeRef="integer"><text>n</text></inputExpression></input>
+      <output id="b2" name="pts" typeRef="integer"/>
+      <rule id="y1"><inputEntry id="y1a"><text>&gt; 0</text></inputEntry><outputEntry id="y1b"><text>7</text></outputEntry></rule>
+      <rule id="y2"><inputEntry id="y2a"><text>&gt; 5</text></inputEntry><outputEntry id="y2b"><text>3</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+  <decision id="cntT" name="cntT">
+    <decisionTable id="d3" hitPolicy="COLLECT" aggregation="COUNT">
+      <input id="c1"><inputExpression id="c1e" typeRef="integer"><text>n</text></inputExpression></input>
+      <output id="c2" name="pts" typeRef="integer"/>
+      <rule id="z1"><inputEntry id="z1a"><text>&gt; 0</text></inputEntry><outputEntry id="z1b"><text>7</text></outputEntry></rule>
+      <rule id="z2"><inputEntry id="z2a"><text>&gt; 5</text></inputEntry><outputEntry id="z2b"><text>3</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+  <decision id="ro" name="ro">
+    <decisionTable id="d5" hitPolicy="RULE ORDER">
+      <input id="r1"><inputExpression id="r1e" typeRef="integer"><text>n</text></inputExpression></input>
+      <output id="r2" name="lvl" typeRef="string"/>
+      <rule id="w1"><inputEntry id="w1a"><text>&gt; 0</text></inputEntry><outputEntry id="w1b"><text>"a"</text></outputEntry></rule>
+      <rule id="w2"><inputEntry id="w2a"><text>&gt; 5</text></inputEntry><outputEntry id="w2b"><text>"b"</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+  <decision id="any" name="any">
+    <decisionTable id="d6" hitPolicy="ANY">
+      <input id="n1"><inputExpression id="n1e" typeRef="integer"><text>n</text></inputExpression></input>
+      <output id="n2" name="lvl" typeRef="string"/>
+      <rule id="m1"><inputEntry id="m1a"><text>&gt; 0</text></inputEntry><outputEntry id="m1b"><text>"a"</text></outputEntry></rule>
+      <rule id="m2"><inputEntry id="m2a"><text>&gt; 5</text></inputEntry><outputEntry id="m2b"><text>"a"</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+  <decision id="uniq" name="uniq">
+    <decisionTable id="d7">
+      <input id="u1"><inputExpression id="u1e" typeRef="integer"><text>n</text></inputExpression></input>
+      <output id="u2" name="lvl" typeRef="string"/>
+      <rule id="k1"><inputEntry id="k1a"><text>&gt; 0</text></inputEntry><outputEntry id="k1b"><text>"a"</text></outputEntry></rule>
+      <rule id="k2"><inputEntry id="k2a"><text>&gt; 5</text></inputEntry><outputEntry id="k2b"><text>"b"</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+</definitions>

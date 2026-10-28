@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             id="Definitions_taskListeners"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C13">
+  <process id="taskListeners" name="Task listeners and task cancellation" isExecutable="true">
+    <documentation>Task listeners for every event (create, assignment, complete, delete, all) in all three implementation types, with a field. approve is claimed and completed: assignment follows create, and delete follows complete. cancellable is left by an interrupting timer boundary event instead of being completed: the delete listener runs when the task is cancelled.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_approve" sourceRef="start" targetRef="approve"/>
+    <userTask id="approve" name="Approve" activiti:candidateUsers="ann">
+      <extensionElements>
+        <activiti:taskListener event="create" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+        <activiti:taskListener event="assignment" delegateExpression="${recordingTaskListener}"/>
+        <activiti:taskListener event="complete" expression="${listenerRecorder.recordTask(task)}"/>
+        <activiti:taskListener event="delete" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+        <activiti:taskListener event="all" class="io.github.kleash.activiti.harness.support.FieldTaskListener">
+          <activiti:field name="tag">
+            <activiti:string>all</activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="f_approve_cancellable" sourceRef="approve" targetRef="cancellable"/>
+    <userTask id="cancellable" name="Cancellable" activiti:candidateUsers="ann">
+      <extensionElements>
+        <activiti:taskListener event="create" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+        <activiti:taskListener event="complete" delegateExpression="${recordingTaskListener}"/>
+        <activiti:taskListener event="delete" class="io.github.kleash.activiti.harness.support.RecordingTaskListener"/>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="f_cancellable_done" sourceRef="cancellable" targetRef="done"/>
+    <endEvent id="done" name="Done"/>
+    <boundaryEvent id="giveUp" name="Give up" attachedToRef="cancellable">
+      <timerEventDefinition>
+        <timeDuration>PT1H</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="f_giveUp_abandoned" sourceRef="giveUp" targetRef="abandoned"/>
+    <endEvent id="abandoned" name="Abandoned"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="taskListeners">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approve_di" bpmnElement="approve">
+        <dc:Bounds x="220" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cancellable_di" bpmnElement="cancellable">
+        <dc:Bounds x="370" y="50" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="done_di" bpmnElement="done">
+        <dc:Bounds x="702" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="abandoned_di" bpmnElement="abandoned">
+        <dc:Bounds x="552" y="292" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="giveUp_di" bpmnElement="giveUp">
+        <dc:Bounds x="390" y="112" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_approve_di" bpmnElement="f_start_approve">
+        <di:waypoint x="138" y="90"/>
+        <di:waypoint x="220" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_approve_cancellable_di" bpmnElement="f_approve_cancellable">
+        <di:waypoint x="320" y="90"/>
+        <di:waypoint x="370" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_cancellable_done_di" bpmnElement="f_cancellable_done">
+        <di:waypoint x="470" y="90"/>
+        <di:waypoint x="702" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_giveUp_abandoned_di" bpmnElement="f_giveUp_abandoned">
+        <di:waypoint x="408" y="148"/>
+        <di:waypoint x="408" y="310"/>
+        <di:waypoint x="552" y="310"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

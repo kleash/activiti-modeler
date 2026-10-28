@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/model-expect.schema.json",
+  "description": "What the engine's own reader makes of the decision task that evaluates the migrated decision: the decision id in the _activiti_dmn_table_ constant, the VARIABLE input for the input data and the outputs named after the migrated output column (Discount).",
+  "processes": {
+    "discountOrder": {
+      "definition": { "name": "Discount for an order", "category": "http://kleash.github.io/corpus/C17-migrated" },
+      "extensions": {
+        "properties": {
+          "customer": { "type": "string" },
+          "Discount": { "type": "bigdecimal" },
+          "matched": { "type": "boolean" },
+          "matchedRules": { "type": "array" }
+        },
+        "mappings": {
+          "decideDiscount": {
+            "mappingType": null,
+            "inputs": { "customer": { "type": "VARIABLE", "value": "customer" } },
+            "outputs": {
+              "Discount": { "type": "VARIABLE", "value": "Discount" },
+              "matched": { "type": "VARIABLE", "value": "_activiti_dmn_matched_" },
+              "matchedRules": { "type": "VARIABLE", "value": "_activiti_dmn_matched_rules_" }
+            }
+          }
+        },
+        "constants": {
+          "decideDiscount": { "_activiti_dmn_table_": "discount" }
+        }
+      },
+      "elements": {
+        "decideDiscount": { "type": "serviceTask", "attributes": { "implementation": "dmn-connector.EXECUTE_TABLE" } },
+        "discountGateway": { "type": "exclusiveGateway", "attributes": { "defaultFlow": "f_discountGateway_noDiscountEnd" } }
+      }
+    }
+  }
+}

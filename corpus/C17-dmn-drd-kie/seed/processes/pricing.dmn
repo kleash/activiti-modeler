@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             id="Definitions_pricing" name="pricing" namespace="http://activiti.org/schema/1.0/dmn/Definitions_pricing">
+  <inputData id="InputData_basePrice" name="basePrice">
+    <variable id="InputData_basePrice_variable" name="basePrice" typeRef="number" />
+  </inputData>
+  <inputData id="InputData_loyaltyYears" name="loyaltyYears">
+    <variable id="InputData_loyaltyYears_variable" name="loyaltyYears" typeRef="number" />
+  </inputData>
+  <businessKnowledgeModel id="discountRate" name="discountRate">
+    <variable id="discountRate_variable" name="discountRate" />
+    <encapsulatedLogic id="discountRate_logic">
+      <formalParameter id="discountRate_logic_years" name="years" typeRef="number" />
+      <literalExpression id="discountRate_logic_body" typeRef="number">
+        <text>if years &gt;= 5 then 0.1 else if years &gt;= 2 then 0.05 else 0</text>
+      </literalExpression>
+    </encapsulatedLogic>
+  </businessKnowledgeModel>
+  <decision id="finalPrice" name="finalPrice">
+    <variable id="finalPrice_variable" name="finalPrice" typeRef="number" />
+    <informationRequirement id="finalPrice_req_InputData_basePrice">
+      <requiredInput href="#InputData_basePrice" />
+    </informationRequirement>
+    <informationRequirement id="finalPrice_req_InputData_loyaltyYears">
+      <requiredInput href="#InputData_loyaltyYears" />
+    </informationRequirement>
+    <knowledgeRequirement id="finalPrice_req_discountRate">
+      <requiredKnowledge href="#discountRate" />
+    </knowledgeRequirement>
+    <context id="finalPrice_context">
+      <contextEntry>
+        <variable id="finalPrice_context_rate" name="rate" typeRef="number" />
+        <invocation id="finalPrice_invocation">
+          <literalExpression id="finalPrice_invocation_target">
+            <text>discountRate</text>
+          </literalExpression>
+          <binding>
+            <parameter id="finalPrice_binding_years" name="years" />
+            <literalExpression id="finalPrice_binding_value">
+              <text>loyaltyYears</text>
+            </literalExpression>
+          </binding>
+        </invocation>
+      </contextEntry>
+      <contextEntry>
+        <literalExpression id="finalPrice_context_result">
+          <text>basePrice * (1 - rate)</text>
+        </literalExpression>
+      </contextEntry>
+    </context>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_1">
+      <dmndi:DMNShape id="DMNShape_finalPrice" dmnElementRef="finalPrice">
+        <dc:Bounds height="80" width="180" x="200" y="60" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_discountRate" dmnElementRef="discountRate">
+        <dc:Bounds height="60" width="150" x="420" y="60" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_basePrice" dmnElementRef="InputData_basePrice">
+        <dc:Bounds height="45" width="120" x="120" y="240" />
+      </dmndi:DMNShape>
+      <dmndi:DMNShape id="DMNShape_InputData_loyaltyYears" dmnElementRef="InputData_loyaltyYears">
+        <dc:Bounds height="45" width="120" x="300" y="240" />
+      </dmndi:DMNShape>
+      <dmndi:DMNEdge id="DMNEdge_finalPrice_req_InputData_basePrice" dmnElementRef="finalPrice_req_InputData_basePrice">
+        <di:waypoint x="180" y="240" />
+        <di:waypoint x="260" y="140" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_finalPrice_req_InputData_loyaltyYears" dmnElementRef="finalPrice_req_InputData_loyaltyYears">
+        <di:waypoint x="360" y="240" />
+        <di:waypoint x="330" y="140" />
+      </dmndi:DMNEdge>
+      <dmndi:DMNEdge id="DMNEdge_finalPrice_req_discountRate" dmnElementRef="finalPrice_req_discountRate">
+        <di:waypoint x="420" y="90" />
+        <di:waypoint x="380" y="100" />
+      </dmndi:DMNEdge>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

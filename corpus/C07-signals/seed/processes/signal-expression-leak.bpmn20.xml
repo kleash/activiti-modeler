@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C07">
+  <process id="signalExpressionLeak" name="Signal catch named by an expression, then a receive task" isExecutable="true">
+    <documentation>A catch event named by a signal expression keeps its event subscription after it fired. A second broadcast of the same name therefore signals the receive task the instance waits at (engine finding 29).</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_waitGo" sourceRef="start" targetRef="waitGo"/>
+    <intermediateCatchEvent id="waitGo" name="Go in the region">
+      <signalEventDefinition activiti:signalExpression="${'go-'.concat(region)}"/>
+    </intermediateCatchEvent>
+    <sequenceFlow id="f_waitGo_hold" sourceRef="waitGo" targetRef="hold"/>
+    <receiveTask id="hold" name="Hold until triggered"/>
+    <sequenceFlow id="f_hold_end" sourceRef="hold" targetRef="end"/>
+    <endEvent id="end"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="signalExpressionLeak">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="waitGo_di" bpmnElement="waitGo">
+        <dc:Bounds x="252" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="hold_di" bpmnElement="hold">
+        <dc:Bounds x="370" y="70" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_di" bpmnElement="end">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_waitGo_di" bpmnElement="f_start_waitGo">
+        <di:waypoint x="138" y="110"/>
+        <di:waypoint x="252" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_waitGo_hold_di" bpmnElement="f_waitGo_hold">
+        <di:waypoint x="288" y="110"/>
+        <di:waypoint x="370" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_hold_end_di" bpmnElement="f_hold_end">
+        <di:waypoint x="470" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
