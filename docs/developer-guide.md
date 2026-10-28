@@ -58,7 +58,7 @@ mvn -B -f java/pom.xml verify -Dactiviti.version=9.0.0 -Dspring-boot.version=3.5
 
 ### Parent pom (`java/pom.xml`)
 
-- Group `io.github.kleash.activiti`, version `0.1.0-SNAPSHOT`.
+- Group `io.github.kleash.activiti`, version `1.0.0-SNAPSHOT`.
 - `java.release` 21 (every module compiles to Java 21 bytecode, so the jars run on both Activiti lines; not `java.version`, a JVM property the enforcer reads), `spring-boot.version` 3.5.16, `activiti.version` 9.0.0, all overridable on the command line.
 - Profile `activiti8`: `activiti.version` 8.8.1 and a JDK 21 minimum for the build (`mvn -Pactiviti8 verify`, on Spring Boot 3.5.16 like the default build; `-Dspring-boot.version=3.5.7` is the baseline compatibility run; the scripts take `ACTIVITI_LINE=8`). Surefire hands `expected.activiti.version` to the tests that check the engine report.
 - The Alfresco repository is the only source of Activiti 8.x/9.x (Maven Central stops at 7.1.0.M6). Snapshots are off.
@@ -78,7 +78,7 @@ Proven by `compat-check/` and `verification-harness`:
 
 ### Add a Java module
 
-1. Create `java/<name>/` with `pom.xml` whose parent is `io.github.kleash.activiti:activiti-modeler-parent:0.1.0-SNAPSHOT` (copy a small module's pom).
+1. Create `java/<name>/` with `pom.xml` whose parent is `io.github.kleash.activiti:activiti-modeler-parent:1.0.0-SNAPSHOT` (copy a small module's pom).
 2. Add `<module><name></module>` to `java/pom.xml`.
 3. Put code under `io.github.kleash.activiti.<area>` and tests in `src/test/java`.
 4. Depend on sibling modules with `${project.version}`. Take third-party versions from the BOMs; add a version only when neither BOM manages the artifact.
@@ -107,7 +107,7 @@ npx playwright test --headed                                # watch the UI tests
 |---|---|
 | `packages/activiti-moddle` | `activiti:` namespace constants and moddle descriptor |
 | `packages/bpmn-js-activiti` | bpmn-js `moddleExtensions` and the Activiti module: support matrix, behaviours, extensions store, property accessors, `DiagramBuilder`, export pipeline |
-| `packages/bpmnlint-plugin-activiti` | the lint: 155 bpmnlint rules (`activiti/...`), the `activiti:recommended` config, the project lint (`lintProject`), the bpmn-js module with the quick fixes, the server-validation merge and the `activiti-lint` command |
+| `packages/bpmnlint-plugin-activiti` | the lint: 156 bpmnlint rules (`activiti/...`), the `activiti:recommended` config, the project lint (`lintProject`), the bpmn-js module with the quick fixes, the server-validation merge and the `activiti-lint` command |
 | `packages/activiti-variable-resolver` | the variables a process defines and uses, and those a JUEL expression reads |
 | `packages/activiti-project` | project files: layout, extensions sidecars and their runtime-known field list (`runtime-model.ts`), serializer checks (`verify.ts`), semantic diff of seed and generated models (`semantic-diff.ts`); the project model and workspace (`project/`: paths, dirty state, templates, drafts) and the storage adapters (`storage/`: IndexedDB, File System Access, server workspace, memory, zip) |
 | `packages/activiti-diagram-viewer` | the read-only BPMN and DMN viewers of the run views, with token and path overlays |
@@ -263,8 +263,8 @@ All dependencies are exact. The bpmn.io set: `bpmn-js` 18.31.1, `dmn-js` 18.0.0,
 
 ### Add an npm package
 
-1. Create `modeler/packages/<name>/` with a `package.json` (copy a small package: `name` `@activiti-modeler/<name>`, `version` `0.1.0`, `main`/`types`/`exports` pointing at `./src/index.ts`, `typecheck` and `test` scripts), a `tsconfig.json` extending `../../tsconfig.base.json`, and `src/index.ts` with a test.
-2. List it in the dependencies of the packages or the app that use it (`"@activiti-modeler/<name>": "0.1.0"`), run `npm install` in `modeler/`, and commit the lockfile.
+1. Create `modeler/packages/<name>/` with a `package.json` (copy a small package: `name` `@activiti-modeler/<name>`, `version` `1.0.0`, `main`/`types`/`exports` pointing at `./src/index.ts`, `typecheck` and `test` scripts), a `tsconfig.json` extending `../../tsconfig.base.json`, and `src/index.ts` with a test.
+2. List it in the dependencies of the packages or the app that use it (`"@activiti-modeler/<name>": "1.0.0"`), run `npm install` in `modeler/`, and commit the lockfile.
 
 ## Distribution
 
@@ -279,6 +279,10 @@ All dependencies are exact. The bpmn.io set: `bpmn-js` 18.31.1, `dmn-js` 18.0.0,
 | K5 Docker | `Dockerfile`, `.dockerignore`, `docker/Healthcheck.java`, `docker/jdk-alpine.env`, `scripts/build-runtime.sh`, `scripts/update-jdk-alpine.sh`, `application-container.properties`, `launch/ContainerCredentials`, `scripts/smoke-docker.sh` | Three stages: a JDK builds the jar with the wrapper; an Alpine stage of the target platform downloads the Alpine (musl) build of Temurin 25 named in `docker/jdk-alpine.env` (version and SHA-256 per CPU, the Dockerfile picks the archive with `TARGETARCH`; `scripts/update-jdk-alpine.sh --write` moves the pin) and links the same trimmed runtime as the desktop bundles with it (`scripts/build-runtime.sh`: `jdeps` and `jlink`); the final image is `FROM scratch` and holds only the musl C library (plus its package-database entry, so that scanners list it), the runtime, the jar, the health check and the licence files (no shell, no `apk`, user 65532, the Alpine and build JDK images pinned by digest) and runs it with the profile `container`. The `HEALTHCHECK` is `docker/Healthcheck.java`, run by the image's own Java. `ContainerCredentials` is an `EnvironmentPostProcessor` (`META-INF/spring.factories`) that replaces every demo password with `MODELER_PASSWORD` or a printed random one. `scripts/smoke-docker.sh` checks from outside (`docker inspect`, `docker top`, `docker cp`) because there is nothing to `exec`; it runs the container three times (password set, generated password, and hardened with `--read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges`) with the checks of `scripts/smoke-lib.sh`, which include a DMN evaluation and a scenario run with a JavaScript script task and a mail task |
 | K6 Pages | `.github/workflows/pages.yml`, `scripts/build-pages.sh`, `scripts/smoke-pages.sh`, `modeler/scripts/smoke-pages.mjs` | The same app with `--base=/<repo>/` (the Vite CLI option; `vite.config.ts` is untouched). The smoke script serves it with `vite preview --base=...` and loads it in Chromium |
 | K7 release | `.github/workflows/release.yml`, `scripts/release-notes.sh` | See below |
+
+### The app icon
+
+`packaging/icons/activiti-modeler.svg` is the icon, `activiti-modeler-small.svg` its simpler form for 16 to 48 pixels. The files made from them: `activiti-modeler.icns` (macOS), `.ico` (Windows) and `.png` (Linux), which `scripts/package-desktop.sh` passes to `jpackage`; `modeler/app/public/favicon.svg` (a copy of the small form); and the PNGs of the status window in `java/activiti-modeler-server/src/main/resources/icons/`. After a change to a drawing, render them again: the sizes 16 to 48 from the small form, 64 and up from the large one.
 
 ### Try the distribution locally
 
@@ -307,7 +311,7 @@ The release and Pages workflows need these settings once, in the repository on G
 
 - `ci.yml`: `verify` (Spring Boot 3.5.16 and 3.5.7, plus the notices check), `verify-activiti8` (Activiti 8.8.1 on JDK 21, both Boot versions), `distribution` (`./build.sh` with only a JDK, the jar smoke test, the Linux bundle and its smoke test), `docker` (build and smoke test) and `pages` (the build under `/activiti-modeler/` in Chromium).
 - `pages.yml`: on `main`: build, smoke test, deploy with `actions/deploy-pages`.
-- `release.yml`: on a `v*` tag or by hand with **dry run**: `verify` (`scripts/verify-all.sh`) and `security` (the OSV gate and the SBOMs), then `jar`, then `bundle` on `ubuntu-latest`, `macos-14` (arm64), `macos-15-intel` (x64; GitHub retired `macos-13`) and `windows-latest`, each **smoke-testing its own bundle**, and `docker` (smoke test, the OSV gate on the image, then push `linux/amd64` and `linux/arm64` to GHCR), then `release` (`SHA256SUMS`, the SBOMs and the OpenVEX statement, notes from the `CHANGELOG.md` section of the tag plus the open exceptions and the Java runtime versions, `gh release create`), which also waits for `maven-central` (the Maven artifacts signed and bundled; uploaded only by a run of its own, [below](#maven-central-adr-0009)). The version comes from the tag (`v0.1.0` becomes `0.1.0`) and is set in the poms of the build with `versions:set`, nothing is committed. Every action is pinned to a commit SHA with the version in a comment; `.github/dependabot.yml` proposes the new SHAs once a month (or look them up with `git ls-remote --tags https://github.com/<owner>/<action>`); keep the permissions per job as small as they are.
+- `release.yml`: on a `v*` tag or by hand with **dry run**: `verify` (`scripts/verify-all.sh`) and `security` (the OSV gate and the SBOMs), then `jar`, then `bundle` on `ubuntu-latest`, `macos-14` (arm64), `macos-15-intel` (x64; GitHub retired `macos-13`) and `windows-latest`, each **smoke-testing its own bundle**, and `docker` (smoke test, the OSV gate on the image, then push `linux/amd64` and `linux/arm64` to GHCR), then `release` (`SHA256SUMS`, the SBOMs and the OpenVEX statement, notes from the `CHANGELOG.md` section of the tag plus the open exceptions and the Java runtime versions, `gh release create`), which also waits for `maven-central` (the Maven artifacts signed and bundled; uploaded only by a run of its own, [below](#maven-central-adr-0009)). The version comes from the tag (`v1.0.0` becomes `1.0.0`) and is set in the poms of the build with `versions:set`, nothing is committed. Every action is pinned to a commit SHA with the version in a comment; `.github/dependabot.yml` proposes the new SHAs once a month (or look them up with `git ls-remote --tags https://github.com/<owner>/<action>`); keep the permissions per job as small as they are.
 - The macOS and Windows jobs run `scripts/package-desktop.sh` and `scripts/smoke-bundle.sh` (in Git Bash on Windows). A dry run (**Actions > Release > Run workflow**) tries them without publishing anything.
 
 ### Maven Central (ADR 0009)
@@ -315,8 +319,9 @@ The release and Pages workflows need these settings once, in the repository on G
 **A release, in this order:**
 
 1. **Dry run:** **Actions > Release > Run workflow** with `dry_run` on (the default). Everything is built and smoke-tested, and the Maven artifacts are signed and bundled. Nothing is published.
-2. **Tag:** rename `## [Unreleased]` in `CHANGELOG.md` to the version, then push the tag `v<version>`. This makes the GitHub Release and pushes the image. The Maven artifacts are signed and bundled again, but not uploaded.
-3. **Maven Central, last, and only by hand:** once the GitHub Release exists, **Run workflow** on the tag with `dry_run` off and `publish_maven_central` on. Then publish the deployment in the Portal (below). A version on Central can never be changed or removed, so no run uploads to it implicitly.
+2. **Tag:** rename `## [Unreleased]` in `CHANGELOG.md` to the version, then push the tag `v<version>`. This makes the GitHub Release, as a **draft**, and pushes the image. The Maven artifacts are signed and bundled again, but not uploaded.
+3. **The macOS apps, on a Mac:** `scripts/sign-macos.sh v<version>` downloads the two macOS bundles of the draft, signs them with the Developer ID in your Keychain (hardened runtime, `packaging/macos/entitlements.plist`), has Apple notarize them, staples the ticket, uploads them back with a new `SHA256SUMS`, publishes the release and writes `Casks/activiti-modeler.rb` in `kleash/homebrew-tap`. The top of the script has the one-time setup (the certificate and a `notarytool` profile). The certificate and the notary password stay in the Keychain: nothing about them goes into the repository or its secrets. `scripts/sign-macos.sh --local <zip>` signs and notarizes a zip without publishing anything.
+4. **Maven Central, last, and only by hand:** once the GitHub Release is published, **Run workflow** on the tag with `dry_run` off and `publish_maven_central` on. Then publish the deployment in the Portal (below). A version on Central can never be changed or removed, so no run uploads to it implicitly.
 
 **What is published**, under the group `io.github.kleash.activiti`:
 - the parent pom `activiti-modeler-parent`, because every published pom inherits from it;

@@ -21,7 +21,7 @@
 
   <groupId>io.github.kleash.activiti</groupId>
   <artifactId>activiti-modeler-parent</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Activiti modeler (parent)</name>
   <description>Parent of the Activiti Modeler Java modules: the DMN connector, the scenario runner, the runtime REST API and the modeler server for Activiti 9.0.0 and 8.8.1.</description>

@@ -4,7 +4,7 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2026-10-29
 
 The first release: a BPMN and DMN modeler for Activiti 9.0.0, the modeler server that deploys and tests models on an embedded engine, and the Java libraries behind it.
 
@@ -16,6 +16,7 @@ The first release: a BPMN and DMN modeler for Activiti 9.0.0, the modeler server
 - A process file without a diagram is laid out when it is opened.
 - A variables view lists every variable with its type, scope, writers and readers, and marks them on the canvas.
 - Projects in the browser (IndexedDB, works offline), in a local folder (in browsers with the File System Access API), in the modeler server's workspace, or as a zip that unpacks into `src/main/resources` of a Spring Boot application. Unsaved changes survive a reload or a browser crash.
+- After **File > Export project as zip** a dialog says how a Spring Boot application uses the files: `processes/` with the `-extensions.json` files, `connectors/`, and for decision tasks the `activiti-dmn-connector` dependency. Decision tasks carry the same reminder in the properties panel and as a lint note.
 - Templates for an empty process, a user task approval, a connector call, a decision task, a DMN decision table, a DRD, a scenario and a connector.
 - Camunda 7 import: `camunda:` attributes, listeners, fields, form data, `in` and `out` parameters, input and output parameters and business rule tasks are translated to Activiti, with a report of what was dropped and why. From a Camunda 8 file only the BPMN structure is kept.
 
@@ -36,7 +37,7 @@ The first release: a BPMN and DMN modeler for Activiti 9.0.0, the modeler server
 
 ### Lint
 
-- 155 rules for what Activiti executes (111 errors, 36 warnings, 8 notes), next to bpmnlint's recommended rules tuned for Activiti. 78 of them mirror Activiti's `ProcessValidator`: one rule per problem key, with the engine's severity and key.
+- 156 rules for what Activiti executes (111 errors, 36 warnings, 9 notes), next to bpmnlint's recommended rules tuned for Activiti. 78 of them mirror Activiti's `ProcessValidator`: one rule per problem key, with the engine's severity and key.
 - Rules across files: the extensions file, connectors, DMN decisions, called processes and message subscriptions.
 - A Problems panel with severity and file filters, overlays on the canvas, a click that opens the field in the properties panel, and quick fixes as undoable steps (for example a business rule task to a decision task, or a `camunda:` attribute to its Activiti equivalent).
 - With a server connected, the engine's own validation joins the list. Errors block a deployment.
@@ -59,16 +60,17 @@ The first release: a BPMN and DMN modeler for Activiti 9.0.0, the modeler server
 - The server starts with no arguments: projects in `~/ActivitiModeler/workspace`, port 8080 or a free one, and the browser opens. It listens on `127.0.0.1` only. Options: `--workspace`, `--port`, `--no-open`, `--no-window`.
 - Inside the server: Activiti 9.0.0 on an in-memory H2 database with the async executor on, the DMN connector, an SMTP server for mail tasks and three sample connectors.
 
-### Libraries on Maven Central
+### On Maven Central
 
-Published under the group `io.github.kleash.activiti`, version 0.1.0, with sources, javadoc and GPG signatures. They are Java 21 bytecode, for Activiti 9.0.0 and 8.8.1 on Spring Boot 3.5.
+Published under the group `io.github.kleash.activiti`, version 1.0.0, with sources, javadoc and GPG signatures.
 
-- `activiti-dmn-connector`: decision tasks on Operaton DMN 2.2.0, including the PRIORITY and OUTPUT ORDER hit policies. Decisions are looked up in the deployment of the process.
-- `activiti-dmn-connector-kie`: the KIE DMN 10.2.0 engine instead, for business knowledge models and boxed expressions.
-- `activiti-scenario-runner`: runs the modeler's scenario files against an embedded engine, in your own JUnit tests.
-- `activiti-runtime-rest-core`: a REST API over the engine (definitions, instances and their path, tasks, messages, signals, jobs, timers) that brings no security of its own.
-- `activiti-runtime-rest-dev`: the development endpoints of the modeler server (validate, deploy, run scenarios, evaluate decisions, workspace files). They are off unless switched on, and not for production.
-- `activiti-modeler-server`: the modeler server. The classifier `exec` is the runnable jar.
+- `activiti-modeler-server`: the modeler server. The classifier `exec` is the runnable jar of the downloads (Java 25).
+- `activiti-dmn-connector`: DMN support for your own application, needed only for decision tasks. Runs them on Operaton DMN 2.2.0, including the PRIORITY and OUTPUT ORDER hit policies; decisions are looked up in the deployment of the process.
+- Also published, for embedding and testing (Java 21 bytecode, for Activiti 9.0.0 and 8.8.1 on Spring Boot 3.5):
+  - `activiti-dmn-connector-kie`: the KIE DMN 10.2.0 engine instead, for business knowledge models and boxed expressions.
+  - `activiti-scenario-runner`: runs the modeler's scenario files against an embedded engine, in your own JUnit tests.
+  - `activiti-runtime-rest-core`: a REST API over the engine (definitions, instances and their path, tasks, messages, signals, jobs, timers) that brings no security of its own.
+  - `activiti-runtime-rest-dev`: the development endpoints of the modeler server (validate, deploy, run scenarios, evaluate decisions, workspace files). They are off unless switched on, and not for production.
 
 ### Security
 
@@ -80,12 +82,13 @@ Published under the group `io.github.kleash.activiti`, version 0.1.0, with sourc
 
 ### Known limitations
 
-- The desktop bundles are not code-signed: macOS and Windows warn on the first start. The install guide (`docs/user-guide/install.md`) says how to open them.
+- The Windows bundle is not code-signed: Windows warns on the first start. The install guide (`docs/user-guide/install.md`) says how to open it. The macOS apps are signed with a Developer ID and notarized, and Homebrew installs them: `brew install kleash/tap/activiti-modeler`.
 - The modeler server runs the models you deploy, so anyone who can sign in can run code on the machine. It listens on `127.0.0.1` with demo users; it is a development tool, not a production server.
 - The browser-only version cannot deploy or run models; that needs a modeler server.
 - The modeler server, the desktop bundles and the Docker image run Activiti 9.0.0. Activiti 8.8.1 is for applications that embed the libraries.
 - Activiti 9.0.0 cannot open a database that Activiti 8.8.1 has created or opened. Keep one database per engine line.
 - Activiti 9.0.0 returns wrong tasks for a `TaskQuery` that filters by a process variable value together with another filter (8.8.1 is correct). Nothing in this project runs such a query; an application on 9.0.0 must not run one either.
+- The BPMN files alone are not enough: deploy each `-extensions.json` file with its process. Without it Activiti drops the variables a user task is completed with (start variables still arrive), so a gateway that reads one fails.
 - Only what Activiti executes can be drawn: no business rule task (use a decision task), complex gateway, ad-hoc sub-process, escalation or conditional event, signal end event or standard loop. An imported file that has them gets lint errors, with a quick fix where Activiti has an equivalent.
 - Boxed expressions and business knowledge models run only on the KIE engine (`activiti-dmn-connector-kie`).
 - Token simulation follows BPMN only: expressions, delegates, connectors and decisions do not run in it.

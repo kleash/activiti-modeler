@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 
-import { dropFiles, element, idbFiles, menu, openApp, processXml, tab, waitForDraft } from './support/app';
+import { dropFiles, element, idbFiles, menu, openApp, processXml, tab, waitForDraft, waitForSession } from './support/app';
 import { test } from './support/test';
 
 /** U18: a BPMN file without a diagram gets a layout when it is opened (bpmn-auto-layout); saving keeps the diagram. */
@@ -69,6 +69,8 @@ test.describe('U18 auto-layout of a file without a diagram', () => {
     await page.keyboard.press('Control+S');
     await expect(tab(page, TITLE)).not.toHaveClass(/dirty/);
     const saved = (await idbFiles(page))[PATH]!;
+    // the session (the open tabs) is written a moment after the last tab change; a reload before that reopens the tabs of before
+    await waitForSession(page, PATH);
     await page.reload();
     await expect(element(page, 'review')).toBeVisible();
     await expect(tab(page, TITLE)).not.toHaveClass(/dirty/);

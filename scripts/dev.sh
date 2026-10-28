@@ -7,7 +7,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=scripts/env.sh
 source "$ROOT/scripts/env.sh"
 
-JAR="$ROOT/java/activiti-modeler-server/target/activiti-modeler-server-0.1.0-SNAPSHOT-exec.jar"
+JAR="$ROOT/java/activiti-modeler-server/target/activiti-modeler-server-1.0.0-SNAPSHOT-exec.jar"
 if [ ! -f "$JAR" ]; then
   echo "Building the modeler server ..."
   mvn -B -q -f "$ROOT/java/pom.xml" -pl activiti-modeler-server -am -DskipTests package

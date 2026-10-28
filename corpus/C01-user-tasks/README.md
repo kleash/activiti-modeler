@@ -14,12 +14,13 @@ tasks and mappings to and from task-local variables.
 | `reviewParallel` | Parallel multi-instance user task: collection, element variable, completion condition, `outputDataItem` / `loopDataOutputRef`, input mapping to task-local variables | `multi-instance-parallel` |
 | `reviewSequential` | Sequential multi-instance: collection expression, `elementIndexVariable`, completion condition, and a loop cardinality with the default `loopCounter` | `multi-instance-sequential` |
 | `taskMappings` | Input mappings (variable, value, expression, constant) to task-local variables, output mappings from completion variables, a task with no mapping, `MAP_ALL`, and the engine-provided `sys_task_assignee` | `task-mappings` |
+| `noExtensionsFile` | A process without a `-extensions.json` file (the build leaves it out with `omitExtensions`): the variable the user task is completed with does not reach the process, so the exclusive gateway after the task fails; the same variable given at the start does reach it | `no-extensions-file` |
 
 `model-expect.json` asserts what a run cannot show: the parsed assignment attributes, the custom identity links, the literal
 priority / category / form key / due date / business calendar, the task listener definitions, `skipExpression`, the candidate
 starters (also through the process definition's identity links), the start event's initiator and form key and the loop
 characteristics. Every flow node and sequence flow is visited (no exemptions).
 
-Engine notes: [engine findings](../../docs/engine-findings.md) 1-3, 6, 8-15, 19.
+Engine notes: [engine findings](../../docs/engine-findings.md) 1-3, 6, 8-15, 19 and C21.9.
 
 Run: `scripts/verify-models.sh corpus --project C01`

@@ -24,7 +24,7 @@ Everything else this repository builds is optional or internal:
 | `activiti-runtime-rest-core` | a REST API over the running engine | optional |
 | `activiti-runtime-rest-dev`, `activiti-modeler-server` | the modeler's own server (deploy, run scenarios, workspace) | no: development tool, never in production |
 
-All of them are on **Maven Central**, from release 0.1.0, under the group `io.github.kleash.activiti`, with sources, javadoc and GPG signatures (key `4D40 5980 71E2 EB02 FB51 46DE 86B0 7E0A 07D6 BFAE`). For the server, the classifier `exec` is the runnable jar of the downloads. Your pom needs no repository for these modules.
+All of them are on **Maven Central**, from release 1.0.0, under the group `io.github.kleash.activiti`, with sources, javadoc and GPG signatures (key `4D40 5980 71E2 EB02 FB51 46DE 86B0 7E0A 07D6 BFAE`). For the server, the classifier `exec` is the runnable jar of the downloads. Your pom needs no repository for these modules.
 
 Targets: Activiti 9.0.0 on JDK 25 (main) and Activiti 8.8.1 on JDK 21 (second, equally tested), both on Spring Boot 3.5.x. Which one to take is the next section. The snippets show 9.0.0; for 8.8.1 change the Activiti version to `8.8.1`.
 
@@ -131,13 +131,13 @@ Activiti 9 OSS has no DMN engine. `activiti-dmn-connector` adds one as an Activi
   <dependency>
     <groupId>io.github.kleash.activiti</groupId>
     <artifactId>activiti-dmn-connector</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
   </dependency>
   <!-- optional: the KIE engine (business knowledge models, boxed expressions, decision services) -->
   <dependency>
     <groupId>io.github.kleash.activiti</groupId>
     <artifactId>activiti-dmn-connector-kie</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0</version>
   </dependency>
 </dependencies>
 ```
@@ -322,13 +322,13 @@ The library declares everything the host brings (Activiti, Spring Web, Spring Se
 <dependency>
   <groupId>io.github.kleash.activiti</groupId>
   <artifactId>activiti-runtime-rest-core</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0</version>
 </dependency>
 <!-- optional: with it the engine report names the DMN engine and /process-definitions/{id}/decisions lists the decisions -->
 <dependency>
   <groupId>io.github.kleash.activiti</groupId>
   <artifactId>activiti-dmn-connector</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 

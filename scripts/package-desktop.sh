@@ -51,9 +51,11 @@ if [ -z "$jar" ]; then
   jar="$(ls "$ROOT"/java/activiti-modeler-server/target/activiti-modeler-server-*-exec.jar 2>/dev/null | head -1 || true)"
 fi
 [ -f "$jar" ] || { echo "jar not found (build it first with ./build.sh): ${jar:-none}" >&2; exit 1; }
+# absolute: build-runtime.sh unpacks it from another directory
+jar="$(cd "$(dirname "$jar")" && pwd)/$(basename "$jar")"
 jar_version="$(basename "$jar" .jar)"; jar_version="${jar_version#activiti-modeler-server-}"; jar_version="${jar_version%-exec}"
 version="${version:-$jar_version}"
-# jpackage wants 1 to 3 numbers; "0.1.0-SNAPSHOT" becomes "0.1.0"
+# jpackage wants 1 to 3 numbers; "1.0.0-SNAPSHOT" becomes "1.0.0"
 app_version="$(echo "$version" | sed -E 's/^([0-9]+(\.[0-9]+){0,2}).*/\1/')"
 echo "$app_version" | grep -Eq '^[0-9]+(\.[0-9]+){0,2}$' || { echo "cannot derive a numeric app version from '$version'; pass --version x.y.z" >&2; exit 1; }
 
@@ -81,11 +83,18 @@ for file in LICENSE NOTICE THIRD-PARTY-NOTICES.md; do
   cp "$ROOT/$file" "$work/legal/$file"
   cp "$ROOT/$file" "$work/input/$file"
 done
+# the app icon in the format of this operating system (packaging/icons/, drawn from activiti-modeler.svg)
+case "$os" in macos) icon=icns ;; windows) icon=ico ;; *) icon=png ;; esac
+icon="$ROOT/packaging/icons/activiti-modeler.$icon"
+if [ "$os" = windows ]; then icon="$(cygpath -m "$icon")"; fi
+# macOS: the bundle identifier, which jpackage would otherwise take from the main class (org.springframework.boot.loader.launch)
+mac_options=()
+if [ "$os" = macos ]; then mac_options=(--mac-package-identifier io.github.kleash.activiti.modeler); fi
 run_jpackage() { # run_jpackage <app version>
   jpackage --type app-image --name "$APP_NAME" --app-version "$1" --vendor "Activiti Modeler contributors" \
     --description "Modeler for BPMN and DMN that runs on Activiti 9" --copyright "Activiti Modeler contributors, Apache License 2.0" \
-    --input "$work/input" --main-jar activiti-modeler.jar --runtime-image "$work/runtime" \
-    --dest "$work/image"
+    --input "$work/input" --main-jar activiti-modeler.jar --runtime-image "$work/runtime" --icon "$icon" \
+    "${mac_options[@]}" --dest "$work/image"
 }
 if ! run_jpackage "$app_version"; then
   if [ "$os" = macos ] && [ "${app_version%%.*}" = 0 ]; then

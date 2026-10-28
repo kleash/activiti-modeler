@@ -10,8 +10,8 @@ body:
     id: version
     attributes:
       label: Modeler version
-      description: The version in the name of the file you downloaded (activiti-modeler-0.1.0-...), the Docker tag, or the commit if you built from source.
-      placeholder: 0.1.0
+      description: The version in the name of the file you downloaded (activiti-modeler-1.0.0-...), the Docker tag, or the commit if you built from source.
+      placeholder: 1.0.0
     validations:
       required: true
   - type: dropdown

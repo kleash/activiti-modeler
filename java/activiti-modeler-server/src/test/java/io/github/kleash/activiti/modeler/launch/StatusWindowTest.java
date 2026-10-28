@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -57,6 +58,12 @@ class StatusWindowTest {
         onEventThread(() -> click(quit));
         assertThat(quits).hasValue(1);
         assertThat(opened).containsExactly("http://127.0.0.1:8080/");
+    }
+
+    @Test
+    void theWindowHasTheAppIconInThreeSizes() {
+        List<Image> icons = StatusWindow.icons();
+        assertThat(icons).extracting(image -> image.getWidth(null)).containsExactly(16, 32, 256);
     }
 
     @Test

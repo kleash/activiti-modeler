@@ -6,7 +6,7 @@ The modeler lints every process while you edit it, and the whole project before 
 2. **Rules for what the engine does not catch**: constructs Activiti does not execute, Camunda leftovers, mappings that are silently inert, and the traps found while testing the engine (numbered L1 to L37 in the feature matrix, plus the engine-behaviour rules).
 3. **bpmnlint `recommended`**, tuned (see below).
 
-In total 155 Activiti rules (111 errors, 36 warnings, 8 notes by default). The **Problems** panel shows them with the element, a link to the page of the rule and, where one exists, a quick fix. When a modeler server is connected its own validation (`/api/dev/validate`, tagged *engine*) is merged in. Errors block a deployment from the modeler.
+In total 156 Activiti rules (111 errors, 36 warnings, 9 notes by default). The **Problems** panel shows them with the element, a link to the page of the rule and, where one exists, a quick fix. When a modeler server is connected its own validation (`/api/dev/validate`, tagged *engine*) is merged in. Errors block a deployment from the modeler.
 
 Configure a rule by name in the `rules` of a bpmnlint config: `"activiti/missing-mapping": "off"`. Use the config `plugin:activiti/recommended` (all rules at the default severity) or `plugin:activiti/all`.
 
@@ -252,6 +252,7 @@ These are hidden from the palette and menus; an imported model that has one is r
 | [data-object-type-unknown](data-object-type-unknown.md) | error | A data object of a type Activiti does not know |
 | [mail-task-without-from](mail-task-without-from.md) | info | A mail task without a "from" field |
 | [shell-task-needs-opt-in](shell-task-needs-opt-in.md) | info | A shell task |
+| [decision-task-needs-dmn-connector](decision-task-needs-dmn-connector.md) | info | A decision task, which needs the DMN connector in the application |
 | [artifact-before-flow-element](artifact-before-flow-element.md) | error | A text annotation or association written before a flow element |
 | [multi-instance-minified-xml](multi-instance-minified-xml.md) | error | The closing tag of a multi-instance activity follows its loop element without a line break |
 | [bpmn-unreadable](bpmn-unreadable.md) | error | A BPMN file is not well-formed XML |

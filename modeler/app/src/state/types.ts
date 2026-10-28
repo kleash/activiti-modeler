@@ -38,7 +38,9 @@ export type DialogState =
   | { id: number; kind: 'settings' }
   | { id: number; kind: 'projects' }
   | { id: number; kind: 'templates' }
-  | { id: number; kind: 'lossReport'; path: string; report: LossReport };
+  | { id: number; kind: 'lossReport'; path: string; report: LossReport }
+  /** After File > Export project as zip: what an application that runs the files needs; `connectors` and `dmn` say what the project has. */
+  | { id: number; kind: 'exportInfo'; connectors: boolean; dmn: boolean };
 
 export interface AppSnapshot {
   ready: boolean;

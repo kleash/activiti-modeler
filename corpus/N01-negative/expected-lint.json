@@ -7,7 +7,9 @@
       "context": [
         "processes/grade.dmn"
       ],
-      "afterFixes": []
+      "afterFixes": [
+        "activiti/decision-task-needs-dmn-connector@decide"
+      ]
     },
     "complex-gateway.bpmn20.xml": {
       "expect": [
@@ -223,6 +225,7 @@
     },
     "decision-unknown.bpmn20.xml": {
       "expect": [
+        "activiti/decision-task-needs-dmn-connector@decide",
         "activiti/decision-task-unknown-decision@decide"
       ],
       "context": [
@@ -231,7 +234,8 @@
     },
     "decision-input-unmapped.bpmn20.xml": {
       "expect": [
-        "activiti/decision-input-unmapped@decide"
+        "activiti/decision-input-unmapped@decide",
+        "activiti/decision-task-needs-dmn-connector@decide"
       ],
       "context": [
         "processes/grade.dmn"

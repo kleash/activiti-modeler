@@ -42,7 +42,29 @@ if [ -n "${JAVA_HOME:-}" ] && [ "$(java_major "$JAVA_HOME/bin/java")" -lt 25 ]; 
 fi
 java -version 2>&1 | head -1
 
+# Puts the Node archive the frontend plugin needs where the plugin looks first (its download cache in ~/.m2): the plugin's own download has no
+# timeout and no retry, and downloads from nodejs.org have been cut short or have stalled. Checked against nodejs.org's SHASUMS256.txt. Best
+# effort: when anything here fails, the plugin downloads as before.
+fetch_node() {
+  local version os arch ext file cache url expected actual
+  version="$(sed -n 's:.*<modeler.node.version>v\(.*\)</modeler.node.version>.*:\1:p' "$ROOT/java/activiti-modeler-server/pom.xml")"
+  [ -n "$version" ] && command -v curl >/dev/null || return 0
+  [ "$("$ROOT/.tools/node/node" --version 2>/dev/null)" = "v$version" ] && return 0
+  case "$(uname -s)" in Linux) os=linux; ext=tar.gz ;; Darwin) os=darwin; ext=tar.gz ;; MINGW*|MSYS*|CYGWIN*) os=win; ext=zip ;; *) return 0 ;; esac
+  case "$(uname -m)" in x86_64|amd64) arch=x64 ;; arm64|aarch64) arch=arm64 ;; *) return 0 ;; esac
+  cache="$HOME/.m2/repository/com/github/eirslett/node/$version/node-$version-$os-$arch.$ext"
+  [ -f "$cache" ] && return 0
+  file="node-v$version-$os-$arch.$ext"
+  url="https://nodejs.org/dist/v$version"
+  mkdir -p "$(dirname "$cache")"
+  expected="$(curl -fsSL --retry 5 --retry-all-errors --connect-timeout 20 --max-time 60 "$url/SHASUMS256.txt" | awk -v f="$file" '$2 == f { print $1 }')" || return 0
+  curl -fsSL --retry 5 --retry-all-errors --connect-timeout 20 --max-time 600 -o "$cache.part" "$url/$file" || { rm -f "$cache.part"; return 0; }
+  actual="$( (sha256sum "$cache.part" 2>/dev/null || shasum -a 256 "$cache.part") | awk '{ print $1 }')"
+  if [ -n "$expected" ] && [ "$expected" = "$actual" ]; then mv "$cache.part" "$cache"; else rm -f "$cache.part"; fi
+}
+
 echo "==> Building the web app and the server jar (the first build downloads Maven, Node and the libraries: a few minutes)"
+fetch_node
 mvn_arguments=(-B -Pbundle-modeler -pl activiti-modeler-server -am package)
 if [ "$skip_tests" -eq 1 ]; then
   mvn_arguments+=(-DskipTests)

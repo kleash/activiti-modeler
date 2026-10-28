@@ -7,7 +7,8 @@ name: Release
 #   4. bundle      the desktop bundle on each operating system, SMOKE-TESTED ON THAT RUNNER: unzip, start without arguments, check, stop
 #   5. docker      the image, smoke-tested, OSV-scanned (the same gate), then pushed to GHCR (amd64 and arm64)
 #   6. release     SHA256SUMS, notes from the matching CHANGELOG.md section (plus the open exceptions and the Java runtime versions), the GitHub
-#                  Release with every file: bundles, jar, the three SBOMs, the OpenVEX statement
+#                  Release with every file: bundles, jar, the three SBOMs, the OpenVEX statement. The release is a DRAFT: the maintainer signs and
+#                  notarizes the macOS bundles on a Mac with the Developer ID (scripts/sign-macos.sh), which publishes it and updates the Homebrew cask
 #   7. maven-central  the parent pom, the libraries and the server (its runnable jar as the classifier exec) for Maven Central (ADR 0009): built,
 #                  signed and bundled on every run, uploaded only by a run of its own (below); the GitHub Release waits for it
 # The gate must pass before anything is pushed or published: a release with an unexcepted known vulnerability is not made.
@@ -26,7 +27,7 @@ on:
         type: boolean
         default: true
       version:
-        description: 'Version to build when this is not run on a tag (for example 0.1.0-rc1)'
+        description: 'Version to build when this is not run on a tag (for example 1.0.0-rc1)'
         type: string
         default: '0.0.0-dryrun'
       publish_maven_central:
@@ -89,7 +90,7 @@ jobs:
             [ "$CENTRAL_SECRETS" = true ] || { echo "::error::publish_maven_central needs the secrets MAVEN_CENTRAL_USERNAME, MAVEN_CENTRAL_PASSWORD, MAVEN_GPG_PRIVATE_KEY and MAVEN_GPG_PASSPHRASE."; exit 1; }
             maven_central=upload; publish=false
           fi
-          echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' || { echo "::error::'$version' is not a version like 0.1.0 or 0.1.0-rc1"; exit 1; }
+          echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' || { echo "::error::'$version' is not a version like 1.0.0 or 1.0.0-rc1"; exit 1; }
           prerelease=false
           case "$version" in *-*) prerelease=true ;; esac
           {
@@ -367,7 +368,7 @@ jobs:
           set -euo pipefail
           mkdir -p image-info
           docker run --rm --entrypoint /opt/runtime/bin/java activiti-modeler:smoke -XshowSettings:properties -version 2>&1 \
-            | awk -F' = ' '/java.vendor.version/ { print $2; exit }' > image-info/runtime-docker.txt
+            | awk -F' = ' '/java.vendor.version/ { print $2 }' > image-info/runtime-docker.txt
           cp cve-scan-image/sbom/image/activiti-modeler-image.cdx.json "image-info/activiti-modeler-image-$VERSION.cdx.json"
           echo "Java runtime in the image: $(cat image-info/runtime-docker.txt)" | tee -a "$GITHUB_STEP_SUMMARY"
 
@@ -473,6 +474,7 @@ jobs:
             echo "| Windows | \`activiti-modeler-$VERSION-windows-x64.zip\` |"
             echo "| macOS, Apple silicon (M1 and newer) | \`activiti-modeler-$VERSION-macos-arm64.zip\` |"
             echo "| macOS, Intel | \`activiti-modeler-$VERSION-macos-x64.zip\` |"
+            echo "| macOS with Homebrew | \`brew install kleash/tap/activiti-modeler\` |"
             echo "| Linux x64 | \`activiti-modeler-$VERSION-linux-x64.zip\` |"
             echo "| Java 25 already | \`activiti-modeler-$VERSION.jar\`, then \`java -jar activiti-modeler-$VERSION.jar\` |"
             echo "| Docker | \`docker run --rm -p 127.0.0.1:8080:8080 -v activiti-modeler-data:/data $IMAGE:$VERSION\` |"
@@ -493,7 +495,7 @@ jobs:
             echo
             echo "\`activiti-modeler-$VERSION.cdx.json\` (the jar and the desktop bundles), \`activiti-modeler-web-$VERSION.cdx.json\` (the web app) and \`activiti-modeler-image-$VERSION.cdx.json\` (the Docker image) are CycloneDX 1.5 files; \`activiti-modeler.openvex.json\` is the OpenVEX statement. All are listed in \`SHA256SUMS\`."
             echo
-            echo "The desktop bundles are not code-signed yet: see the [install guide]($repo_url/blob/${TAG:-main}/docs/user-guide/install.md) for how to open them on macOS and Windows."
+            echo "The macOS apps are signed with a Developer ID and notarized by Apple. The Windows bundle is not code-signed yet: see the [install guide]($repo_url/blob/${TAG:-main}/docs/user-guide/install.md) for how to open it."
             echo "Check a download with \`sha256sum -c SHA256SUMS\`."
           } > notes.md
           cat notes.md >> "$GITHUB_STEP_SUMMARY"
@@ -512,7 +514,8 @@ jobs:
         if: env.PUBLISH == 'true'
         run: |
           set -euo pipefail
-          flags=()
+          # a draft until scripts/sign-macos.sh has replaced the macOS bundles with signed and notarized ones; it publishes the release
+          flags=(--draft)
           [ "$PRERELEASE" = true ] && flags+=(--prerelease)
           gh release create "$TAG" release/* --repo "$GITHUB_REPOSITORY" --verify-tag --title "Activiti Modeler $VERSION" --notes-file notes.md "${flags[@]}"
 

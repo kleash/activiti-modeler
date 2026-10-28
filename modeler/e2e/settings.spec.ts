@@ -34,6 +34,7 @@ test.describe('U19 settings dialog', () => {
     await expect(page.getByTestId('setting-autoLayout')).toBeChecked();
     await expect(page.getByTestId('setting-restoreSession')).toBeChecked();
     await expect(page.getByTestId('setting-offerCamundaConversion')).toBeChecked();
+    await expect(page.getByTestId('setting-explainExport')).toBeChecked();
     await expect(page.getByTestId('setting-locale')).toHaveValue('en');
     await page.keyboard.press('Escape');
     await expect(dialog(page)).toHaveCount(0);

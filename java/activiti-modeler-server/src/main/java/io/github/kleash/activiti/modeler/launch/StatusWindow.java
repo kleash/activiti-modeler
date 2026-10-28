@@ -7,10 +7,18 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Taskbar;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+
+import javax.imageio.ImageIO;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -67,6 +75,12 @@ public final class StatusWindow {
             // the default look is fine
         }
         frame = new JFrame("Activiti Modeler");
+        List<Image> icons = icons();
+        frame.setIconImages(icons);
+        // the Dock of a jar started with java -jar on macOS; the desktop app has its own icon
+        if (!icons.isEmpty() && Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Taskbar.Feature.ICON_IMAGE)) {
+            Taskbar.getTaskbar().setIconImage(icons.get(icons.size() - 1));
+        }
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -80,6 +94,21 @@ public final class StatusWindow {
         frame.setMinimumSize(new Dimension(frame.getWidth(), frame.getHeight()));
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+
+    /** The app icon in the sizes in {@code icons/} (16 and 32 pixels for title bars and task bars, 256 for the Dock); missing ones are left out. */
+    static List<Image> icons() {
+        List<Image> images = new ArrayList<>();
+        for (int size : new int[] {16, 32, 256}) {
+            try (InputStream in = StatusWindow.class.getResourceAsStream("/icons/activiti-modeler-" + size + ".png")) {
+                if (in != null) {
+                    images.add(ImageIO.read(in));
+                }
+            } catch (IOException ignored) {
+                // a window without an icon still works
+            }
+        }
+        return images;
     }
 
     /** The text and the two buttons, in the "starting" state. Needs no display (no window is created); call it on the event thread. */

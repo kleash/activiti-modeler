@@ -179,14 +179,17 @@ public final class ExecutorJobDriver extends AbstractJobDriver {
     }
 
     /**
-     * Moves a timer to the executable table; {@code false} when someone else (the executor) got there first. The executable job keeps
-     * the timer's id, so when both move it at once the loser fails on the primary key of the job table, not with an optimistic
-     * locking exception: any failure after which the timer is gone counts as lost to the executor.
+     * Moves a timer to the executable table; {@code false} when someone else (the executor) got there first: the timer is gone, or the
+     * executor's acquisition locked it meanwhile (an optimistic locking failure). The executable job keeps the timer's id, so when both
+     * move it at once the loser can also fail on the primary key of the job table: any failure after which the timer is gone counts as
+     * lost to the executor. The caller looks again on its next poll.
      */
     private boolean makeExecutable(Job timer) {
         try {
             management.moveTimerToExecutableJob(timer.getId());
             return true;
+        } catch (ActivitiObjectNotFoundException | ActivitiOptimisticLockingException e) {
+            return false;
         } catch (RuntimeException e) {
             if (management.createTimerJobQuery().jobId(timer.getId()).count() == 0) {
                 return false;

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { expect, type Locator, type Page, type TestInfo } from '@playwright/test';
 import { strFromU8, unzipSync } from 'fflate';
 
-import { dropFiles, menu } from './app';
+import { closeExportInfo, dropFiles, menu } from './app';
 
 /** The N01 negative corpus (`corpus/N01-negative`): hand-written models and the oracle of the problems each one must produce. */
 export const N01_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../../../corpus/N01-negative');
@@ -79,6 +79,7 @@ export async function exportZip(page: Page, testInfo: TestInfo): Promise<Record<
   await menu(page, 'File', 'Export project as zip');
   const path = testInfo.outputPath('export.zip');
   await (await downloaded).saveAs(path);
+  await closeExportInfo(page);
   return Object.fromEntries(Object.entries(unzipSync(new Uint8Array(readFileSync(path)))).map(([name, bytes]) => [name, strFromU8(bytes)]));
 }
 

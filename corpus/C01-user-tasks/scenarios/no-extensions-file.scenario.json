@@ -1,0 +1,45 @@
+{
+  "$schema": "../../../schemas/scenario.schema.json",
+  "name": "C01 a process deployed without its extensions file",
+  "description": "noExtensionsFile has no -extensions.json file. ProcessExtensionService.getExtensionsForId then returns an empty extension, and ExtensionsVariablesMappingProvider.calculateOutPutVariables returns no variables for an element without a mapping, so what the user task is completed with stays on the task. Start variables reach the process.",
+  "users": { "ann": [] },
+  "scenarios": [
+    {
+      "name": "the variable the task is completed with does not reach the process: the gateway cannot read it and the completion fails",
+      "start": { "process": "noExtensionsFile", "user": "ann" },
+      "steps": [
+        { "expectTask": { "activity": "review", "assignee": "ann", "localVariables": {} } },
+        { "completeTask": { "activity": "review", "user": "ann", "variables": { "approved": true },
+            "expectFailure": { "exception": "ActivitiException", "messageContains": "Unknown property used in expression: ${approved}" } } },
+        { "expectTask": { "activity": "review", "count": 1, "assignee": "ann" } }
+      ],
+      "expect": { "state": "ACTIVE", "absentVariables": ["approved"], "path": { "contains": ["start", "review"], "notContains": ["decided", "approvedEnd", "rejectedEnd"] } }
+    },
+    {
+      "name": "approved given at the start reaches the process: the task completed without variables leads to approvedEnd",
+      "start": { "process": "noExtensionsFile", "user": "ann", "variables": { "approved": true } },
+      "steps": [
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["approvedEnd"],
+        "variables": { "approved": true },
+        "path": { "order": [["start", "review"], ["review", "decided"], ["decided", "approvedEnd"]], "sequenceFlows": ["f_start_review", "f_review_decided", "f_decided_approvedEnd"] }
+      }
+    },
+    {
+      "name": "approved false given at the start takes the default flow to rejectedEnd",
+      "start": { "process": "noExtensionsFile", "user": "ann", "variables": { "approved": false } },
+      "steps": [
+        { "completeTask": { "activity": "review", "user": "ann" } }
+      ],
+      "expect": {
+        "state": "COMPLETED",
+        "endEvents": ["rejectedEnd"],
+        "variables": { "approved": false },
+        "path": { "sequenceFlows": ["f_start_review", "f_review_decided", "f_decided_rejectedEnd"], "notSequenceFlows": ["f_decided_approvedEnd"] }
+      }
+    }
+  ]
+}

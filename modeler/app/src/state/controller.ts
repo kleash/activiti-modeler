@@ -3,6 +3,7 @@ import {
   pathProblem, ProjectWorkspace, projectNameFromZip, ServerWorkspaceStorage, scanDecisionIds, scanProcessIds, splitName, uniquePath, exportZip, basename, dirname,
   joinPath, TEMPLATES, type ProjectFileData, type RecentProject, type StorageAdapter, type TemplateId,
 } from '@activiti-modeler/activiti-project';
+import { DMN_DECISION_IMPLEMENTATION } from '@activiti-modeler/bpmn-js-activiti/support-matrix';
 
 import { connection } from '../run/connection';
 import { requestBottomTab } from './bottomTab';
@@ -430,7 +431,7 @@ export class AppController {
     }
   }
 
-  /** Saves everything, then downloads the project in the ADR 0003 layout. */
+  /** Saves everything, then downloads the project in the ADR 0003 layout and says how an application uses the files (unless switched off). */
   async exportProjectZip(): Promise<void> {
     const ws = this.ws;
     if (!ws) return;
@@ -439,6 +440,11 @@ export class AppController {
     const normalized = normalizeConnectorFiles(ws.model.snapshot());
     const bytes = exportZip(normalized.files);
     downloadBlob(new Blob([bytes as BlobPart], { type: 'application/zip' }), `${ws.name}.zip`);
+    if (this.settings.explainExport) {
+      const kinds = normalized.files.map((f) => classifyFile(f.path));
+      const decisionTask = normalized.files.some((f) => classifyFile(f.path) === 'bpmn' && f.content.includes(`"${DMN_DECISION_IMPLEMENTATION}"`));
+      this.showDialog({ kind: 'exportInfo', connectors: kinds.includes('connector'), dmn: decisionTask || kinds.includes('dmn') });
+    }
     this.toast(`Exported ${ws.model.paths().length} file(s) to ${ws.name}.zip`, 'success', normalized.warnings.join('\n') || undefined);
   }
 

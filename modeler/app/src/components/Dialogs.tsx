@@ -103,6 +103,49 @@ function AlertDialog({ dialog }: { dialog: Extract<DialogState, { kind: 'alert' 
   );
 }
 
+/** The library an application adds for decision tasks (ADR 0004), at the version of this release. */
+const DMN_CONNECTOR = 'io.github.kleash.activiti:activiti-dmn-connector:1.0.0';
+const EXPORT_GUIDE = 'https://github.com/kleash/activiti-modeler/blob/main/docs/user-guide/modeler-basics.md#using-the-files-in-a-spring-boot-application';
+
+/** After File > Export project as zip: where the files go in a Spring Boot application, and what it needs besides them (U3). */
+function ExportInfoDialog({ dialog }: { dialog: Extract<DialogState, { kind: 'exportInfo' }> }) {
+  const controller = useController();
+  const state = useAppState();
+  return (
+    <Modal title={t('exportInfo.title')} onClose={() => controller.closeDialog()} wide testId="export-info-dialog">
+      <ul>
+        <li>{t('exportInfo.processes')}</li>
+        {dialog.connectors && <li>{t('exportInfo.connectors')}</li>}
+        <li>{t('exportInfo.extensions')}</li>
+        <li>{t('exportInfo.projectJson')}</li>
+      </ul>
+      {dialog.dmn && (
+        <>
+          <p>{t('exportInfo.dmn')}</p>
+          <pre className="error-detail" data-testid="export-info-dependency">
+            {DMN_CONNECTOR}
+          </pre>
+          <p>{t('exportInfo.dmnFiles')}</p>
+        </>
+      )}
+      <p>
+        <a href={EXPORT_GUIDE} target="_blank" rel="noreferrer">
+          {t('exportInfo.guide')}
+        </a>
+      </p>
+      <label className="check-row">
+        <input type="checkbox" checked={!state.settings.explainExport} onChange={(event) => controller.setSettings({ explainExport: !event.target.checked })} data-testid="export-info-hide" />
+        <span>{t('exportInfo.hide')}</span>
+      </label>
+      <div className="button-row end">
+        <button type="button" className="btn primary" onClick={() => controller.closeDialog()}>
+          {t('dialog.ok')}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 const GROUP_ORDER: ShortcutGroup[] = ['File', 'Edit', 'Tools', 'View', 'Navigation'];
 
 function ShortcutsDialog() {
@@ -147,7 +190,7 @@ function SettingsDialog() {
   const controller = useController();
   const state = useAppState();
   const settings = state.settings;
-  const check = (key: 'autoLayout' | 'restoreSession' | 'offerCamundaConversion', label: string) => (
+  const check = (key: 'autoLayout' | 'restoreSession' | 'offerCamundaConversion' | 'explainExport', label: string) => (
     <label className="check-row">
       <input type="checkbox" checked={settings[key]} onChange={(event) => controller.setSettings({ [key]: event.target.checked })} data-testid={`setting-${key}`} />
       <span>{label}</span>
@@ -175,6 +218,7 @@ function SettingsDialog() {
       <fieldset className="settings-group">
         <legend>{t('settings.workspace')}</legend>
         {check('restoreSession', t('settings.restoreSession'))}
+        {check('explainExport', t('settings.explainExport'))}
         <div className="settings-row">
           <button type="button" className="btn" onClick={() => void controller.run('resetLayout').then(() => controller.toast(t('settings.resetLayoutDone'), 'success'))} data-testid="setting-reset-layout">
             {t('settings.resetLayout')}
@@ -327,5 +371,7 @@ export function Dialogs() {
       return <ProjectsDialog key={dialog.id} />;
     case 'lossReport':
       return <LossReportDialog key={dialog.id} dialog={dialog} />;
+    case 'exportInfo':
+      return <ExportInfoDialog key={dialog.id} dialog={dialog} />;
   }
 }

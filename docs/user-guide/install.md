@@ -23,6 +23,8 @@ Download the file for your computer:
 | Mac with an Intel processor | `activiti-modeler-<version>-macos-x64.zip` |
 | Linux (x64) | `activiti-modeler-<version>-linux-x64.zip` |
 
+On a Mac with [Homebrew](https://brew.sh) you can instead run `brew install kleash/tap/activiti-modeler`, which puts the app in Applications; `brew upgrade` updates it.
+
 Unzip it anywhere (not inside the zip viewer: extract it) and open **Activiti Modeler**:
 
 - **Windows:** `Activiti Modeler\Activiti Modeler.exe`
@@ -39,12 +41,7 @@ A small window "Activiti Modeler is running" appears, with the address, the sign
 
 ### The first start: opening an app that is not signed
 
-The apps are not code-signed (signing needs paid developer accounts, see [ADR 0008](../adr/0008-distribution.md)), so macOS and Windows show a warning the first time. The app is safe to open if you downloaded it from the releases page; check the file against `SHA256SUMS` from the same page if you want to be sure (`sha256sum -c SHA256SUMS` on Linux, `shasum -a 256 -c SHA256SUMS` on macOS, `Get-FileHash <file>` on Windows).
-
-**macOS.** The first double-click says the app "can't be opened because Apple cannot check it for malicious software" (or that it is damaged).
-1. In Finder, **right-click** (or Control-click) `Activiti Modeler.app` and choose **Open**, then **Open** again in the dialog. You do this once.
-2. On macOS 15 (Sequoia) and later the dialog may offer no **Open** button. Then: double-click the app once, open **System Settings > Privacy & Security**, scroll to **Security**, press **Open Anyway** next to "Activiti Modeler", and confirm.
-3. If it says the app is "damaged and can't be opened", macOS has marked the download as quarantined. In Terminal, run `xattr -dr com.apple.quarantine "/path/to/Activiti Modeler.app"` (type `xattr -dr com.apple.quarantine ` and drag the app into the window), then open it again.
+The macOS apps are signed with a Developer ID and notarized by Apple, so they open like any other downloaded app: macOS asks once whether to open an app from the internet. The Windows bundle is not code-signed (see [ADR 0008](../adr/0008-distribution.md)), so Windows shows a warning the first time. The app is safe to open if you downloaded it from the releases page; check the file against `SHA256SUMS` from the same page if you want to be sure (`sha256sum -c SHA256SUMS` on Linux, `shasum -a 256 -c SHA256SUMS` on macOS, `Get-FileHash <file>` on Windows).
 
 **Windows.** Windows SmartScreen shows "Windows protected your PC".
 1. Click **More info**, then **Run anyway**.
@@ -102,7 +99,7 @@ Every release has a `SHA256SUMS` file. Put it next to the downloads and run `sha
 
 | Symptom | Cause and fix |
 |---|---|
-| macOS: "cannot be opened because the developer cannot be verified", or "is damaged" | The app is not signed: see [the first start](#the-first-start-opening-an-app-that-is-not-signed) |
+| macOS: "cannot be opened because the developer cannot be verified", or "is damaged" | The app was changed after the download or is from a release before 1.0.0: download it again from the releases page |
 | Windows: "Windows protected your PC" | SmartScreen: **More info**, **Run anyway** |
 | Nothing seems to happen for a few seconds | The engine is starting (a window "starting..." shows when a display exists). On a slow machine up to a minute. The log is `~/ActivitiModeler/logs/activiti-modeler.log` |
 | A window says "Activiti Modeler could not start" | It says why, and the log has the details. Typical causes: the folder `~/ActivitiModeler` is not writable (set `MODELER_HOME` to another folder), or a Spring property was given a bad value |

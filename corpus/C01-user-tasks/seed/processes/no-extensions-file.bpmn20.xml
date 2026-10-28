@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             targetNamespace="http://activiti.org/bpmn/corpus/C01">
+  <process id="noExtensionsFile" name="No extensions file" isExecutable="true">
+    <documentation>Deployed without a -extensions.json file. The variables the user task is completed with do not reach the process, so the gateway cannot read approved and the completion fails; variables given at the start reach the process.</documentation>
+    <startEvent id="start"/>
+    <sequenceFlow id="f_start_review" sourceRef="start" targetRef="review"/>
+    <userTask id="review" name="Review" activiti:assignee="ann"/>
+    <sequenceFlow id="f_review_decided" sourceRef="review" targetRef="decided"/>
+    <exclusiveGateway id="decided" name="Approved?" default="f_decided_rejectedEnd"/>
+    <sequenceFlow id="f_decided_approvedEnd" sourceRef="decided" targetRef="approvedEnd">
+      <conditionExpression xsi:type="tFormalExpression">${approved}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="f_decided_rejectedEnd" sourceRef="decided" targetRef="rejectedEnd"/>
+    <endEvent id="approvedEnd" name="Approved"/>
+    <endEvent id="rejectedEnd" name="Rejected"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="noExtensionsFile">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="102" y="202" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="review_di" bpmnElement="review">
+        <dc:Bounds x="220" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decided_di" bpmnElement="decided" isMarkerVisible="true">
+        <dc:Bounds x="395" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="approvedEnd_di" bpmnElement="approvedEnd">
+        <dc:Bounds x="552" y="92" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="rejectedEnd_di" bpmnElement="rejectedEnd">
+        <dc:Bounds x="552" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f_start_review_di" bpmnElement="f_start_review">
+        <di:waypoint x="138" y="220"/>
+        <di:waypoint x="220" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_review_decided_di" bpmnElement="f_review_decided">
+        <di:waypoint x="320" y="220"/>
+        <di:waypoint x="395" y="220"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_decided_approvedEnd_di" bpmnElement="f_decided_approvedEnd">
+        <di:waypoint x="445" y="220"/>
+        <di:waypoint x="498" y="220"/>
+        <di:waypoint x="498" y="110"/>
+        <di:waypoint x="552" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f_decided_rejectedEnd_di" bpmnElement="f_decided_rejectedEnd">
+        <di:waypoint x="445" y="220"/>
+        <di:waypoint x="498" y="220"/>
+        <di:waypoint x="498" y="330"/>
+        <di:waypoint x="552" y="330"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -137,13 +137,13 @@ test.describe('U11 lint and the Problems panel', () => {
     await openProblems(page);
     await expect.poll(() => problemIds(page, path)).toEqual(['activiti/no-business-rule-task@decide']);
     await problemRows(page).first().getByTestId('problem-fix').click();
-    // the task is a decision task now, mapped, and the decision is found: nothing is left to report
+    // the task is a decision task now, mapped, and the decision is found: only the note about the DMN connector is left
     await expect(page.getByTestId('toasts')).toContainText('Convert to a Decision task: done');
-    await expect.poll(() => problemIds(page, path)).toEqual([]);
+    await expect.poll(() => problemIds(page, path)).toEqual(['activiti/decision-task-needs-dmn-connector@decide']);
     await menu(page, 'Edit', 'Undo');
     await expect.poll(() => problemIds(page, path)).toEqual(['activiti/no-business-rule-task@decide']);
     await menu(page, 'Edit', 'Redo');
-    await expect.poll(() => problemIds(page, path)).toEqual([]);
+    await expect.poll(() => problemIds(page, path)).toEqual(['activiti/decision-task-needs-dmn-connector@decide']);
   });
 
   test('U11 the server problems are merged, tagged engine and not repeated when the client rule has the same key on the element', async ({ page }) => {
@@ -173,6 +173,8 @@ test.describe('U11 lint and the Problems panel', () => {
     expect(refused.deployable).toBe(false);
     expect(refused.counts.error).toBeGreaterThan(0);
     await problemRows(page).first().getByTestId('problem-fix').click();
+    // the decision task keeps its note about the DMN connector: a note does not block a deployment
+    await expect.poll(() => problemIds(page, path)).toEqual(['activiti/decision-task-needs-dmn-connector@decide']);
     await expect.poll(() => page.evaluate(() => window.__modelerLint!.checkDeployable().then((r) => r.deployable))).toBe(true);
   });
 });

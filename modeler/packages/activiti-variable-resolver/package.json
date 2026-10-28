@@ -1,6 +1,6 @@
 {
   "name": "@activiti-modeler/activiti-variable-resolver",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Finds the variables an Activiti process defines and uses",
   "type": "module",

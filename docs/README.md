@@ -6,7 +6,7 @@
 
 | Page | What it covers |
 |---|---|
-| [Install](user-guide/install.md) | The desktop app, the jar, Docker, the browser-only build and building from source; opening an app that is not code-signed |
+| [Install](user-guide/install.md) | The desktop app, the jar, Docker, the browser-only build and building from source; Homebrew; opening the Windows app, which is not code-signed |
 | [Modeler server](user-guide/modeler-server.md) | Starting the server without arguments, its options, the security model, the properties |
 
 ### User guide

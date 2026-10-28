@@ -16,7 +16,7 @@ public class OpenApiConfiguration {
     @Bean
     public OpenApiCustomizer modelerServerApiInfo() {
         return openApi -> {
-            openApi.info(new Info().title("Activiti modeler server API").version("0.1.0")
+            openApi.info(new Info().title("Activiti modeler server API").version("1.0.0")
                     .description("Runtime REST core (definitions, instances, tasks, events, jobs), dev endpoints (validate, deploy, scenarios, decisions, workspace, mail) "
                             + "and the server's own endpoints. HTTP Basic."));
             Components components = openApi.getComponents() == null ? new Components() : openApi.getComponents();

@@ -1460,7 +1460,7 @@
   "info" : {
     "description" : "Runtime REST core (definitions, instances, tasks, events, jobs), dev endpoints (validate, deploy, scenarios, decisions, workspace, mail) and the server's own endpoints. HTTP Basic.",
     "title" : "Activiti modeler server API",
-    "version" : "0.1.0"
+    "version" : "1.0.0"
   },
   "openapi" : "3.1.0",
   "paths" : {

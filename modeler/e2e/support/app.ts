@@ -53,6 +53,12 @@ export async function menu(page: Page, title: string, ...path: string[]): Promis
   }
 }
 
+/** Closes the dialog that follows File > Export project as zip (U3), as a person reads it and presses OK. */
+export async function closeExportInfo(page: Page): Promise<void> {
+  await page.getByTestId('export-info-dialog').getByRole('button', { name: 'OK', exact: true }).click();
+  await expect(page.getByTestId('export-info-dialog')).toHaveCount(0);
+}
+
 /** Reads the files of a project of the browser workspace straight from IndexedDB (not through the app). */
 export async function idbFiles(page: Page, project?: string): Promise<Record<string, string>> {
   const name = project ?? (await page.getByTestId('project-name').innerText());

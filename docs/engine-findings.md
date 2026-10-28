@@ -563,6 +563,14 @@ C21.7. **Moving a task: `assign` needs a candidate user, `release` runs the assi
     `C01-user-tasks/scenarios/task-claim-release-assign.scenario.json`.
 C21.8. **A process whose only start event is a timer start can be started by key.** `ProcessRuntime.start` enters the timer start event like a
     none start event and does not wait for (or consume) the timer job. Evidence: `timer-start-duration.scenario.json`.
+C21.9. **Without its `-extensions.json` file a process gets nothing back from its user tasks: the BPMN file alone is not enough.**
+    `ProcessExtensionService.getExtensionsForId` returns an empty extension when the deployment has no extensions file for the process, and
+    `ExtensionsVariablesMappingProvider.calculateOutPutVariables` returns an empty map for an element the extension has no mapping for, so
+    the variables `TaskRuntime.complete` sets on the task never reach the process. An exclusive gateway after the task that reads one fails
+    with `ActivitiException: Unknown property used in expression: ${approved}`, and the completion is rolled back (the task stays open).
+    Variables passed to `ProcessRuntime.start` reach the process as they are. **docs**: the dialog after File > Export project as zip and the
+    user guide ([Using the files in a Spring Boot application](user-guide/modeler-basics.md#using-the-files-in-a-spring-boot-application))
+    say to deploy the `-extensions.json` files with the BPMN files. Evidence: `C01-user-tasks/scenarios/no-extensions-file.scenario.json`.
 
 ## C20 business projects
 

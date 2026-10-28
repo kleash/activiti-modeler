@@ -1,4 +1,6 @@
 /** Rules for engine behaviour the validator does not catch: R1 §7.1 L12 to L35 and the traps recorded in docs/engine-findings.md. */
+import { DMN_DECISION_IMPLEMENTATION } from '@activiti-modeler/bpmn-js-activiti/support-matrix';
+
 import { defineRule, onDefinitions, onTypes } from '../define';
 import { allFlowElements, artifactsOf, bool, extensionValues, fieldsOf, flowElementsOf, is, isBlank, label, list, rootElements, str } from '../model';
 import { ACTIVITI_EVENT_TYPES, ENTITY_TYPES } from './validator-tasks';
@@ -369,6 +371,20 @@ export const trapRules = [
     }),
     bad: [{ body: `<serviceTask id="s" activiti:type="shell">${ext('<activiti:field name="command"><activiti:string>ls</activiti:string></activiti:field>')}</serviceTask>`, ids: ['s'] }],
     good: [{ body: '<serviceTask id="s" activiti:class="a.B"/>' }],
+  }),
+  defineRule({
+    id: 'decision-task-needs-dmn-connector',
+    tag: 'X',
+    severity: 'info',
+    title: 'A decision task, which needs the DMN connector in the application',
+    why: 'Activiti 7 and later have no DMN engine. A decision task calls the connector bean `dmn-connector.EXECUTE_TABLE`, which the library `io.github.kleash.activiti:activiti-dmn-connector` provides. The modeler server includes it. An application without it deploys the process and fails when the task is reached, with `NoSuchBeanDefinitionException`, as for any connector bean that is missing. The DMN files are deployed with the processes only when `**.dmn` is in `spring.activiti.process-definition-location-suffixes`.',
+    evidence: ['ADR 0004', 'R1 §6.1', 'engine-findings 24'],
+    howToFix: 'Add the dependency `io.github.kleash.activiti:activiti-dmn-connector` to the application that runs the process, and `**.dmn` to `spring.activiti.process-definition-location-suffixes` (the integration guide shows both). The model needs no change.',
+    check: onTypes('bpmn:ServiceTask', (task, api) => {
+      if (str(task, 'implementation') === DMN_DECISION_IMPLEMENTATION) api.report(task, `Decision task ${task.id}: Activiti has no DMN engine, so the application that runs the process needs io.github.kleash.activiti:activiti-dmn-connector`);
+    }),
+    bad: [{ body: `<serviceTask id="dt" name="Decide" implementation="${DMN_DECISION_IMPLEMENTATION}"/>`, ids: ['dt'] }],
+    good: [{ body: '<serviceTask id="s" implementation="crm.LOOKUP"/>' }],
   }),
   // --- text level rules (they look at the file as written)
   defineRule({

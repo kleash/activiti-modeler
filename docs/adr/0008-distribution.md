@@ -73,7 +73,8 @@ Pushing a tag `v*`:
 
 ### Not in scope
 
-- Code signing and notarization for macOS and Windows. Both need developer accounts and paid certificates. The install guide explains how to open an unsigned app (macOS: right-click, then Open; Windows: SmartScreen, then "More info", then "Run anyway").
+- Code signing for Windows: it needs a paid certificate. The install guide explains how to open the unsigned app (SmartScreen, then "More info", then "Run anyway").
+- Signing in CI. The macOS apps are signed with the maintainer's Developer ID and notarized (from release 1.0.0), but on the maintainer's Mac, where the certificate stays: the release workflow leaves the GitHub Release a draft, and `scripts/sign-macos.sh` signs the two macOS bundles, publishes the release and updates the Homebrew cask (`kleash/homebrew-tap`).
 - Installers (`.dmg`, `.msi`, `.deb`). Zipped app images avoid installer tooling and admin rights.
 
 ## Consequences

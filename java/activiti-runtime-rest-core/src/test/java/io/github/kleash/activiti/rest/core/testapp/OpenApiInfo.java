@@ -12,7 +12,7 @@ public class OpenApiInfo {
 
     @Bean
     public OpenApiCustomizer coreApiInfo() {
-        return openApi -> openApi.info(new Info().title("Activiti runtime REST (core)").version("0.1.0").description(
+        return openApi -> openApi.info(new Info().title("Activiti runtime REST (core)").version("1.0.0").description(
                 "Production-safe REST API over ProcessRuntime and TaskRuntime: definitions, instances (state, path, variables), history, tasks, messages, signals, "
                         + "jobs and timers, dead letters. The acting user is the authenticated principal; the library adds no security of its own "
                         + "(access levels read, operate and admin map to authorities through activiti.rest.roles.*). Errors are application/problem+json."));

@@ -2,7 +2,7 @@
 
 ## Read first
 
-- [Install guide](docs/user-guide/install.md): the downloads, opening an app that is not signed, Docker, and a table of common problems.
+- [Install guide](docs/user-guide/install.md): the downloads, Homebrew, opening the Windows app (not signed), Docker, and a table of common problems.
 - [User guide](docs/README.md): modeling, the properties panel, running and testing, scenarios, DMN, the Camunda 7 import and a page for every lint rule.
 - [Engine findings](docs/engine-findings.md): what Activiti 9.0.0 does that you might not expect, each with the test that shows it. Look there first when a process runs differently from what its model seems to say.
 - [Integration guide](docs/integration-guide.md): running exported projects in your own Spring Boot application.

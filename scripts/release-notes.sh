@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Prints the CHANGELOG.md section of a version, for the notes of a GitHub Release (ADR 0008, feature K7).
 #   scripts/release-notes.sh <version> [--allow-unreleased]
-# <version> is without the "v" (0.1.0). The section is the one headed "## [0.1.0]" (optionally followed by " - date") up to the next "## [".
+# <version> is without the "v" (1.0.0). The section is the one headed "## [1.0.0]" (optionally followed by " - date") up to the next "## [".
 # A release needs its section: the script fails when it is missing or empty. --allow-unreleased (a dry run) falls back to "## [Unreleased]".
 set -euo pipefail
 

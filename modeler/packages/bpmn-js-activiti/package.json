@@ -1,6 +1,6 @@
 {
   "name": "@activiti-modeler/bpmn-js-activiti",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "bpmn-js modules that make the editor Activiti-native",
   "type": "module",
@@ -15,8 +15,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@activiti-modeler/activiti-moddle": "0.1.0",
-    "@activiti-modeler/activiti-project": "0.1.0",
+    "@activiti-modeler/activiti-moddle": "1.0.0",
+    "@activiti-modeler/activiti-project": "1.0.0",
     "bpmn-js": "18.31.1",
     "diagram-js": "15.28.1",
     "min-dash": "5.1.0",

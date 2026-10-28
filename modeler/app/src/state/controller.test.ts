@@ -106,7 +106,7 @@ describe('U19 settings and session restore', () => {
     const { controller } = await start();
     controller.setSettings({ defaultMappings: 'none', autoLayout: false, restoreSession: false, offerCamundaConversion: false });
     controller.restoreDefaultSettings();
-    expect(controller.getSnapshot().settings).toEqual({ defaultMappings: 'mapAll', autoLayout: true, restoreSession: true, offerCamundaConversion: true, locale: 'en' });
+    expect(controller.getSnapshot().settings).toEqual({ defaultMappings: 'mapAll', autoLayout: true, restoreSession: true, offerCamundaConversion: true, explainExport: true, locale: 'en' });
   });
 
   it('with "reopen the tabs" switched off a reload opens the first process only', async () => {
@@ -459,6 +459,22 @@ describe('projects and zip', () => {
     expect(controller.getSnapshot().project!.name).toBe('my-project-2');
     expect(controller.snapshotFiles()).toEqual(unpacked.files);
     expect(controller.getSnapshot().toasts.some((t) => t.message.startsWith('Imported 3 file(s)'))).toBe(true);
+  });
+
+  it('after the zip export a dialog explains the files: the DMN part only with a decision task or a DMN file, and not at all once switched off', async () => {
+    const { controller } = await start();
+    await controller.exportProjectZip();
+    expect(controller.getSnapshot().dialog).toMatchObject({ kind: 'exportInfo', connectors: false, dmn: false });
+    controller.closeDialog();
+    await controller.workspace!.createFile('processes/decide.bpmn20.xml', '<definitions><process id="decide"><serviceTask id="d" implementation="dmn-connector.EXECUTE_TABLE"/></process></definitions>');
+    await controller.workspace!.createFile('connectors/crm.json', '{"id":"crm","name":"crm","actions":{}}');
+    await controller.exportProjectZip();
+    expect(controller.getSnapshot().dialog).toMatchObject({ kind: 'exportInfo', connectors: true, dmn: true });
+    controller.closeDialog();
+    controller.setSettings({ explainExport: false });
+    await controller.exportProjectZip();
+    expect(downloads).toHaveLength(3);
+    expect(controller.getSnapshot().dialog).toBeUndefined();
   });
 
   it('opening another project asks about unsaved changes first', async () => {

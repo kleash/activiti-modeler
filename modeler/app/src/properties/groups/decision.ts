@@ -119,6 +119,7 @@ export function decisionGroups(b: EntryBuilder): Array<Definition | undefined> {
       'info',
       'decision.pick',
     ),
+    b.info('decision.connector.hint', 'Activiti has no DMN engine: the application that runs this process needs the dependency io.github.kleash.activiti:activiti-dmn-connector. The modeler server already includes it.', 'info', 'decision'),
   );
   return [group({ id: 'decision', label: 'Decision', entries, shouldOpen: true })];
 }

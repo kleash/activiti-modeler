@@ -104,6 +104,13 @@ test.describe('Decision', () => {
     expect((await processExtension(api)).constants['dt']).toEqual({ _activiti_dmn_table_: { value: 'risk' } });
   });
 
+  test('Decision: a note says that the application needs the DMN connector, which the modeler server includes', async ({ page }) => {
+    await openScene(page, async (a) => void (await a.createShape({ type: 'serviceTask', id: 'dt', attrs: { implementation: 'dmn-connector.EXECUTE_TABLE' } })), 'dt');
+    await expect(entry(page, 'decision.connector.hint')).toBeVisible();
+    await expect(entry(page, 'decision.connector.hint')).toContainText('the application that runs this process needs the dependency io.github.kleash.activiti:activiti-dmn-connector');
+    await expect(entry(page, 'decision.connector.hint')).toContainText('The modeler server already includes it.');
+  });
+
   test('Decision: the notes explain the output contract', async ({ page }) => {
     await openScene(page, decisionTask, 'dt');
     await expect(entry(page, 'decision.pick.hint')).toContainText('_activiti_dmn_matched_rules_');

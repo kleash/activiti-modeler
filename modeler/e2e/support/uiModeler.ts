@@ -6,7 +6,7 @@ import { strFromU8, unzipSync } from 'fflate';
 
 import { addInputRight, addOutputRight, addRuleAtEnd, cellEditor, columnPopup, inputHeader, inputSettled, leaveCell, openColumnEditor, outputHeader, ruleIds, selectHitPolicy } from '../dmn/support';
 import { addListItem, addRow, check, entry, panel, pick, reveal, type as typeText, valueOf } from '../properties/support';
-import { activePanel, dropFiles, idbFiles, menu, tab } from './app';
+import { activePanel, closeExportInfo, dropFiles, idbFiles, menu, tab } from './app';
 import type { CorpusModeler, DmnInputDataSpec, DmnInputSpec, DmnOutputSpec, DmnRuleSpec, DmnTableSpec, ExportedProject, ExtensionsOptions, FlowOptions, ShapeOptions } from './modelerApi';
 
 interface Point {
@@ -181,6 +181,7 @@ export class UiModeler implements CorpusModeler {
     const download = this.page.waitForEvent('download');
     await menu(this.page, 'File', 'Export project as zip');
     const bytes = await readFile((await (await download).path())!);
+    await closeExportInfo(this.page);
     const files = Object.entries(unzipSync(new Uint8Array(bytes)))
       .filter(([path]) => !path.endsWith('/'))
       .map(([path, data]) => ({ path, content: strFromU8(data) }));

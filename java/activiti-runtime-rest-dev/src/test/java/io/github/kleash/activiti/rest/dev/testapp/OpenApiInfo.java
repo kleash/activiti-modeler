@@ -12,7 +12,7 @@ public class OpenApiInfo {
 
     @Bean
     public OpenApiCustomizer devApiInfo() {
-        return openApi -> openApi.info(new Info().title("Activiti runtime REST (dev)").version("0.1.0").description(
+        return openApi -> openApi.info(new Info().title("Activiti runtime REST (dev)").version("1.0.0").description(
                 "Development-only endpoints, registered with activiti.rest.dev.enabled=true and open to the admin access level only: validate a project "
                         + "(with a trial deployment into a scratch engine), deploy it, run scenarios against it on the running engine, evaluate decisions, "
                         + "and read and write the project files of the workspace folder."));

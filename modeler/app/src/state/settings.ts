@@ -13,6 +13,8 @@ export interface Settings {
   restoreSession: boolean;
   /** A file with Camunda 7 extensions shows the strip that offers the conversion (feature U17). */
   offerCamundaConversion: boolean;
+  /** File > Export project as zip is followed by the dialog that says how an application uses the files. */
+  explainExport: boolean;
   /** The language of the interface (feature U29); only English has a catalog. */
   locale: string;
 }
@@ -24,18 +26,20 @@ export const DEFAULT_SETTINGS: Settings = {
   autoLayout: true,
   restoreSession: true,
   offerCamundaConversion: true,
+  explainExport: true,
   locale: 'en',
 };
 
 /** Makes any parsed JSON into valid settings: a value of the wrong type falls back to the default. */
 export function sanitizeSettings(raw: unknown): Settings {
   const source = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>;
-  const bool = (key: 'autoLayout' | 'restoreSession' | 'offerCamundaConversion'): boolean => (typeof source[key] === 'boolean' ? (source[key] as boolean) : DEFAULT_SETTINGS[key]);
+  const bool = (key: 'autoLayout' | 'restoreSession' | 'offerCamundaConversion' | 'explainExport'): boolean => (typeof source[key] === 'boolean' ? (source[key] as boolean) : DEFAULT_SETTINGS[key]);
   return {
     defaultMappings: source['defaultMappings'] === 'none' || source['defaultMappings'] === 'mapAll' ? source['defaultMappings'] : DEFAULT_SETTINGS.defaultMappings,
     autoLayout: bool('autoLayout'),
     restoreSession: bool('restoreSession'),
     offerCamundaConversion: bool('offerCamundaConversion'),
+    explainExport: bool('explainExport'),
     locale: typeof source['locale'] === 'string' && /^[a-z]{2}(-[A-Z]{2})?$/.test(source['locale']) ? source['locale'] : DEFAULT_SETTINGS.locale,
   };
 }

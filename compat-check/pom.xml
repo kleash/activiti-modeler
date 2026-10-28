@@ -12,7 +12,7 @@
 
   <groupId>io.github.kleash</groupId>
   <artifactId>activiti-compat-check</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
 
   <properties>
     <!-- Java 21 bytecode so the same check runs on Activiti 8.8.1 / JDK 21 and Activiti 9.0.0 / JDK 25 (not java.version: that is a JVM property) -->

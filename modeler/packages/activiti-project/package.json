@@ -1,6 +1,6 @@
 {
   "name": "@activiti-modeler/activiti-project",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Project model: files, layout, extensions sidecars",
   "type": "module",
@@ -15,7 +15,7 @@
     "generate:model-snapshot": "node scripts/generate-model-snapshot.mjs"
   },
   "dependencies": {
-    "@activiti-modeler/activiti-moddle": "0.1.0",
+    "@activiti-modeler/activiti-moddle": "1.0.0",
     "fflate": "0.8.3",
     "idb": "8.0.4"
   },

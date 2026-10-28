@@ -1,6 +1,6 @@
 {
   "name": "@activiti-modeler/bpmnlint-plugin-activiti",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "bpmnlint rules for Activiti 9 execution semantics, the project lint API and the activiti-lint CLI",
   "type": "module",
@@ -23,9 +23,9 @@
     "lint:corpus": "node scripts/lint-corpus.mjs"
   },
   "dependencies": {
-    "@activiti-modeler/activiti-moddle": "0.1.0",
-    "@activiti-modeler/activiti-project": "0.1.0",
-    "@activiti-modeler/bpmn-js-activiti": "0.1.0",
+    "@activiti-modeler/activiti-moddle": "1.0.0",
+    "@activiti-modeler/activiti-project": "1.0.0",
+    "@activiti-modeler/bpmn-js-activiti": "1.0.0",
     "bpmn-js-bpmnlint": "0.25.0",
     "bpmn-moddle": "10.3.1",
     "bpmnlint": "12.0.0",

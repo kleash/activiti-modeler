@@ -155,6 +155,17 @@ Below every process are three views: **Diagram**, **XML** and **Extensions JSON*
 - **Edit > Copy selection as image** (`Ctrl+Shift+C`) puts the selected elements on the clipboard as a PNG (the browser may ask for clipboard permission).
 - **File > Export project as zip** downloads the project, see [Projects and storage](#projects-and-storage).
 
+### Using the files in a Spring Boot application
+
+After **File > Export project as zip** a dialog says how an application uses the files (**Don't show this again** switches it off; **File > Settings** switches it on again):
+
+- Copy `processes/`, the `.bpmn20.xml` files and their `-extensions.json` files, into `src/main/resources/processes/` of an application with `activiti-spring-boot-starter`, and `connectors/` into `src/main/resources/connectors/`.
+- The `-extensions.json` files are part of Activiti, not of the modeler. Without them, the variables that a user task, a call activity, a connector or a message catch event hands back do not reach the process: a gateway that reads a variable a user task was completed with fails with `Unknown property used in expression` ([engine finding C21.9](../engine-findings.md#c21-coverage-extras)).
+- `project.json` is the modeler's own project file. The application does not need it.
+- Decision tasks need more, because Activiti has no DMN engine: the dependency `io.github.kleash.activiti:activiti-dmn-connector`, the `.dmn` files in the same folder as the BPMN files, and `**.dmn` in `spring.activiti.process-definition-location-suffixes`. The modeler server already includes the connector.
+
+The [integration guide](../integration-guide.md) has the pom and the properties.
+
 ## Drag and drop
 
 Drop files onto the page to add them to the open project, or a project zip to import it as a new project.
@@ -185,6 +196,7 @@ The modeler checks every diagram while you work, and the whole project after eac
 | Draw a layout for a BPMN file without a diagram | A file without any diagram (written by hand, or by a tool that does not draw) gets a layout generated with `bpmn-auto-layout` when it is opened. A toast says so, the tab is marked as changed, and saving keeps the diagram. With the setting off such a file opens as an error with the XML view available. |
 | Offer to convert files that use Camunda 7 extensions | See [Importing a Camunda 7 model](camunda-import.md). |
 | Reopen the tabs of the last session | Tabs, their views and the active tab come back after a reload (with unsaved changes, which are kept as drafts). Off: the first process opens. |
+| Explain how an application uses the files after File > Export project as zip | The dialog after an export, see [Using the files in a Spring Boot application](#using-the-files-in-a-spring-boot-application). Its **Don't show this again** switches this off. |
 | Reset panel layout | Panels return to their default sizes and are shown; the minimap and the grid stay. Also in **View**. |
 | Language | The texts of the interface are in one catalog; English is the only language shipped. |
 

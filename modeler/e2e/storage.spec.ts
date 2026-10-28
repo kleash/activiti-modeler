@@ -1,15 +1,19 @@
 import { readFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { type Page, expect } from '@playwright/test';
 import { test } from './support/test';
 import { strFromU8, unzipSync } from 'fflate';
 
-import { activePanel, editorText, element, idbDrafts, idbFiles, idbProjects, menu, openApp, reloadApp, tab, waitForDraft, waitForSession } from './support/app';
+import { activePanel, closeExportInfo, editorText, element, idbDrafts, idbFiles, idbProjects, menu, openApp, reloadApp, tab, waitForDraft, waitForSession } from './support/app';
 
 const treeItem = (page: Page, name: string) => page.getByRole('treeitem', { name, exact: true });
+const exportInfo = (page: Page) => page.getByTestId('export-info-dialog');
+const MODELER_BASICS = resolve(dirname(fileURLToPath(import.meta.url)), '../../docs/user-guide/modeler-basics.md');
 
-async function palettePlaceTask(page: Page, at: { x: number; y: number }): Promise<void> {
-  await activePanel(page).locator('.djs-palette [data-action="create.task"]').click();
+async function palettePlaceTask(page: Page, at: { x: number; y: number }, action = 'create.task'): Promise<void> {
+  await activePanel(page).locator(`.djs-palette [data-action="${action}"]`).click();
   const canvas = (await activePanel(page).getByTestId('bpmn-canvas').boundingBox())!;
   await page.mouse.move(canvas.x + at.x, canvas.y + at.y, { steps: 4 });
   await page.mouse.click(canvas.x + at.x, canvas.y + at.y);
@@ -155,6 +159,7 @@ test.describe('U3 browser workspace (IndexedDB)', () => {
     expect(download.suggestedFilename()).toBe('my-project.zip');
     const zipPath = testInfo.outputPath('export.zip');
     await download.saveAs(zipPath);
+    await closeExportInfo(page);
 
     const entries = unzipSync(new Uint8Array(await readFile(zipPath)));
     const zipped = Object.fromEntries(Object.entries(entries).map(([name, bytes]) => [name, strFromU8(bytes)]));
@@ -178,9 +183,64 @@ test.describe('U3 browser workspace (IndexedDB)', () => {
     await menu(page, 'File', 'Export project as zip');
     const download = await downloadPromise;
     await download.saveAs(testInfo.outputPath('export.zip'));
+    await closeExportInfo(page);
     const entries = unzipSync(new Uint8Array(await readFile(testInfo.outputPath('export.zip'))));
     expect(strFromU8(entries['processes/process.bpmn20.xml']!)).toContain('<bpmn:task id="Activity_');
     await expect(tab(page, 'process.bpmn20.xml')).not.toHaveClass(/dirty/);
+  });
+
+  test('U3 after the zip export a dialog says how a Spring Boot application uses the files; without a decision task it names no DMN dependency', async ({ page }) => {
+    const downloadPromise = page.waitForEvent('download');
+    await menu(page, 'File', 'Export project as zip');
+    await downloadPromise;
+    await expect(exportInfo(page).getByRole('heading')).toHaveText('Using these files in a Spring Boot application');
+    await expect(exportInfo(page)).toContainText('Copy processes/, the .bpmn20.xml files and their -extensions.json files, into src/main/resources/processes/ of an application with activiti-spring-boot-starter.');
+    await expect(exportInfo(page)).toContainText('The -extensions.json files are part of Activiti, not of the modeler. Without them, the variables that a user task, a call activity, a connector or a message catch event hands back do not reach the process.');
+    await expect(exportInfo(page)).toContainText("project.json is the modeler's own project file. The application does not need it.");
+    // the new project has no connector, no decision task and no DMN file
+    await expect(exportInfo(page)).not.toContainText('connectors/');
+    await expect(exportInfo(page)).not.toContainText('DMN');
+    await expect(exportInfo(page).getByTestId('export-info-dependency')).toHaveCount(0);
+    // the link goes to the section of the user guide that says the same
+    await expect(exportInfo(page).getByRole('link', { name: 'More in the user guide' })).toHaveAttribute('href', /\/docs\/user-guide\/modeler-basics\.md#using-the-files-in-a-spring-boot-application$/);
+    expect(await readFile(MODELER_BASICS, 'utf8')).toContain('\n### Using the files in a Spring Boot application\n');
+    await closeExportInfo(page);
+  });
+
+  test('U3 with a decision task the dialog after the zip export names the DMN connector dependency', async ({ page }) => {
+    // a decision task from the palette: the project has no DMN file
+    await palettePlaceTask(page, { x: 400, y: 250 }, 'create.decision-task');
+    const downloadPromise = page.waitForEvent('download');
+    await menu(page, 'File', 'Export project as zip');
+    await downloadPromise;
+    await expect(exportInfo(page)).toContainText('The project has decision tasks or DMN files, and Activiti has no DMN engine. Add this dependency to the application:');
+    await expect(exportInfo(page).getByTestId('export-info-dependency')).toHaveText('io.github.kleash.activiti:activiti-dmn-connector:1.0.0');
+    await expect(exportInfo(page)).toContainText('Put the .dmn files in the same folder as the BPMN files, and add **.dmn to spring.activiti.process-definition-location-suffixes');
+    await closeExportInfo(page);
+  });
+
+  test('U3 "Don\'t show this again" is kept in this browser: after a reload the export shows no dialog, and the setting brings it back', async ({ page }) => {
+    let download = page.waitForEvent('download');
+    await menu(page, 'File', 'Export project as zip');
+    await download;
+    await page.getByTestId('export-info-hide').check();
+    await closeExportInfo(page);
+    await reloadApp(page);
+    download = page.waitForEvent('download');
+    await menu(page, 'File', 'Export project as zip');
+    await download;
+    // the dialog is shown before the toast of the export, so once the toast is there no dialog follows
+    await expect(page.getByTestId('toasts')).toContainText('to my-project.zip');
+    await expect(exportInfo(page)).toHaveCount(0);
+    await page.keyboard.press('Control+,');
+    await expect(page.getByTestId('setting-explainExport')).not.toBeChecked();
+    await page.getByTestId('setting-explainExport').check();
+    await page.keyboard.press('Escape');
+    download = page.waitForEvent('download');
+    await menu(page, 'File', 'Export project as zip');
+    await download;
+    await expect(exportInfo(page)).toBeVisible();
+    await expect(page.getByTestId('export-info-hide')).not.toBeChecked();
   });
 });
 
@@ -207,6 +267,7 @@ test.describe('U3 browser without IndexedDB', () => {
     await menu(page, 'File', 'Export project as zip');
     const download = await downloadPromise;
     await download.saveAs(testInfo.outputPath('memory.zip'));
+    await closeExportInfo(page);
     const zipped = unzipSync(new Uint8Array(await readFile(testInfo.outputPath('memory.zip'))));
     expect(strFromU8(zipped['processes/process.bpmn20.xml']!)).toContain('<bpmn:task id="Activity_');
     // the projects dialog explains that nothing can be created

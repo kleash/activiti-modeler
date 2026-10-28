@@ -15,8 +15,8 @@ const NAMESPACE = 'http://activiti.org/bpmn/corpus/C01';
 const TASK_LISTENER = 'io.github.kleash.activiti.harness.support.RecordingTaskListener';
 const FIELD_LISTENER = 'io.github.kleash.activiti.harness.support.FieldTaskListener';
 
-async function newProcess(api: CorpusModeler, file: string, id: string, name: string, documentation: string): Promise<void> {
-  await api.newProcess(id, name, { file });
+async function newProcess(api: CorpusModeler, file: string, id: string, name: string, documentation: string, options: { omitExtensions?: boolean } = {}): Promise<void> {
+  await api.newProcess(id, name, { file, ...options });
   await api.setProperty(id, 'general.targetNamespace', NAMESPACE);
   await api.setProperty(id, 'documentation.text', documentation);
 }
@@ -208,6 +208,22 @@ export default async function build(api: CorpusModeler): Promise<void> {
     constants: { limit: 1000 },
   });
   await api.setExtensions({ elementId: 'passAll', mappingType: 'MAP_ALL' });
+
+  // --- no-extensions-file: the seed has no -extensions.json, so neither has the export -----------------------------------
+  await newProcess(api, 'no-extensions-file', 'noExtensionsFile', 'No extensions file',
+    'Deployed without a -extensions.json file. The variables the user task is completed with do not reach the process, so the gateway cannot read approved and the completion fails; variables given at the start reach the process.',
+    { omitExtensions: true });
+  await api.createShape({ type: 'startEvent', id: 'start', at: at(0, 1) });
+  await api.createShape({ type: 'userTask', id: 'review', name: 'Review', at: at(1, 1) });
+  await api.createShape({ type: 'exclusiveGateway', id: 'decided', name: 'Approved?', at: at(2, 1) });
+  await api.createShape({ type: 'endEvent', id: 'approvedEnd', name: 'Approved', at: at(3, 0) });
+  await api.createShape({ type: 'endEvent', id: 'rejectedEnd', name: 'Rejected', at: at(3, 2) });
+  // each flow gets its condition or default marker right after it is drawn, while it is still selected (as in C04)
+  await chain(api, 'start', 'review', 'decided', 'approvedEnd');
+  await api.setProperty('f_decided_approvedEnd', 'flow.condition', '${approved}');
+  await api.connect('decided', 'rejectedEnd', 'f_decided_rejectedEnd');
+  await api.setProperty('f_decided_rejectedEnd', 'flow.default', true);
+  await api.setProperty('review', 'user.assignee', 'ann');
 }
 
 /** Also built through the real UI by the corpus run (`modeler/e2e/support/uiModeler.ts`), into `target/corpus-ui/C01-user-tasks`. */

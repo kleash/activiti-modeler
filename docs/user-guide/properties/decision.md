@@ -28,5 +28,6 @@ The buttons repeat the parts alone: **Map the inputs**, **Map the outputs**, **S
 - The connector gets only the mapped inputs. A **missing input is `null` in FEEL**, so a mapping that is missing or misspelled shows up as "no rule matched", not as an error; the group lists the inputs the task leaves unmapped (lint rule L37).
 - Outputs: one variable per output column (a column needs a `name`, lint L33), or the list of rows under the decision id; always `_activiti_dmn_matched_` and `_activiti_dmn_matched_rules_`. **With no match the output columns are not emitted**, and the engine's `VARIABLE` output skips null, so a mapped variable keeps its previous value; map `_activiti_dmn_matched_` to react to "no match" (COLLECT COUNT is the exception: it emits `0`).
 - All of it reaches the process only through the output mapping ([ADR 0003](../../adr/0003-model-file-contract.md)).
+- Activiti has no DMN engine. The application that runs the process needs the dependency `io.github.kleash.activiti:activiti-dmn-connector` ([integration guide](../../integration-guide.md#dmn)); the modeler server already includes it. The lint note `activiti/decision-task-needs-dmn-connector` says the same in the Problems panel.
 
 Back to the [properties overview](../modeler-basics.md#the-properties-panel).

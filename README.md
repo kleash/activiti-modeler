@@ -1,10 +1,34 @@
-# Activiti Modeler
+<p align="center">
+  <a href="https://kleash.github.io/activiti-modeler/"><img src="docs/images/social/social-preview.png" alt="Activiti Modeler: BPMN and DMN for Activiti 9, checked and run on the real engine" width="840"></a>
+</p>
 
-A BPMN and DMN modeler for Activiti 9 that writes only what the engine executes, and deploys and tests your models on an embedded engine.
+<h1 align="center">Activiti Modeler</h1>
 
-[![CI](https://github.com/kleash/activiti-modeler/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/kleash/activiti-modeler/actions/workflows/ci.yml)
+<p align="center">
+  <b>A BPMN and DMN modeler for Activiti 9.</b><br>
+  It writes only what the engine executes, lints your models against Activiti's own validator,<br>
+  and deploys, runs and tests them on an embedded engine, from the same window.
+</p>
 
-**[Try it in the browser](https://kleash.github.io/activiti-modeler/)** · **[Download](https://github.com/kleash/activiti-modeler/releases/latest)** · [Install guide](docs/user-guide/install.md) · [Documentation](docs/README.md)
+<p align="center">
+  <a href="https://github.com/kleash/activiti-modeler/actions/workflows/ci.yml"><img src="https://github.com/kleash/activiti-modeler/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="https://github.com/kleash/activiti-modeler/actions/workflows/codeql.yml"><img src="https://github.com/kleash/activiti-modeler/actions/workflows/codeql.yml/badge.svg?branch=main" alt="CodeQL"></a>
+  <a href="https://github.com/kleash/activiti-modeler/actions/workflows/osv-scan.yml"><img src="https://github.com/kleash/activiti-modeler/actions/workflows/osv-scan.yml/badge.svg?branch=main" alt="OSV scan"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/kleash/activiti-modeler" alt="Licence: Apache 2.0"></a>
+  <br>
+  <a href="#runs-on"><img src="https://img.shields.io/badge/Activiti-9.0.0%20%7C%208.8.1-1f6feb" alt="Activiti 9.0.0 and 8.8.1"></a>
+  <a href="#runs-on"><img src="https://img.shields.io/badge/Java-25%20%7C%2021-ed8b00?logo=openjdk&amp;logoColor=white" alt="Java 25 and 21"></a>
+  <a href="#runs-on"><img src="https://img.shields.io/badge/Spring%20Boot-3.5-6db33f?logo=springboot&amp;logoColor=white" alt="Spring Boot 3.5"></a>
+  <a href="https://bpmn.io"><img src="https://img.shields.io/badge/built%20on-bpmn.io-3c3c3c" alt="Built on bpmn.io"></a>
+</p>
+
+<p align="center">
+  <a href="https://kleash.github.io/activiti-modeler/"><b>Try it in the browser</b></a> ·
+  <a href="https://github.com/kleash/activiti-modeler/releases/latest"><b>Download</b></a> ·
+  <a href="docs/user-guide/install.md">Install guide</a> ·
+  <a href="docs/README.md">Documentation</a> ·
+  <a href="https://github.com/kleash/activiti-modeler/discussions">Discussions</a>
+</p>
 
 ![Modeling a process: append a task, make it a user task, set the assignee; the lint badge goes to No Issues](docs/images/showcase/modeling.gif)
 
@@ -13,7 +37,7 @@ A BPMN and DMN modeler for Activiti 9 that writes only what the engine executes,
 - **BPMN 2.0 editor** on bpmn-js. The palette and the menus offer only the elements Activiti 9 executes, and the properties panel writes the `activiti:` attributes the engine reads.
 - **The extensions file.** Activiti 7 and later read process variables, input and output mappings and constants from `<process>-extensions.json`. The modeler writes it next to each process and edits it in the same panel and the same undo history as the diagram.
 - **DMN editor** on dmn-js: requirements diagrams, decision tables with all seven hit policies, literal and boxed expressions, and a decision tester. DMN 1.1 and 1.2 files are migrated when they are opened; saving writes DMN 1.3.
-- **Lint while you edit:** 155 rules for what Activiti executes, with quick fixes. Errors block a deployment.
+- **Lint while you edit:** 156 rules for what Activiti executes, with quick fixes. Errors block a deployment.
 - **Run and test** on the embedded Activiti 9.0.0 of the modeler server: deploy, start instances, complete tasks, send messages and signals, fire timers, follow the path on the diagram, and write, record and run test scenarios.
 - **Camunda 7 import:** `camunda:` attributes, listeners, input and output parameters and business rule tasks are translated, with a report of what was dropped and why.
 - **Projects are plain files:** in the browser (works offline), in a local folder, in the server's workspace, or as a zip that unpacks into `src/main/resources` of a Spring Boot application.
@@ -34,7 +58,7 @@ The [latest release](https://github.com/kleash/activiti-modeler/releases/latest)
 | Docker | `ghcr.io/kleash/activiti-modeler` | see below |
 | Only a browser | <https://kleash.github.io/activiti-modeler/> | model, lint, import and export; running a model needs one of the above |
 
-The desktop bundles bring their own Java runtime. They are not code-signed, so macOS and Windows warn on the first start; the [install guide](docs/user-guide/install.md) says how to open them and how to check a download against `SHA256SUMS`.
+The desktop bundles bring their own Java runtime. On a Mac, `brew install kleash/tap/activiti-modeler` installs the app. The macOS apps are signed and notarized by Apple; the Windows bundle is not code-signed, so Windows warns on the first start. The [install guide](docs/user-guide/install.md) says how to open it and how to check a download against `SHA256SUMS`.
 
 ## Start in 30 seconds
 
@@ -58,7 +82,7 @@ Camunda Modeler writes for the Camunda engines. Used for an Activiti project, th
 |---|---|---|
 | **Extensions** | `camunda:` (Camunda 7) or `zeebe:` (Camunda 8). Activiti does not read `camunda:` attributes: a service task with `camunda:class` fails to deploy (`SERVICE_TASK_MISSING_IMPLEMENTATION`), and an assignee, candidate group, due date, form key, initiator, input and output parameters, async flags or result variable are dropped without a message. Only a few child elements, such as `<camunda:taskListener>`, are still read, because Activiti matches them by local name. | `activiti:` only. A file with Camunda or Zeebe extensions cannot be saved until it is converted, and the conversion reports what it changed. |
 | **Extensions file** | Not written. Without a mapping in `<process>-extensions.json`, the variables a user task is completed with, the outputs of a connector, what a called process returns and message payloads do not reach the process. | Written and edited with the diagram. New user tasks, call activities and message catch events get a default mapping (`MAP_ALL`, or `MAP_ALL_OUTPUTS` on a multi-instance user task). |
-| **Lint** | bpmnlint plus Camunda's compatibility rules for its own engines. | 155 rules for what Activiti executes. The 78 that mirror Activiti's own validator run through that validator on every build and agree with it on every fixture. |
+| **Lint** | bpmnlint plus Camunda's compatibility rules for its own engines. | 156 rules for what Activiti executes. The 78 that mirror Activiti's own validator run through that validator on every build and agree with it on every fixture. |
 
 Evidence, each with the test that shows it: findings N01.2 and 1 and the validator mirror in the [engine findings](docs/engine-findings.md), finding 1 of the [compatibility check](compat-check/README.md), and [ADR 0006](docs/adr/0006-extensions-store.md). To bring existing files over, see [Importing a Camunda 7 model](docs/user-guide/camunda-import.md).
 
@@ -72,7 +96,7 @@ Counted in this repository:
 | Scenarios: start, steps, expected path, variables and tasks | 316, plus 80 decision cases |
 | Corpus projects the modeler rebuilds and runs against the same oracles | all 26 through its test API; 7 of them also with mouse and keyboard in the real UI |
 | Negative models, each with its expected lint result and engine outcome (`corpus/N01-negative`) | 53 |
-| Lint rules | 155, of which 78 mirror Activiti's validator and are checked against it |
+| Lint rules | 156, of which 78 mirror Activiti's validator and are checked against it |
 | Playwright tests | 591 on the production build, 44 against the real modeler server, and the 33 corpus builds |
 
 - Every project runs on embedded Activiti 9.0.0 in its own Spring context and H2 database, once through Spring auto-deployment and once through a `DeploymentBuilder`. The scenarios assert paths, variables, task assignments, mappings and DMN results, not only that a model deploys. Together they must visit every flow node and sequence flow of a project, or name the exemption and the reason.
@@ -114,28 +138,30 @@ More: [token simulation](docs/images/showcase/token-simulation.gif), [running sc
 
 Your application needs nothing from this project to run what the modeler exports: the BPMN 2.0 files, the `-extensions.json` files and the DMN files run on Activiti's own `activiti-spring-boot-starter`. The one exception is DMN decision tasks. Activiti 7 and later have no DMN engine, so a project that uses them adds `activiti-dmn-connector`. Do not share a database between the two lines: Activiti 9.0.0 cannot open a database that 8.8.1 has written to. Details are in the [integration guide](docs/integration-guide.md).
 
-## Libraries on Maven Central
+## On Maven Central
 
-The Java modules below are published to Maven Central with each release, starting with 0.1.0, under the group `io.github.kleash.activiti`, with sources, javadoc and GPG signatures. They are Java 21 bytecode and run on both Activiti lines.
+Every release, starting with 1.0.0, is published to Maven Central under the group `io.github.kleash.activiti`, with sources, javadoc and GPG signatures.
 
-| Artifact | What it is |
-|---|---|
-| `activiti-dmn-connector` | runs the DMN decisions of decision tasks (Operaton DMN); the one module an exported project may need |
-| `activiti-dmn-connector-kie` | the KIE DMN engine instead, for boxed expressions and business knowledge models |
-| `activiti-scenario-runner` | runs the modeler's `*.scenario.json` files in your own JUnit tests |
-| `activiti-runtime-rest-core` | a REST API over the running engine that brings no security of its own |
-| `activiti-runtime-rest-dev` | the development endpoints of the modeler server (validate, deploy, run scenarios, workspace files); not for production |
-| `activiti-modeler-server` | the modeler server; the classifier `exec` is the runnable jar of the downloads |
+**The modeler server, `activiti-modeler-server`.** Its `exec` jar is the same runnable jar as the download. To fetch it with Maven and start it (Java 25):
+
+```bash
+mvn dependency:copy -Dartifact=io.github.kleash.activiti:activiti-modeler-server:1.0.0:jar:exec -DoutputDirectory=.
+java -jar activiti-modeler-server-1.0.0-exec.jar
+```
+
+**DMN in your own application, `activiti-dmn-connector`.** Only if your processes use decision tasks: Activiti 7 and later have no DMN engine of their own. Everything else the modeler exports runs on Activiti's `activiti-spring-boot-starter` without anything from this project.
 
 ```xml
 <dependency>
   <groupId>io.github.kleash.activiti</groupId>
   <artifactId>activiti-dmn-connector</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
-Activiti 8.x and 9.x themselves come from the Alfresco repository, which your pom still needs; the [integration guide](docs/integration-guide.md) has the snippets.
+Your pom also needs the Alfresco repository, where Activiti itself is published; the [integration guide](docs/integration-guide.md) has the snippet.
+
+Also published, for embedding and testing: `activiti-dmn-connector-kie` (the KIE DMN engine instead of Operaton), `activiti-scenario-runner` (run the modeler's scenario files in your own JUnit tests), `activiti-runtime-rest-core` (a REST API over a running engine) and `activiti-runtime-rest-dev` (the server's development endpoints, not for production). The libraries are Java 21 bytecode and run on both Activiti lines; the [integration guide](docs/integration-guide.md) describes each.
 
 ## Build from source
 
