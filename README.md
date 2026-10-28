@@ -15,6 +15,9 @@
   <a href="https://github.com/kleash/activiti-modeler/actions/workflows/codeql.yml"><img src="https://github.com/kleash/activiti-modeler/actions/workflows/codeql.yml/badge.svg?branch=main" alt="CodeQL"></a>
   <a href="https://github.com/kleash/activiti-modeler/actions/workflows/osv-scan.yml"><img src="https://github.com/kleash/activiti-modeler/actions/workflows/osv-scan.yml/badge.svg?branch=main" alt="OSV scan"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/kleash/activiti-modeler" alt="Licence: Apache 2.0"></a>
+  <a href="https://github.com/kleash/activiti-modeler/releases/latest"><img src="https://img.shields.io/github/v/release/kleash/activiti-modeler" alt="Latest release"></a>
+  <a href="https://central.sonatype.com/artifact/io.github.kleash.activiti/activiti-modeler-server"><img src="https://img.shields.io/maven-central/v/io.github.kleash.activiti/activiti-modeler-server" alt="Maven Central"></a>
+  <a href="https://github.com/kleash/homebrew-tap"><img src="https://img.shields.io/badge/brew-kleash%2Ftap%2Factiviti--modeler-fbb040?logo=homebrew&amp;logoColor=white" alt="Homebrew: brew install kleash/tap/activiti-modeler"></a>
   <br>
   <a href="#runs-on"><img src="https://img.shields.io/badge/Activiti-9.0.0%20%7C%208.8.1-1f6feb" alt="Activiti 9.0.0 and 8.8.1"></a>
   <a href="#runs-on"><img src="https://img.shields.io/badge/Java-25%20%7C%2021-ed8b00?logo=openjdk&amp;logoColor=white" alt="Java 25 and 21"></a>

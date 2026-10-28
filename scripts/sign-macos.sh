@@ -106,6 +106,8 @@ cask "activiti-modeler" do
     strategy :github_latest
   end
 
+  depends_on :macos
+
   app "Activiti Modeler.app"
 
   uninstall quit: "io.github.kleash.activiti.modeler"
