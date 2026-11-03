@@ -23,7 +23,7 @@
 # Node for the frontend plugin of stage 1, from the official image: a registry pull, where the plugin's own download from nodejs.org has no
 # timeout and no retry (it has been cut short and has stalled). It must be the version of modeler.node.version in
 # java/activiti-modeler-server/pom.xml; with another version the plugin downloads the right one itself.
-FROM --platform=$BUILDPLATFORM node:22.22.0-bookworm-slim@sha256:dd9d21971ec4395903fa6143c2b9267d048ae01ca6d3ea96f16cb30df6187d94 AS node
+FROM --platform=$BUILDPLATFORM node:26.13.0-bookworm-slim@sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9 AS node
 
 # Stage 1, the jar: a JDK builds it with the web app inside. The Maven wrapper downloads Maven, and the frontend plugin finds Node in .tools/node,
 # so the stage needs nothing else. It runs on the build machine's own CPU even for a multi-platform build (the jar and the health check class are
