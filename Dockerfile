@@ -28,7 +28,7 @@ FROM --platform=$BUILDPLATFORM node:22.22.0-bookworm-slim@sha256:dd9d21971ec4395
 # Stage 1, the jar: a JDK builds it with the web app inside. The Maven wrapper downloads Maven, and the frontend plugin finds Node in .tools/node,
 # so the stage needs nothing else. It runs on the build machine's own CPU even for a multi-platform build (the jar and the health check class are
 # the same everywhere).
-FROM --platform=$BUILDPLATFORM eclipse-temurin:25-jdk@sha256:f5b4ef3a13414837e75a0d124b28e7263690df23a780749880407768a6d42618 AS build
+FROM --platform=$BUILDPLATFORM eclipse-temurin:25-jdk@sha256:83f4a7fc27df94dcc7b8de04d14cbbba8da14406f921e966969c3b09000aa507 AS build
 WORKDIR /src
 # The Maven repository is a build cache (not part of any layer), so a rebuild does not download the libraries again.
 COPY . .
