@@ -46,7 +46,7 @@ RUN --mount=type=cache,target=/root/.m2 \
 # code, and this JDK is an Alpine build that needs musl, so the stage is Alpine), once per platform of a multi-platform build. The runtime is a
 # trimmed copy of the pinned Temurin JDK, so the version in docker/jdk-alpine.env decides its security level. The tools of this stage (bash, wget,
 # the JDK) are not in the final image: only /rootfs is copied.
-FROM alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a AS runtime
+FROM alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf AS runtime
 ARG TARGETARCH
 # build-runtime.sh is a bash script, and jlink strips the native libraries with objcopy (binutils); the Alpine base has wget (with TLS) and sha256sum.
 RUN apk add --no-cache bash binutils
